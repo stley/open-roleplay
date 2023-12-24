@@ -1,0 +1,305 @@
+
+forward Acc_OnCharFirstLoad(playerid);
+forward Acc_OnPlayerDisconnect(playerid, reason);
+forward Acc_OnUserDataSaved(playerid);
+forward Acc_OnCharDataSaved(playerid);
+forward Acc_LoadToys(playerid);
+forward Acc_OnPlayerConnect(playerid);
+forward Char_ReSpawn(playerid);
+forward Users_OnGameModeExit();
+
+public Acc_OnPlayerConnect(playerid)
+{
+	new str[129];
+	ClearPlayerVars(playerid);
+	GetPlayerName(playerid, username[playerid], MAX_PLAYER_NAME);
+	formatt(str, "Conectando_%d", playerid);
+	SetPlayerName(playerid, str);
+	return 1;
+}
+public Acc_OnCharFirstLoad(playerid)
+{
+	if(cache_num_rows())
+	{
+		orm_apply_cache(Datos[playerid][ORMPJ], 0);
+		return Dialog_Show(playerid, D_INGPJ, DIALOG_STYLE_LIST, jPJE[playerid][ChosenPJ[playerid]-1], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
+	}
+	else
+	{
+		alm(jPJE[playerid][ChosenPJ[playerid]-1], "user_none");
+		clear_chardata(playerid);
+		save_account(playerid);
+		return dialog_personajes(playerid);
+	}
+}
+forward Acc_OnCharInserted(playerid);
+public Acc_OnCharInserted(playerid){
+	new query[128];
+	mysql_format(SQLDB, query, sizeof(query), "INSERT INTO `char_toys` VALUES ('%d')", Datos[playerid][jSQLIDP]);
+	mysql_tquery(SQLDB, query);
+	save_char(playerid);
+	return 1;
+}
+Char_TextDraws(playerid){
+	Gun_Hud[playerid][0] = CreatePlayerTextDraw(playerid, 586.000, 113.000, "Vacío");
+	PlayerTextDrawLetterSize(playerid, Gun_Hud[playerid][0], 0.260, 1.500);
+    PlayerTextDrawAlignment(playerid, Gun_Hud[playerid][0], TEXT_DRAW_ALIGN_CENTER);
+    PlayerTextDrawColour(playerid, Gun_Hud[playerid][0], -1);
+    PlayerTextDrawSetShadow(playerid, Gun_Hud[playerid][0], 1);
+    PlayerTextDrawSetOutline(playerid, Gun_Hud[playerid][0], 1);
+    PlayerTextDrawBackgroundColour(playerid, Gun_Hud[playerid][0], 150);
+    PlayerTextDrawFont(playerid, Gun_Hud[playerid][0], TEXT_DRAW_FONT_2);
+    PlayerTextDrawSetProportional(playerid, Gun_Hud[playerid][0], true);
+	Gun_Hud[playerid][1] = CreatePlayerTextDraw(playerid, 611.000, 131.000, "0/0");
+	PlayerTextDrawLetterSize(playerid, Gun_Hud[playerid][1], 0.280, 1.600);
+    PlayerTextDrawAlignment(playerid, Gun_Hud[playerid][1], TEXT_DRAW_ALIGN_RIGHT);
+    PlayerTextDrawColour(playerid, Gun_Hud[playerid][1], -1);
+    PlayerTextDrawSetShadow(playerid, Gun_Hud[playerid][1], 1);
+    PlayerTextDrawSetOutline(playerid, Gun_Hud[playerid][1], 1);
+    PlayerTextDrawBackgroundColour(playerid, Gun_Hud[playerid][1], 150);
+    PlayerTextDrawFont(playerid, Gun_Hud[playerid][1], TEXT_DRAW_FONT_3);
+    PlayerTextDrawSetProportional(playerid, Gun_Hud[playerid][1], true);
+}
+
+load_character(playerid)
+{
+	Datos[playerid][EnChar] = true;
+	SetPlayerTeam(playerid, 0);
+	SetPlayerHealth(playerid, Datos[playerid][jVida]);
+	SetPlayerSkin(playerid, Datos[playerid][jRopa]);
+	SetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
+	SetPlayerInterior(playerid, Datos[playerid][jInt]);
+	SetPlayerVirtualWorld(playerid, Datos[playerid][jVW]);
+	SetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
+	GivePlayerMoney(playerid, Datos[playerid][jDinero]);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 1000);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL_SILENCED, 1000);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SAWNOFF_SHOTGUN, 1);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_DESERT_EAGLE, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SHOTGUN, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SPAS12_SHOTGUN, 1);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_MICRO_UZI, 1);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_MP5, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 800);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_M4, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SNIPERRIFLE, 400);
+	Char_TextDraws(playerid);
+	SetTimerEx("update_manos", 1000, false, "d", playerid);
+	SetTimerEx("update_torso", 1500, false, "d", playerid);
+	SetTimerEx("Acc_LoadToys", 1000, false, "d", playerid);
+	SendClientMessage(playerid, COLOR_SYSTEM, "Bienvenido, %s (%s). Tu última conexión fue el %s.", GetRPName(playerid), username[playerid], Datos[playerid][UltimaConexion]);
+	SetTimerEx("CharVeh_Load", 1500, false, "d", Datos[playerid][jSQLIDP]);
+	if(muerto[playerid] == 1){
+		muerto[playerid] = 0;
+		Wound_LowerLife(playerid, 99.9, INVALID_PLAYER_ID);
+	}
+	else if(muerto[playerid] == 2){
+		muerto[playerid] = 1;
+		Wound_LowerLife(playerid, 99.9, INVALID_PLAYER_ID);
+	}
+	return 1;
+}
+
+public Char_ReSpawn(playerid){
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 1000);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL_SILENCED, 1000);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SAWNOFF_SHOTGUN, 1);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_DESERT_EAGLE, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SHOTGUN, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SPAS12_SHOTGUN, 1);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_MICRO_UZI, 1);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_MP5, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 800);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_M4, 999);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SNIPERRIFLE, 400);
+	Char_TextDraws(playerid);
+	SetTimerEx("update_manos", 1000, false, "d", playerid);
+	SetTimerEx("update_torso", 1500, false, "d", playerid);
+	SetTimerEx("Acc_LoadToys", 1000, false, "d", playerid);
+}
+
+public Acc_LoadToys(playerid){
+	new query[128];
+	mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `char_toys` WHERE `character_id` = '%d'", Datos[playerid][jSQLIDP]);
+	new Cache:ToyCache = mysql_query(SQLDB, query);
+	cache_set_active(ToyCache);
+	if(cache_num_rows()){
+		orm_apply_cache(CharToys[playerid][ORM_toy], 0);
+	
+		new modelid;
+		if(CharToys[playerid][jToy_Gorro]){
+			modelid = ObjetoInfo[CharToys[playerid][jToy_Gorro]][ModeloObjeto];
+			SetPlayerAttachedObject(playerid, 4, modelid, 2, CharToys[playerid][GorroPos][0], CharToys[playerid][GorroPos][1], CharToys[playerid][GorroPos][2], CharToys[playerid][GorroRot][0], CharToys[playerid][GorroRot][1], CharToys[playerid][GorroRot][2], CharToys[playerid][GorroScale][0], CharToys[playerid][GorroScale][1], CharToys[playerid][GorroScale][2]);
+		}
+		if(CharToys[playerid][jToy_Gafas]){
+			modelid = ObjetoInfo[CharToys[playerid][jToy_Gafas]][ModeloObjeto];
+			SetPlayerAttachedObject(playerid, 5, modelid, 2, CharToys[playerid][GafasPos][0], CharToys[playerid][GafasPos][1], CharToys[playerid][GafasPos][2], CharToys[playerid][GafasRot][0], CharToys[playerid][GafasRot][1], CharToys[playerid][GafasRot][2], CharToys[playerid][GafasScale][0], CharToys[playerid][GafasScale][1], CharToys[playerid][GafasScale][2]);
+		}
+		if(CharToys[playerid][jToy_Boca]){
+			modelid = ObjetoInfo[CharToys[playerid][jToy_Boca]][ModeloObjeto];
+			SetPlayerAttachedObject(playerid, 6, modelid, 2, CharToys[playerid][BocaPos][0], CharToys[playerid][BocaPos][1], CharToys[playerid][BocaPos][2], CharToys[playerid][BocaRot][0], CharToys[playerid][BocaRot][1], CharToys[playerid][BocaRot][2], CharToys[playerid][BocaScale][0], CharToys[playerid][BocaScale][1], CharToys[playerid][BocaScale][2]);
+		}
+		if(CharToys[playerid][jToy_Pecho]){
+			modelid = ObjetoInfo[CharToys[playerid][jToy_Pecho]][ModeloObjeto];
+			SetPlayerAttachedObject(playerid, 7, modelid, 1, CharToys[playerid][PechoPos][0], CharToys[playerid][PechoPos][1], CharToys[playerid][PechoPos][2], CharToys[playerid][PechoRot][0], CharToys[playerid][PechoRot][1], CharToys[playerid][PechoRot][2], CharToys[playerid][PechoScale][0], CharToys[playerid][PechoScale][1], CharToys[playerid][PechoScale][2]);	
+		}
+	}
+	cache_delete(ToyCache);
+	return 1;
+}
+public Acc_OnUserDataSaved(playerid) return 1;
+public Acc_OnCharDataSaved(playerid){
+	orm_clear_vars(CharToys[playerid][ORM_toy]);
+	return 1;
+}
+clear_chardata(playerid)
+{
+	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM) orm_destroy(Datos[playerid][ORMPJ]);
+	Datos[playerid][jSQLIDP] = 0;
+	Datos[playerid][EnChar] = false;
+	alm(Datos[playerid][jNombrePJ], "-");
+	alm(Datos[playerid][jUsuario], "-");
+	alm(Datos[playerid][jFechaCreacion], "-");
+	Datos[playerid][jMano][0] = 0;
+	Datos[playerid][jManoCant][0] = 0;
+    Datos[playerid][jMano][1] = 0;
+	Datos[playerid][jManoCant][1] = 0;
+	Datos[playerid][jPecho] = 0;
+	Datos[playerid][jPechoCant] = 0;
+	Datos[playerid][jEspalda] = 0;
+	Datos[playerid][jEspaldaCant] = 0;
+	Datos[playerid][jEspaldaData] = 0;
+	Datos[playerid][jPechoData] = 0;
+    for(new bol; bol < 5; bol++)
+	{
+        Datos[playerid][jBolsillo][bol] = 0;
+	    Datos[playerid][jBolsilloCant][bol] = 0;
+	    Datos[playerid][jBolsilloData][bol] = 0;
+    }
+	Datos[playerid][jLicencias][0] = 0;
+    Datos[playerid][jLicencias][1] = 0;
+	Datos[playerid][jCoche][0] = 0;
+	Datos[playerid][jCocheLlaves][0] = 0;
+    Datos[playerid][jCoche][1] = 0;
+	Datos[playerid][jCocheLlaves][1] = 0;
+	Datos[playerid][jCasa][0] = 0;
+    Datos[playerid][jCasa][1] = 0;
+    Datos[playerid][jCasaLlaves] = 0;
+	Datos[playerid][jNivel] = 0;
+	Datos[playerid][jExp] = 0;
+	Datos[playerid][jHoras] = 0;
+	Datos[playerid][jPuntosRol] = 0;
+	Datos[playerid][jPuntosRolNeg] = 0;
+	Datos[playerid][jEdad] = 0;
+	Datos[playerid][jSexo] = 0;
+	Datos[playerid][jDinero] = 0;
+	Datos[playerid][jRopa] = 0;
+	muerto[playerid] = 0;
+	Datos[playerid][jVida] = 0;
+	Datos[playerid][jChaleco] = 0;
+	Datos[playerid][jPosX] = 0.0;
+	Datos[playerid][jPosY] = 0.0;
+	Datos[playerid][jPosZ] = 0.0;
+	Datos[playerid][jPosR] = 0.0;
+	Datos[playerid][jVW] = 0;
+	Datos[playerid][jInt] = 0;
+	Datos[playerid][jFaccion] = 0;
+	Datos[playerid][jRango] = 0;
+	Datos[playerid][jDiv] = 0;
+	Datos[playerid][jFaccion2] = 0;
+	Datos[playerid][jRangoFac2] = 0;
+	Datos[playerid][jDiv2] = 0;
+	Datos[playerid][jDocumento] = 0;
+
+	//no guardables
+	DentroCasa[playerid] = 0;
+	DentroNegocio[playerid] = 0;
+	EditType[playerid] = 0;
+	solicitante[playerid] = -1;
+	solicitud_tipo[playerid] = 0;
+	solicitud_timer[playerid] = 0;
+	esposado[playerid] = 0;
+	asesino[playerid] = "-";
+	checkpoints[playerid] = 0;
+	CinturonV[playerid] = 0;
+	CanRespawn[playerid] = true;
+	KillTimer(RespawnTime[playerid]);
+	KillTimer(SuccumbTime[playerid]);
+}
+clear_account_data(playerid)
+{
+	if(Datos[playerid][ORMID] != MYSQL_INVALID_ORM) orm_destroy(Datos[playerid][ORMID]);
+	a_perms[playerid] = 0;
+	alm(Datos[playerid][jNombre], "-");
+	alm(Datos[playerid][jEmail], "-");
+	alm(Datos[playerid][FechaReg], "-");
+	alm(Datos[playerid][UltimaConexion], "-");
+	alm(Datos[playerid][jClave], "-");
+	alm(Datos[playerid][jIP], "-");
+	Datos[playerid][jSQLID] = 0;
+	Datos[playerid][jAdmin] = 0;
+	Datos[playerid][jCreditos] = 0;
+	alm(jPJE[playerid][0], "user_none");
+	alm(jPJE[playerid][1], "user_none");
+	alm(jPJE[playerid][2], "user_none");
+	Datos[playerid][LoggedIn] = false;
+}
+ClearPlayerVars(playerid)
+{
+	clear_account_data(playerid);
+	clear_chardata(playerid);
+	return 1;	
+}
+save_account(playerid){
+	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM) printf("ORMID playerid %d invalida", playerid);
+	return orm_update(Datos[playerid][ORMID], "OnUserDataSaved", "d", playerid);
+}
+save_char(playerid)
+{
+	GetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
+	GetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
+	Datos[playerid][jInt] = GetPlayerInterior(playerid);
+	Datos[playerid][jVW] = GetPlayerVirtualWorld(playerid);
+	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM) printf("ORMPJ playerid %d invalida", playerid);
+	orm_update(CharToys[playerid][ORM_toy]);
+	return orm_update(Datos[playerid][ORMPJ], "OnCharDataSaved", "d", playerid);
+}
+
+public Acc_OnPlayerDisconnect(playerid, reason)
+{
+	if(Datos[playerid][LoggedIn] == true)
+	{
+		new query[128];
+		save_account(playerid);
+		if(Datos[playerid][EnChar] == true)
+		{
+			save_char(playerid);
+		}
+		mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `online` = 0 WHERE `Nombre` = '%e'", username[playerid]);
+		mysql_tquery(SQLDB, query);
+		SetPlayerTeam(playerid, NO_TEAM);
+	}
+	for(new i; i < MAX_VEHICULOS; i++){
+		if(vehData[i][veh_SQLID] == Datos[playerid][jCoche][0] || vehData[i][veh_SQLID] == Datos[playerid][jCoche][1]){
+			if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
+			vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+		}
+	}
+	if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);
+	ClearPlayerVars(playerid);
+	return 1;
+}
+
+public Users_OnGameModeExit(){
+	for(new i; i < MAX_PLAYERS; i++){
+		if(IsPlayerConnected(i)){
+			if(Datos[i][EnChar] == true) save_char(i);
+			else if(Datos[i][LoggedIn] == true) save_account(i);
+			ClearPlayerVars(i);
+			SetTimerEx("Kick", 1000, false, "d", i);
+			continue;
+		}
+		else continue;
+	}
+	return 1;
+}
