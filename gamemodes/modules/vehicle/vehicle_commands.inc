@@ -1,4 +1,4 @@
-CMD:miscoches(playerid){
+    CMD:miscoches(playerid){
     if(!IsPlayerConnected(playerid)) return 1;
     new dlg[1024];
     new buff[128];
@@ -363,6 +363,7 @@ CMD:mal(playerid){
         
     }
     if(idex != -1 && currdist < 6.8){
+        
         if(!has_keys){
             if(Datos[playerid][jCoche][0] == vehData[idex][veh_SQLID]) has_keys = 1;
             else if(Datos[playerid][jCoche][1] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
@@ -371,37 +372,53 @@ CMD:mal(playerid){
             if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
             new dlg[3000];
             new dlg_buff[136];
-            for(new x; x < vehData[idex][veh_Espacio]; x++){
+            for(new x; x < vehData[idex][veh_EspacioMal]; x++){
                 if(vehData[idex][veh_Maletero][x]){
-                    formatt(dlg_buff, "[%d] %s (%d) [%d]", x, ObjetoInfo[x])
-                }    
+                    formatt(dlg_buff, "[%d] %s (%d) [%d]\n", x, ObjetoInfo[vehData[idex][veh_Maletero][x]][NombreObjeto], vehData[idex][veh_MaleteroCant][x], vehData[idex][veh_MaleteroData][x]);
+                    continue;
+                }
+                formatt(dlg_buff, "[%d] Vacío\n", x);
+                strcat(dlg, dlg_buff);    
             }
+            if(Datos[playerid][jMano][0]){
+                strcat(dlg, "————————\n");
+                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
+                strcat(dlg, dlg_buff);
+            }
+            if(Datos[playerid][jMano][1]){
+                if(!Datos[playerid][jMano][0]) strcat(dlg, "————————\n");
+                formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
+                strcat(dlg, dlg_buff);
+            }
+            Dialog_Show(playerid, vehicle_trunk, DIALOG_STYLE_LIST, "Maletero del vehículo", dlg, "Seleccionar", "Cerrar");
         }
         else{
-
             new dlg[3000];
             new dlg_buff[136];
-            for(new x; x < vehData[idex][veh_Espacio]; x++){
+            for(new x; x < vehData[idex][veh_EspacioMal]; x++){
                 if(vehData[idex][veh_Maletero][x]){
                     formatt(dlg_buff, "[%d] %s (%d) [%d]\n", x, ObjetoInfo[vehData[idex][veh_Maletero][x]][NombreObjeto], vehData[idex][veh_MaleteroCant][x], vehData[idex][veh_MaleteroData][x]);
                     strcat(dlg, dlg_buff);
                     continue;
                 }
-                formatt(dlg_buff, "[%d] Vacío\n");
-                strcat(dlg, dlg_buff)    
+                else{
+                    formatt(dlg_buff, "[%d] Vacío\n", x);
+                    strcat(dlg, dlg_buff);    
+                }
             }
             if(Datos[playerid][jMano][0]){
-                strcat(dlg, "————————");
-                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
+                strcat(dlg, "————————\n");
+                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]\n", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
                 strcat(dlg, dlg_buff);
             }
             if(Datos[playerid][jMano][1]){
-                strcat(dlg, "————————");
+                if(!Datos[playerid][jMano][0]) strcat(dlg, "————————\n");
                 formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
                 strcat(dlg, dlg_buff);
-                
             }
             Dialog_Show(playerid, vehicle_trunk, DIALOG_STYLE_LIST, "Maletero del vehículo", dlg, "Seleccionar", "Cerrar");
         }
+        SetPVarInt(playerid, "veh_mal", idex);
     }
+    return 1;
 }
