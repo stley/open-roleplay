@@ -69,6 +69,10 @@ Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
     return 1;
 }
 
+Dialog:vehicle_trunk(playerid, response, listitem, inputtext[]){
+
+}
+
 Dialog:CharVeh_Op(playerid, response, listitem, inputtext[]){
     if(!response){
         PC_EmulateCommand(playerid, "/miscoches");

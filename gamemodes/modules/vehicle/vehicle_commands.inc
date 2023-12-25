@@ -323,3 +323,85 @@ CMD:prestarveh(playerid, params[]){
     }
     return 1;
 }
+
+CMD:mal(playerid){
+    new 
+        Float:veh_pos[3],
+        idex = -1,
+        Float:currdist = 30.0,
+        has_keys
+    ;
+    for(new i; i < MAX_VEHICULOS; i++){
+        if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
+
+            if(IsPlayerInVehicle(playerid, vehData[i][veh_vID])){
+                if(vehData[i][veh_Tipo] == 1){
+                    
+                    if(Datos[playerid][jCoche][0] == vehData[i][veh_SQLID]) idex = i;
+                    else if(Datos[playerid][jCoche][1] == vehData[i][veh_SQLID] && idex == -1) idex = i;
+                    else if(Datos[playerid][jCocheLlaves][0] == vehData[i][veh_SQLID] && idex == -1) idex = i;
+                    else if(Datos[playerid][jCocheLlaves][1] == vehData[i][veh_SQLID] && idex == -1) idex = i;
+                    if(idex != -1) has_keys = 1;
+                    else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes las llaves de este vehículo.");
+                    break;
+                }
+                else if(vehData[i][veh_Tipo] == 2){
+
+                }
+            }
+            if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
+                if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
+                    GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
+                    if(GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]) < currdist){
+                        idex = i;
+                        currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
+                        continue;
+                    }
+                }
+            }
+        }
+        
+    }
+    if(idex != -1 && currdist < 6.8){
+        if(!has_keys){
+            if(Datos[playerid][jCoche][0] == vehData[idex][veh_SQLID]) has_keys = 1;
+            else if(Datos[playerid][jCoche][1] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
+            else if(Datos[playerid][jCocheLlaves][0] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
+            else if(Datos[playerid][jCocheLlaves][1] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
+            if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
+            new dlg[3000];
+            new dlg_buff[136];
+            for(new x; x < vehData[idex][veh_Espacio]; x++){
+                if(vehData[idex][veh_Maletero][x]){
+                    formatt(dlg_buff, "[%d] %s (%d) [%d]", x, ObjetoInfo[x])
+                }    
+            }
+        }
+        else{
+
+            new dlg[3000];
+            new dlg_buff[136];
+            for(new x; x < vehData[idex][veh_Espacio]; x++){
+                if(vehData[idex][veh_Maletero][x]){
+                    formatt(dlg_buff, "[%d] %s (%d) [%d]\n", x, ObjetoInfo[vehData[idex][veh_Maletero][x]][NombreObjeto], vehData[idex][veh_MaleteroCant][x], vehData[idex][veh_MaleteroData][x]);
+                    strcat(dlg, dlg_buff);
+                    continue;
+                }
+                formatt(dlg_buff, "[%d] Vacío\n");
+                strcat(dlg, dlg_buff)    
+            }
+            if(Datos[playerid][jMano][0]){
+                strcat(dlg, "————————");
+                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
+                strcat(dlg, dlg_buff);
+            }
+            if(Datos[playerid][jMano][1]){
+                strcat(dlg, "————————");
+                formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
+                strcat(dlg, dlg_buff);
+                
+            }
+            Dialog_Show(playerid, vehicle_trunk, DIALOG_STYLE_LIST, "Maletero del vehículo", dlg, "Seleccionar", "Cerrar");
+        }
+    }
+}
