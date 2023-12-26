@@ -268,6 +268,60 @@ CMD:usar(playerid){
                 SendClientMessage(playerid, COLOR_DARKRED, "Ya tienes un objeto en ese slot, quitate ese objeto y vuelve a intentarlo.");
                 return 1;
             }
+            switch(data[0]){
+                case 4:{
+                    //Gorro
+                    if(CharToys[playerid][GorroPos][0] != 0.0){
+                        CharToys[playerid][jToy_Gorro] = manoder;
+                        SetPlayerAttachedObject(playerid, data[0], ObjetoInfo[manoder][ModeloObjeto], data[1], CharToys[playerid][GorroPos][0], CharToys[playerid][GorroPos][1], CharToys[playerid][GorroPos][2], CharToys[playerid][GorroRot][0], CharToys[playerid][GorroRot][1], CharToys[playerid][GorroRot][2], CharToys[playerid][GorroScale][0], CharToys[playerid][GorroScale][1], CharToys[playerid][GorroScale][2]);
+                        SendClientMessage(playerid, COLOR_DARKGREEN, "Te colocaste tu %s. Utiliza /editaracc para modificar su posición.", ObjetoInfo[manoder][NombreObjeto]);
+                        Datos[playerid][jMano][0] = 0;
+                        Datos[playerid][jManoCant] = 0;
+                        Datos[playerid][jManoData] = 0;
+                        update_manos(playerid);
+                        return 1;
+                    }
+                }
+                case 5:{
+                    //Gafas
+                    if(CharToys[playerid][GafasPos][0] != 0.0){
+                        CharToys[playerid][jToy_Gafas] = manoder;
+                        SetPlayerAttachedObject(playerid, data[0], ObjetoInfo[manoder][ModeloObjeto], data[1], CharToys[playerid][GafasPos][0], CharToys[playerid][GafasPos][1], CharToys[playerid][GafasPos][2], CharToys[playerid][GafasRot][0], CharToys[playerid][GafasRot][1], CharToys[playerid][GafasRot][2], CharToys[playerid][GafasScale][0], CharToys[playerid][GafasScale][1], CharToys[playerid][GafasScale][2]);
+                        SendClientMessage(playerid, COLOR_DARKGREEN, "Te colocaste tu %s. Utiliza /editaracc para modificar su posición.", ObjetoInfo[manoder][NombreObjeto]);
+                        Datos[playerid][jMano][0] = 0;
+                        Datos[playerid][jManoCant] = 0;
+                        Datos[playerid][jManoData] = 0;
+                        update_manos(playerid);
+                        return 1;
+                    }
+                }
+                case 6:{
+                    //Boca
+                    if(CharToys[playerid][BocaPos][0] != 0.0){
+                        CharToys[playerid][jToy_Boca] = manoder;
+                        SetPlayerAttachedObject(playerid, data[0], ObjetoInfo[manoder][ModeloObjeto], data[1], CharToys[playerid][BocaPos][0], CharToys[playerid][BocaPos][1], CharToys[playerid][BocaPos][2], CharToys[playerid][BocaRot][0], CharToys[playerid][BocaRot][1], CharToys[playerid][BocaRot][2], CharToys[playerid][BocaScale][0], CharToys[playerid][BocaScale][1], CharToys[playerid][BocaScale][2]);
+                        SendClientMessage(playerid, COLOR_DARKGREEN, "Te colocaste tu %s. Utiliza /editaracc para modificar su posición.", ObjetoInfo[manoder][NombreObjeto]);
+                        Datos[playerid][jMano][0] = 0;
+                        Datos[playerid][jManoCant] = 0;
+                        Datos[playerid][jManoData] = 0;
+                        update_manos(playerid);
+                        return 1;
+                    }
+                }
+                case 7:{
+                    //Pecho
+                    if(CharToys[playerid][PechoPos][0] != 0.0){
+                        CharToys[playerid][jToy_Pecho] = manoder;
+                        SetPlayerAttachedObject(playerid, data[0], ObjetoInfo[manoder][ModeloObjeto], data[1], CharToys[playerid][PechoPos][0], CharToys[playerid][PechoPos][1], CharToys[playerid][PechoPos][2], CharToys[playerid][PechoRot][0], CharToys[playerid][PechoRot][1], CharToys[playerid][PechoRot][2], CharToys[playerid][PechoScale][0], CharToys[playerid][PechoScale][1], CharToys[playerid][PechoScale][2]);
+                        SendClientMessage(playerid, COLOR_DARKGREEN, "Te colocaste tu %s. Utiliza /editaracc para modificar su posición.", ObjetoInfo[manoder][NombreObjeto]);
+                        Datos[playerid][jMano][0] = 0;
+                        Datos[playerid][jManoCant] = 0;
+                        Datos[playerid][jManoData] = 0;
+                        update_manos(playerid);
+                        return 1;
+                    }
+                }
+            }
             SetPlayerAttachedObject(playerid, data[0], ObjetoInfo[manoder][ModeloObjeto], data[1]);
             EditAttachedObject(playerid, data[0]);
             EditType[playerid] = 1;
@@ -599,6 +653,7 @@ CMD:rellenarmag(playerid){
     if(balasagregadas){
         SendClientMessage(playerid, COLOR_DARKGREEN, "Agregaste %d balas a tu cargador.", balasagregadas);
     }
+    update_manos(playerid);
     return 1;
 }
 CMD:recoger(playerid){

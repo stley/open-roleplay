@@ -70,7 +70,40 @@ Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
 }
 
 Dialog:vehicle_trunk(playerid, response, listitem, inputtext[]){
-
+    new idex = GetPVarInt(playerid, "veh_mal");
+    if(!idex) return 0;
+    idex--;
+    DeletePVar(playerid, "veh_mal");
+    if(!response){
+        vehData[idex][veh_Trunk] = false;
+        SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
+        Vehicles_Trunk(idex);
+        return 1;
+    }
+    new espacio = vehData[idex][veh_EspacioMal]-1;
+    if(listitem > espacio){
+        if(listitem != espacio){
+            if(listitem == espacio+1){
+                if(!Datos[playerid][jMano][0]){
+                    for(new i; i < vehData[idex][veh_EspacioMal]; i++){
+                        if(!vehData[idex][veh_Maletero][i]){
+                            SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
+                            vehData[idex][veh_Maletero][i] = Datos[playerid][jMano][1];
+                            Datos[playerid][jMano][1] = 0;
+                            vehData[idex][veh_Maletero][i] = Datos[playerid][jManoCant][1];
+                            Datos[playerid][jManoCant][1] = 0;
+                            vehData[idex][veh_Maletero][i] = Datos[playerid][jManoData][1];
+                            Datos[playerid][jManoData][1] = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
+    vehData[idex][veh_Trunk] = false;
+    Vehicles_Trunk(idex);
+    return 1;
 }
 
 Dialog:CharVeh_Op(playerid, response, listitem, inputtext[]){

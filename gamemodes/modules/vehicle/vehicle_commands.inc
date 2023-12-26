@@ -64,12 +64,12 @@ CMD:motor(playerid){
             new model = GetVehicleModel(vehData[i][veh_vID]);
             if(!vehData[i][veh_Engine]){
                 formatt(action, "enciende el motor de su %s", Model_RtrName(model));
-                vehData[i][veh_Engine] = _:VEHICLE_PARAMS_ON;
+                vehData[i][veh_Engine] = true;
                 SetTimerEx("Vehicles_Engine", 1500, false, "d", i);
             }
             else{
                 formatt(action, "apaga el motor de su %s", Model_RtrName(model));
-                vehData[i][veh_Engine] = _:VEHICLE_PARAMS_OFF;
+                vehData[i][veh_Engine] = false;
                 Vehicles_Engine(i);
             }
             accion_player(playerid, 0, action);
@@ -98,12 +98,7 @@ CMD:cinturon(playerid){
 CMD:luces(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehículo.");
     new playerveh = GetPlayerVehicleID(playerid);
-    for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_vID] == playerveh){
-            vehData[i][veh_Lights] = (!vehData[i][veh_Lights]) ? true : false;
-            Vehicles_Lights(i);
-        }
-    }
+    Vehicles_Lights(playerveh);
     return 1;
 }
 
@@ -323,7 +318,6 @@ CMD:prestarveh(playerid, params[]){
     }
     return 1;
 }
-
 CMD:mal(playerid){
     new 
         Float:veh_pos[3],
@@ -370,6 +364,7 @@ CMD:mal(playerid){
             else if(Datos[playerid][jCocheLlaves][0] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
             else if(Datos[playerid][jCocheLlaves][1] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
             if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
+            if(vehData[idex][veh_Trunk]) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes interactuar con este maletero aún.");
             new dlg[3000];
             new dlg_buff[136];
             for(new x; x < vehData[idex][veh_EspacioMal]; x++){
@@ -382,7 +377,7 @@ CMD:mal(playerid){
             }
             if(Datos[playerid][jMano][0]){
                 strcat(dlg, "————————\n");
-                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
+                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]\n", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
                 strcat(dlg, dlg_buff);
             }
             if(Datos[playerid][jMano][1]){
@@ -390,9 +385,12 @@ CMD:mal(playerid){
                 formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
                 strcat(dlg, dlg_buff);
             }
+            vehData[idex][veh_Trunk] = true;
+            Vehicles_Trunk(idex);           
             Dialog_Show(playerid, vehicle_trunk, DIALOG_STYLE_LIST, "Maletero del vehículo", dlg, "Seleccionar", "Cerrar");
         }
         else{
+            if(vehData[idex][veh_Trunk]) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes interactuar con este maletero aún.");
             new dlg[3000];
             new dlg_buff[136];
             for(new x; x < vehData[idex][veh_EspacioMal]; x++){
@@ -416,9 +414,12 @@ CMD:mal(playerid){
                 formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
                 strcat(dlg, dlg_buff);
             }
+            vehData[idex][veh_Trunk] = true;
+            Vehicles_Trunk(idex);
             Dialog_Show(playerid, vehicle_trunk, DIALOG_STYLE_LIST, "Maletero del vehículo", dlg, "Seleccionar", "Cerrar");
         }
-        SetPVarInt(playerid, "veh_mal", idex);
+        SetPVarInt(playerid, "veh_mal", idex+1);
     }
     return 1;
 }
+alias:mal("maletero")

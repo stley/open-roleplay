@@ -1,6 +1,7 @@
 //gamemode
 public OnGameModeInit()
 {
+	ManualVehicleEngineAndLights();
 	DisableInteriorEnterExits();
     CallLocalFunction("SQL_OnGameModeInit");
     CallLocalFunction("Models_OnGameModeInit");
@@ -22,6 +23,7 @@ public OnPlayerConnect(playerid){
 
 public OnPlayerDisconnect(playerid, reason){
 	CallLocalFunction("Acc_OnPlayerDisconnect", "dd", playerid, reason);
+	CallLocalFunction("Ply_OnPlayerDisconnect", "dd", playerid, reason);
 	return 1;
 }
 public OnPlayerRequestClass(playerid, classid){

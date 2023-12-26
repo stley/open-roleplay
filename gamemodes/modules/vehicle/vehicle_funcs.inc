@@ -4,7 +4,9 @@ forward OnVehicleUpdate();
 forward Vehicles_OnPlayerExitVehicle(playerid, vehicleid);
 forward Vehicles_Engine(idex);
 forward Vehicles_Lock(idex);
-forward Vehicles_Lights(idex);
+forward Vehicles_Lights(vehicleid);
+forward Vehicles_Trunk(idex);
+forward Vehicles_Hood(idex);
 forward Vehicles_OnVehicleUpdate();
 forward Vehicles_OnCharVehLoad(playerid);
 forward Vehicles_OnCharVehicleCreated(creatorid, ownerid, modelid, index, slot);
@@ -33,6 +35,8 @@ public Vehicles_OnGameModeExit(){
     }
     return 1;
 }
+
+
 
 
 public CharVeh_Load(charid){
@@ -89,25 +93,43 @@ public Vehicles_Engine(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
-    if(vehData[idex][veh_Engine] == _:VEHICLE_PARAMS_ON) SetVehicleParamsEx(vehData[idex][veh_vID], VEHICLE_PARAMS_ON, lights, alarm, doors, bonnet, boot, objective);
-    else SetVehicleParamsEx(vehData[idex][veh_vID], VEHICLE_PARAMS_OFF, lights, alarm, doors, bonnet, boot, objective);
+    if(vehData[idex][veh_Engine] == true) SetVehicleParamsEx(vehData[idex][veh_vID], true, lights, alarm, doors, bonnet, boot, objective);
+    else SetVehicleParamsEx(vehData[idex][veh_vID], false, lights, alarm, doors, bonnet, boot, objective);
     return 1;
 }
 public Vehicles_Lock(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
-    if(vehData[idex][veh_Bloqueo] == _:VEHICLE_PARAMS_ON) SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, VEHICLE_PARAMS_ON, bonnet, boot, objective); 
-    else SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, VEHICLE_PARAMS_OFF, bonnet, boot, objective); 
+    if(vehData[idex][veh_Bloqueo] == 1) SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, true, bonnet, boot, objective); 
+    else SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, false, bonnet, boot, objective); 
     return 1;
 }
-public Vehicles_Lights(idex){
+public Vehicles_Lights(vehicleid){
+    
+    new
+        bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
+    GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
+    SetVehicleParamsEx(vehicleid, engine, (lights) ? false : true, alarm, doors, bonnet, boot, objective); 
+    return 1;
+}
+
+public Vehicles_Trunk(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
-    SetVehicleParamsEx(vehData[idex][veh_vID], engine, vehData[idex][veh_Lights], alarm, doors, bonnet, boot, objective); 
+    SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, vehData[idex][veh_Trunk], objective);      
     return 1;
 }
+
+public Vehicles_Hood(idex){
+    new
+        bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
+    GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
+    SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, vehData[idex][veh_Hood], boot, objective);      
+    return 1;
+}
+
 
 public OnVehicleUpdate()
 {
@@ -151,9 +173,7 @@ public Vehicles_OnPlayerLeaveCheckpoint(playerid){
 
 public Vehicles_OnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
     for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_vID] != INVALID_VEHICLE_ID || vehData[i][veh_vID] == vehicleid){
-            if(!ispassenger) Vehicles_Engine(i);
-            if(vehData[i][veh_Bloqueo]) Vehicles_Lock(i);
+        if(vehData[i][veh_vID] != INVALID_VEHICLE_ID && vehData[i][veh_vID] == vehicleid){
             GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
             GetVehicleZAngle(vehData[i][veh_vID], vehData[i][veh_PosR]);
             vehData[i][veh_Interior] = GetVehicleInterior(vehData[i][veh_vID]);
@@ -320,9 +340,8 @@ clear_vehiclevars(index){
         vehData[index][veh_MaleteroCant][m] = 0;
         vehData[index][veh_MaleteroData][m] = 0;
     }
-    vehData[index][veh_Engine] = 0;
-    vehData[index][veh_Lights] = false;
-    vehData[index][veh_Bonnet] = 0;
-    vehData[index][veh_Trunk] = 0;
+    vehData[index][veh_Engine] = false;
+    vehData[index][veh_Hood] = false;
+    vehData[index][veh_Trunk] = false;
     return 1;
 }

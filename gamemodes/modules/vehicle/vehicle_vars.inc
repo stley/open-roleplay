@@ -36,10 +36,9 @@ enum vehInfo
     veh_GunrackCant,
     veh_GunrackData,
     //
-    veh_Engine,
-    bool:veh_Lights,
-    veh_Bonnet,
-    veh_Trunk
+    bool:veh_Engine,
+    bool:veh_Trunk,
+    bool:veh_Hood
 }
 new vehData[MAX_VEHICULOS][vehInfo];
 new vehTimer[MAX_VEHICULOS];

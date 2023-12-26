@@ -80,7 +80,7 @@ load_character(playerid)
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_SPAS12_SHOTGUN, 1);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_MICRO_UZI, 1);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_MP5, 999);
-	SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 800);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 999);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_M4, 999);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_SNIPERRIFLE, 400);
 	Char_TextDraws(playerid);

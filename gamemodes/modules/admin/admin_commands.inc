@@ -344,6 +344,8 @@ CMD:fixveh(playerid){
             vehData[i][veh_DmgLuces] = VEHICLE_LIGHT_STATUS_NONE;
             vehData[i][veh_DmgRuedas] = VEHICLE_TYRE_STATUS_NONE;
             SendClientMessage(playerid, COLOR_GREEN, "Reparaste el vehículo ID %d.", vehData[i][veh_vID]);
+            new bool:alarm, bool:lights;
+            GetVehicleParamsEx(vehData[i][veh_vID], bool:vehData[i][veh_Engine], lights, alarm, bool:vehData[i][veh_Bloqueo], bool:vehData[i][veh_Hood], bool:vehData[i][veh_Trunk]);
         }
     }
     return 1;
