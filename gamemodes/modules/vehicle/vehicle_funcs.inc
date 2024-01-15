@@ -97,6 +97,14 @@ public Vehicles_Engine(idex){
     else SetVehicleParamsEx(vehData[idex][veh_vID], false, lights, alarm, doors, bonnet, boot, objective);
     return 1;
 }
+ Veh_Engine(vehicleid){
+    new
+        bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
+    GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
+    if(engine == false) SetVehicleParamsEx(vehicleid, true, lights, alarm, doors, bonnet, boot, objective);
+    else SetVehicleParamsEx(vehicleid, false, lights, alarm, doors, bonnet, boot, objective);
+    return 1;
+}
 public Vehicles_Lock(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;

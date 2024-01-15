@@ -76,6 +76,8 @@ CMD:motor(playerid){
             return 1;
         }
     }
+    if(GetPlayerVehicleSeat(playerid) != 0) return SendClientMessage(playerid, COLOR_DARKRED, "No eres el conductor del vehículo.");
+    Veh_Engine(GetPlayerVehicleID(playerid));
     return 1;
 }
 
@@ -325,24 +327,10 @@ CMD:mal(playerid){
         Float:currdist = 30.0,
         has_keys
     ;
+    if(IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes hacer eso estando dentro de un vehículo.");
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
 
-            if(IsPlayerInVehicle(playerid, vehData[i][veh_vID])){
-                if(vehData[i][veh_Tipo] == 1){
-                    
-                    if(Datos[playerid][jCoche][0] == vehData[i][veh_SQLID]) idex = i;
-                    else if(Datos[playerid][jCoche][1] == vehData[i][veh_SQLID] && idex == -1) idex = i;
-                    else if(Datos[playerid][jCocheLlaves][0] == vehData[i][veh_SQLID] && idex == -1) idex = i;
-                    else if(Datos[playerid][jCocheLlaves][1] == vehData[i][veh_SQLID] && idex == -1) idex = i;
-                    if(idex != -1) has_keys = 1;
-                    else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes las llaves de este vehículo.");
-                    break;
-                }
-                else if(vehData[i][veh_Tipo] == 2){
-
-                }
-            }
             if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
                 if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
                     GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
@@ -354,10 +342,8 @@ CMD:mal(playerid){
                 }
             }
         }
-        
     }
     if(idex != -1 && currdist < 6.8){
-        
         if(!has_keys){
             if(Datos[playerid][jCoche][0] == vehData[idex][veh_SQLID]) has_keys = 1;
             else if(Datos[playerid][jCoche][1] == vehData[idex][veh_SQLID] && has_keys == -1) has_keys = 1;
@@ -422,4 +408,5 @@ CMD:mal(playerid){
     }
     return 1;
 }
+alias:miscoches("coches")
 alias:mal("maletero")
