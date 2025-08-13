@@ -42,6 +42,10 @@ stock GetRPName(playerid) return Name_sin(GetName(playerid));
 public OnPlayerText(playerid, text[]){
     new dice[200];
     new Float:distancia;
+	if(muerto[playerid] == 2){
+		SendClientMessage(playerid, COLOR_DARKRED, "No puedes hablar muerto!");
+		return 0;
+	}
     formatt(dice, "%s dice: %s", Name_sin(GetName(playerid)), text);
     if (GetPlayerInterior(playerid) != 0 && GetPlayerVirtualWorld(playerid) != 0){
 		if (IsPlayerInAnyVehicle(playerid)) distancia = 7.0;
@@ -73,8 +77,7 @@ public ProxDetector(Float:radi, playerid, string[], color1, color2, color3, colo
 			checkPos[p] = (oldPos[p] - currentPos[p]);
 		}
 
-		if (GetPlayerVirtualWorld(i) != GetPlayerVirtualWorld(playerid))
-			continue;
+		if (GetPlayerVirtualWorld(i) != GetPlayerVirtualWorld(playerid))  continue;
 
 		if (((checkPos[0] < radi/16) && (checkPos[0] > -radi/16)) && ((checkPos[1] < radi/16) && (checkPos[1] > -radi/16)) && ((checkPos[2] < radi/16) && (checkPos[2] > -radi/16)))
 		{

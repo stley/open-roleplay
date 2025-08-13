@@ -3,63 +3,62 @@ public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
 	DisableInteriorEnterExits();
-    CallLocalFunction("SQL_OnGameModeInit");
+	//EnableVehicleFriendlyFire();
+    CallLocalFunction("databaseOnGameModeInit");
     CallLocalFunction("Models_OnGameModeInit");
-	CallLocalFunction("Vehicles_OnGameModeInit");
+	CallLocalFunction("vehiclesOnGameModeInit");
+	/*new retstr[94];
+	FindModelFileNameFromCRC(0x575F1C5E, retstr);
+	printf("%s", retstr);*/
     return 1;
 }
 public OnGameModeExit()
 {
-    CallLocalFunction("SQL_OnGameModeExit");
-	CallLocalFunction("Users_OnGameModeExit");
-	CallLocalFunction("Vehicles_OnGameModeExit");
+    CallLocalFunction("databaseOnGameModeExit");
+	CallLocalFunction("accountOnGameModeExit");
+	CallLocalFunction("vehiclesOnGameModeExit");
 	return 1;
 }
 //player
 public OnPlayerConnect(playerid){
-	CallLocalFunction("Acc_OnPlayerConnect", "d", playerid);
+	CallLocalFunction("accountOnPlayerConnect", "d", playerid);
 	return 1;
 }
 
 public OnPlayerDisconnect(playerid, reason){
-	CallLocalFunction("Acc_OnPlayerDisconnect", "dd", playerid, reason);
-	CallLocalFunction("Ply_OnPlayerDisconnect", "dd", playerid, reason);
+	CallLocalFunction("accountOnPlayerDisconnect", "dd", playerid, reason);
+	CallLocalFunction("playerOnPlayerDisconnect", "dd", playerid, reason);
 	return 1;
 }
 public OnPlayerRequestClass(playerid, classid){
-	CallLocalFunction("Acc_OnPlayerRequestClass", "dd", playerid, classid);
+	CallLocalFunction("accountOnPlayerRequestClass", "dd", playerid, classid);
 	return 1;
 }
 
 public OnPlayerEnterCheckpoint(playerid){
-	CallLocalFunction("Vehicles_OnPlayerEnterCheckpoint", "d", playerid);
+	CallLocalFunction("vehiclesOnPlayerEnterCheckpoint", "d", playerid);
 	return 1;
 }
 
 public OnPlayerLeaveCheckpoint(playerid){
-	CallLocalFunction("Vehicles_OnPlayerLeaveCheckpoint", "d", playerid);
+	CallLocalFunction("vehiclesOnPlayerLeaveCheckpoint", "d", playerid);
 	return 1;
 }
 
 public OnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
-	CallLocalFunction("Vehicles_OnPlayerEnterVehicle", "ddd", playerid, vehicleid, ispassenger);
+	CallLocalFunction("vehiclesOnPlayerEnterVehicle", "ddd", playerid, vehicleid, ispassenger);
 	return 1;
 }
 
 public OnPlayerExitVehicle(playerid, vehicleid){
-	CallLocalFunction("Vehicles_OnPlayerExitVehicle", "dd", playerid, vehicleid);
-	return 1;
-}
-
-public OnPlayerTakeDamage(playerid, issuerid, Float:amount, WEAPON:weaponid, bodypart){
-	Wound_HandleDamage(playerid, issuerid, weaponid, bodypart);
+	CallLocalFunction("vehiclesOnPlayerExitVehicle", "dd", playerid, vehicleid);
 	return 1;
 }
 
 
 //vehicle
 public OnVehicleSpawn(vehicleid){
-	CallLocalFunction("Vehicles_OnVehicleSpawn", "d", vehicleid);
+	CallLocalFunction("vehiclesOnVehicleSpawn", "d", vehicleid);
 	return 1;
 }
 enum (<<= 1)

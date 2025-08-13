@@ -8,7 +8,7 @@ Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
             }
             new idex = FindVehIndxFromSQLID(Datos[playerid][jCoche][0]);
             new title[32];
-            formatt(title, "%s [%d]", Model_RtrName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
+            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
             new opts[128];
             if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
             else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
@@ -24,7 +24,7 @@ Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
             }
             new idex = FindVehIndxFromSQLID(Datos[playerid][jCocheLlaves][0]);
             new title[32];
-            formatt(title, "%s [%d]", Model_RtrName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
+            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
             new opts[128];
             if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
             else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
@@ -40,7 +40,7 @@ Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
             }
             new idex = FindVehIndxFromSQLID(Datos[playerid][jCoche][1]);
             new title[32];
-            formatt(title, "%s [%d]", Model_RtrName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
+            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
             new opts[128];
             if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
             else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
@@ -56,7 +56,7 @@ Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
             }
             new idex = FindVehIndxFromSQLID(Datos[playerid][jCocheLlaves][1]);
             new title[32];
-            formatt(title, "%s [%d]", Model_RtrName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
+            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
             new opts[128];
             if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
             else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
@@ -77,32 +77,85 @@ Dialog:vehicle_trunk(playerid, response, listitem, inputtext[]){
     if(!response){
         vehData[idex][veh_Trunk] = false;
         SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
-        Vehicles_Trunk(idex);
+        vehiclesTrunk(idex);
         return 1;
     }
-    new espacio = vehData[idex][veh_EspacioMal]-1;
-    if(listitem > espacio){
+    new espacio = vehData[idex][veh_EspacioMal];
+    if(listitem > espacio-1){
         if(listitem != espacio){
             if(listitem == espacio+1){
-                if(!Datos[playerid][jMano][0]){
+                if(Datos[playerid][jMano][0]){
                     for(new i; i < vehData[idex][veh_EspacioMal]; i++){
                         if(!vehData[idex][veh_Maletero][i]){
-                            SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
-                            vehData[idex][veh_Maletero][i] = Datos[playerid][jMano][1];
-                            Datos[playerid][jMano][1] = 0;
-                            vehData[idex][veh_Maletero][i] = Datos[playerid][jManoCant][1];
-                            Datos[playerid][jManoCant][1] = 0;
-                            vehData[idex][veh_Maletero][i] = Datos[playerid][jManoData][1];
-                            Datos[playerid][jManoData][1] = 0;
+                            SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                            new action[64];
+                            formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                            accion_player(playerid, 1, action);
+                            vehData[idex][veh_Maletero][i] = Datos[playerid][jMano][0];
+                            Datos[playerid][jMano][0] = 0;
+                            vehData[idex][veh_MaleteroCant][i] = Datos[playerid][jManoCant][0];
+                            Datos[playerid][jManoCant][0] = 0;
+                            vehData[idex][veh_MaleteroData][i] = Datos[playerid][jManoData][0];
+                            Datos[playerid][jManoData][0] = 0;
+                            update_manos(playerid);
+                            return 1;
                         }
                     }
                 }
+                return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano derecha.");
+            }
+            else if(listitem == espacio+2){
+                if(Datos[playerid][jMano][1]){
+                    for(new i; i < vehData[idex][veh_EspacioMal]; i++){
+                        if(!vehData[idex][veh_Maletero][i]){
+                            SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
+                            new action[64];
+                            formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
+                            accion_player(playerid, 1, action);
+                            vehData[idex][veh_Maletero][i] = Datos[playerid][jMano][1];
+                            Datos[playerid][jMano][1] = 0;
+                            vehData[idex][veh_MaleteroCant][i] = Datos[playerid][jManoCant][1];
+                            Datos[playerid][jManoCant][1] = 0;
+                            vehData[idex][veh_MaleteroData][i] = Datos[playerid][jManoData][1];
+                            Datos[playerid][jManoData][1] = 0;
+                            update_manos(playerid);
+                            return 1;
+                        }
+                    }
+                }
+                return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano izquierda.");
             }
         }
     }
-    SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
-    vehData[idex][veh_Trunk] = false;
-    Vehicles_Trunk(idex);
+    else{
+        if(!vehData[idex][veh_Maletero][listitem]) return SendClientMessage(playerid, COLOR_DARKRED, "Ese hueco está vacío.");
+        if(Datos[playerid][jMano][0]){
+            if(Datos[playerid][jMano][1]) return SendClientMessage(playerid, COLOR_DARKRED, "Tienes ambas manos ocupadas. Tira algun objeto o guardalo en tu bolsillo.");
+            Datos[playerid][jMano][1] = vehData[idex][veh_Maletero][listitem];
+            vehData[idex][veh_Maletero][listitem] = 0;
+            Datos[playerid][jManoCant][1] = vehData[idex][veh_MaleteroCant][listitem];
+            vehData[idex][veh_MaleteroCant][listitem] = 0;
+            Datos[playerid][jManoData][1] = vehData[idex][veh_MaleteroData][listitem];
+            vehData[idex][veh_MaleteroData][listitem] = 0;
+            update_manos(playerid);
+            new action[64];
+            formatt(action, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
+            accion_player(playerid, 1, action);
+            return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
+        }
+        Datos[playerid][jMano][0] = vehData[idex][veh_Maletero][listitem];
+        vehData[idex][veh_Maletero][listitem] = 0;
+        Datos[playerid][jManoCant][0] = vehData[idex][veh_MaleteroCant][listitem];
+        vehData[idex][veh_MaleteroCant][listitem] = 0;
+        Datos[playerid][jManoData][0] = vehData[idex][veh_MaleteroData][listitem];
+        vehData[idex][veh_MaleteroData][listitem] = 0;
+        update_manos(playerid);
+        new action[64];
+        formatt(action, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+        accion_player(playerid, 1, action);
+        return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+    }
+    
     return 1;
 }
 

@@ -19,14 +19,9 @@ CMD:bol(playerid)
             new bolsillo = Datos[playerid][jBolsillo][i];
             new bolcant = Datos[playerid][jBolsilloCant][i];
             new boldata = Datos[playerid][jBolsilloData][i];
-            if(ObjetoInfo[bolsillo][Tipo] == 5)
-            {
-                formatt(inv_buffer, "[%d] %s (%d/%d)\t(%d)\n", i, ObjetoInfo[bolsillo][NombreObjeto], bolcant, ObjetoInfo[bolsillo][Capacidad], boldata);
-            }
-            else
-            {
-                formatt(inv_buffer, "[%d] %s [%d]\t(%d)\n", i, ObjetoInfo[bolsillo][NombreObjeto], bolcant, boldata);
-            }
+            if(ObjetoInfo[bolsillo][Tipo] == 5) formatt(inv_buffer, "[%d] %s (%d/%d)\t(%d)\n", i, ObjetoInfo[bolsillo][NombreObjeto], bolcant, ObjetoInfo[bolsillo][Capacidad], boldata);
+            
+            else formatt(inv_buffer, "[%d] %s [%d]\t(%d)\n", i, ObjetoInfo[bolsillo][NombreObjeto], bolcant, boldata);
             
         }
         else formatt(inv_buffer, "[%d] Vacío\n", i);
@@ -35,27 +30,15 @@ CMD:bol(playerid)
     strcat(inv_dlg, "---\n");
     if(manoder)
     {
-        if(ObjetoInfo[manoder][Tipo] == 5)
-        {
-            formatt(inv_buffer, "Mano derecha: %s (%d/%d)\t(%d)\n", ObjetoInfo[manoder][NombreObjeto], manodercant, ObjetoInfo[manoder][Capacidad], manoderdata);
-        }
-        else
-        {
-            formatt(inv_buffer, "Mano derecha: %s [%d]\t(%d)\n", ObjetoInfo[manoder][NombreObjeto], manodercant, manoderdata);
-        }
+        if(ObjetoInfo[manoder][Tipo] == 5) formatt(inv_buffer, "Mano derecha: %s (%d/%d)\t(%d)\n", ObjetoInfo[manoder][NombreObjeto], manodercant, ObjetoInfo[manoder][Capacidad], manoderdata);
+        else formatt(inv_buffer, "Mano derecha: %s [%d]\t(%d)\n", ObjetoInfo[manoder][NombreObjeto], manodercant, manoderdata);
         strcat(inv_dlg, inv_buffer);
     }
     else strcat(inv_dlg, "Mano derecha: Nada\n");
     if(manoizq)
     {
-        if(ObjetoInfo[manoizq][Tipo] == 5)
-        {
-            formatt(inv_buffer, "Mano izquierda: %s (%d/%d)\t(%d)", ObjetoInfo[manoizq][NombreObjeto], manoizqcant, ObjetoInfo[manoizq][Capacidad], manoizqdata);
-        }
-        else
-        {
-            formatt(inv_buffer, "Mano izquierda: %s [%d]\t(%d)", ObjetoInfo[manoizq][NombreObjeto], manoizqcant, manoizqdata);
-        }
+        if(ObjetoInfo[manoizq][Tipo] == 5) formatt(inv_buffer, "Mano izquierda: %s (%d/%d)\t(%d)", ObjetoInfo[manoizq][NombreObjeto], manoizqcant, ObjetoInfo[manoizq][Capacidad], manoizqdata);
+        else formatt(inv_buffer, "Mano izquierda: %s [%d]\t(%d)", ObjetoInfo[manoizq][NombreObjeto], manoizqcant, manoizqdata);
         strcat(inv_dlg, inv_buffer);
     }
     else strcat(inv_dlg, "Mano izquierda: Nada");
@@ -247,7 +230,40 @@ CMD:mano(playerid)
     }
     return 1;
 }
+CMD:comer(playerid){
+    new manoder = Datos[playerid][jMano][0];
+    if(!manoder){
+        Datos[playerid][jManoCant][0] = 0;
+        return SendClientMessage(playerid, COLOR_DARKRED, "¡Tu mano derecha esta vacía!");
+    }
+    if(ObjetoInfo[manoder][Tipo] != 1) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes comer esto!");
+    SendClientMessage(playerid, COLOR_DARKGREEN, "Consumes tu(s) %s.", ObjetoInfo[manoder][NombreObjeto]);
+    new act[96];
+    formatt(act, "consume su(s) %s.", ObjetoInfo[manoder][NombreObjeto]);
+    accion_player(playerid, 1, act);
+    Datos[playerid][jManoCant][0]--;
+    if(!Datos[playerid][jManoCant][0]) Datos[playerid][jMano][0] = 0;
+    update_manos(playerid);
 
+    return 1;
+}
+CMD:beber(playerid){
+    new manoder = Datos[playerid][jMano][0];
+    if(!manoder){
+        Datos[playerid][jManoCant][0] = 0;
+        return SendClientMessage(playerid, COLOR_DARKRED, "¡Tu mano derecha esta vacía!");
+    }
+    if(ObjetoInfo[manoder][Tipo] != 2) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes beber esto!");
+    SendClientMessage(playerid, COLOR_DARKGREEN, "Consumes tu(s) %s.", ObjetoInfo[manoder][NombreObjeto]);
+    new act[96];
+    formatt(act, "bebe de su %s.", ObjetoInfo[manoder][NombreObjeto]);
+    accion_player(playerid, 1, act);
+    Datos[playerid][jManoCant][0]--;
+    if(!Datos[playerid][jManoCant][0]) Datos[playerid][jMano][0] = 0;
+    update_manos(playerid);
+
+    return 1;
+}
 CMD:usar(playerid){
     new 
         manoder = Datos[playerid][jMano][0];/*,
@@ -260,7 +276,27 @@ CMD:usar(playerid){
     }
     switch(ObjetoInfo[manoder][Tipo])
     {
-        case 3:{
+        case 1:{ //Si es comida
+            SendClientMessage(playerid, COLOR_DARKGREEN, "Consumes tu(s) %s.", ObjetoInfo[manoder][NombreObjeto]);
+            new act[96];
+            formatt(act, "consume su(s) %s.", ObjetoInfo[manoder][NombreObjeto]);
+            accion_player(playerid, 1, act);
+            Datos[playerid][jManoCant][0]--;
+            if(!Datos[playerid][jManoCant]) Datos[playerid][jMano][0] = 0;
+            update_manos(playerid);
+            return 1; 
+        }
+        case 2:{ //Si es una bebida
+            SendClientMessage(playerid, COLOR_DARKGREEN, "Bebes de tu %s.", ObjetoInfo[manoder][NombreObjeto]);
+            new act[96];
+            formatt(act, "bebe de su %s.", ObjetoInfo[manoder][NombreObjeto]);
+            accion_player(playerid, 1, act);
+            Datos[playerid][jManoCant][0]--;
+            if(!Datos[playerid][jManoCant]) Datos[playerid][jMano][0] = 0;
+            update_manos(playerid);
+            return 1;
+        }
+        case 3:{ //si es un accesorios
             new data[2]; // 0 - Index | 1 - Bone
             GetToyIndex(manoder, data[0], data[1]);
             if(!data[0] || !data[1]) return 1;
@@ -815,7 +851,7 @@ CMD:qpecho(playerid){
 
 CMD:revisar(playerid, params[]){
     new id2;
-    if(sscanf(params, "u", id2)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /revisar [Nombre/ID del jugador]");
+    if(sscanf(params, "u[25]", id2)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /revisar [Nombre/ID del jugador]");
     if(!IsPlayerConnected(id2)) return 1;
     if(id2 == playerid){
         SendClientMessage(playerid, COLOR_DARKRED, "Quisiste revisarte a ti mismo, luego recuerdas que puedes ver tus propios bolsillos.");
@@ -902,7 +938,7 @@ CMD:qespalda(playerid){
 }
 CMD:ceder(playerid, params[]){
     new id2;
-    if(sscanf(params, "u", id2)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ceder [playerid]");
+    if(sscanf(params, "u[25]", id2)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ceder [playerid]");
     if(!IsPlayerConnected(id2)) return SendClientMessage(playerid, COLOR_DARKRED, "Ese jugador no esta conectado.");
     new mano = -1;
     if(!Datos[playerid][jMano][0]){
@@ -942,7 +978,7 @@ CMD:ceder(playerid, params[]){
 }
 CMD:cederizq(playerid, params[]){
     new id2;
-    if(sscanf(params, "u", id2)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ceder [playerid]");
+    if(sscanf(params, "u[25]", id2)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ceder [playerid]");
     if(!IsPlayerConnected(id2)) return SendClientMessage(playerid, COLOR_DARKRED, "Ese jugador no esta conectado.");
     if(!Datos[playerid][jMano][1]) return SendClientMessage(playerid, COLOR_DARKRED, "Tu mano izquierda esta vacía.");
     new mano = 1;

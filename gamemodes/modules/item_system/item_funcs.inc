@@ -43,7 +43,11 @@ ColocarObjeto(playerid, slot, objeto)
         {
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
             if(IsPlayerAttachedObjectSlotUsed(playerid, 0)) RemovePlayerAttachedObject(playerid, 0);
-            SetPlayerAttachedObject(playerid, 0, modelo, 6);
+            switch(modelo){
+                case 19995: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
+                case -1024: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
+                default: SetPlayerAttachedObject(playerid, 0, modelo, 6);
+            }
         }
         case 1: //Mano Izquierda
         {
@@ -67,6 +71,7 @@ ColocarObjeto(playerid, slot, objeto)
                     default: SetPlayerAttachedObject(playerid, 1, modelo, 5);
                 }
             }
+            else if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, 0, modelo, 5, 0.08);
             else SetPlayerAttachedObject(playerid, 1, modelo, 5);
         }
         case 2:{
@@ -194,6 +199,14 @@ public update_manos(playerid)
     new manoizq = Datos[playerid][jMano][1];
     if(Datos[playerid][jManoCant][0] > ObjetoInfo[manoder][Capacidad]) Datos[playerid][jManoCant][0] = ObjetoInfo[manoder][Capacidad];
     if(Datos[playerid][jManoCant][1] > ObjetoInfo[manoizq][Capacidad]) Datos[playerid][jManoCant][1] = ObjetoInfo[manoizq][Capacidad];
+    if(!manoder){
+        Datos[playerid][jManoCant][0] = 0;
+        Datos[playerid][jManoData][0] = 0;
+    }
+    if(!manoizq){
+        Datos[playerid][jManoCant][1] = 0;
+        Datos[playerid][jManoData][1] = 0;
+    }
     if(manoder){
         if(ObjetoInfo[manoder][IDArma])
         {
@@ -221,6 +234,10 @@ public update_manos(playerid)
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][0]);
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][1]);
                 if(Datos[playerid][jManoCant][0] == -1) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
+            }
+            if(ObjetoInfo[manoder][IDArma] == 30) SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 999);
+            if(ObjetoInfo[manoder][ModeloObjeto] == -1024){
+                SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 0);
             }
             ColocarObjeto(playerid, 0, manoder);
         }
@@ -306,6 +323,10 @@ GetToyIndex(objectid, &index, &bone){
         bone = 2; // bone head
     }
     else if(strfind(ObjetoInfo[objectid][NombreObjeto], "Chaleco") != -1){
+        index = 7; //index - pecho
+        bone = 1;  // bone spine
+    }
+    else if(strfind(ObjetoInfo[objectid][NombreObjeto], "Portaplaca") != -1){
         index = 7; //index - pecho
         bone = 1;  // bone spine
     }

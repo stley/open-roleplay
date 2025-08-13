@@ -25,3 +25,21 @@ CMD:ame(playerid, params[]){
     }
     accion_player(playerid, 1, accion);
 }
+CMD:sus(playerid, params[]){
+    new accion[128];
+    if(sscanf(params, "s[128]", accion)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /sus [Susurro]");
+    new sentence[160];
+    formatt(sentence, "%s susurra: %s", Name_sin(GetRPName(playerid)), accion);
+    if(IsPlayerInAnyVehicle(playerid)){
+        new vid = GetPlayerVehicleID(playerid);
+        for(new i; i < MAX_PLAYERS; i++){
+            if(IsPlayerInVehicle(i, vid)){
+                SendClientMessage(playerid, C_FADE1, sentence);
+                continue;
+            }
+        }
+        ProxDetector(1.0, playerid, sentence, C_FADE1, C_FADE2, C_FADE3, C_FADE4, C_FADE5);
+    }
+    else ProxDetector(3.0, playerid, sentence, C_FADE1, C_FADE2, C_FADE3, C_FADE4, C_FADE5);
+    return 1;    
+}

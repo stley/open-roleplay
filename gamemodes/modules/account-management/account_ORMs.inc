@@ -4,6 +4,9 @@ orm_user(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jSQLID], "SQLID");
 	orm_addvar_string(ormid, Datos[playerid][jNombre], MAX_PLAYER_NAME, "Nombre");
 	orm_addvar_int(ormid, Datos[playerid][jAdmin], "Administrador");
+	orm_addvar_int(ormid, Datos[playerid][jFacMan], "FacMan");
+	orm_addvar_int(ormid, Datos[playerid][jStaffMan], "StaffMan");
+	orm_addvar_int(ormid, Datos[playerid][jPropMan], "PropMan");
 	orm_addvar_int(ormid, Datos[playerid][jCreditos], "Creditos");
 	orm_addvar_string(ormid, Datos[playerid][jClave], 129, "Clave");
 	orm_addvar_string(ormid, Datos[playerid][jEmail], 101, "Email");
@@ -63,7 +66,7 @@ orm_char(playerid)
 		formatt(str, "BolsilloCant%d", bol);
 		orm_addvar_int(ormid, Datos[playerid][jBolsilloCant][bol], str);
 		formatt(str, "BolsilloData%d", bol);
-		orm_addvar_string(ormid, Datos[playerid][jBolsilloData][bol], 32, str); 
+		orm_addvar_int(ormid, Datos[playerid][jBolsilloData][bol], str); 
 	}
 	orm_addvar_int(ormid, Datos[playerid][jPecho], "Pecho"); 
 	orm_addvar_int(ormid, Datos[playerid][jPechoCant], "PechoCant"); 

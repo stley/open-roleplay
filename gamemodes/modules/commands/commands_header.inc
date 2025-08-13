@@ -10,10 +10,28 @@
 #include "../gamemodes/modules/vehicle/vehicle_commands"
 #include "../gamemodes/modules/damage_system/damage_commands"
 
+new const available_commands[][32] = {
+	{"me"},
+	{"ame"},
+	{"do"},
+	{"ceder"},
+	{"revivir"}
+};
 public OnPlayerCommandReceived(playerid, cmd[], params[], flags)
 {
 	if(Datos[playerid][EnChar] == false){
 		SendClientMessage(playerid, COLOR_DARKRED, "No puedes colocar ningun comando sin ingresar a un personaje.");
+		return 0;
+	}
+	new isvalid = 0;
+	for(new i; i < sizeof(available_commands); i++){
+		if(!strcmp(available_commands[i], cmd, true)){
+			isvalid = 1;
+			break;
+		}
+	}
+	if(!isvalid && muerto[playerid] != 0 && !(a_perms[playerid] & CMD_OWNER)){
+		SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes ejecutar comandos estando muerto!");
 		return 0;
 	}
 	if(!flags) return 1;

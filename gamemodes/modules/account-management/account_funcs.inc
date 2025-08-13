@@ -1,23 +1,30 @@
 
-forward Acc_OnCharFirstLoad(playerid);
-forward Acc_OnPlayerDisconnect(playerid, reason);
-forward Acc_OnUserDataSaved(playerid);
-forward Acc_OnCharDataSaved(playerid);
-forward Acc_LoadToys(playerid);
-forward Acc_OnPlayerConnect(playerid);
-forward Char_ReSpawn(playerid);
-forward Users_OnGameModeExit();
+forward accountOnCharFirstLoad(playerid);
+forward accountOnPlayerDisconnect(playerid, reason);
+forward accountOnUserDataSaved(playerid);
+forward accountOnCharDataSaved(playerid);
+forward accountLoadToys(playerid);
+forward accountOnPlayerConnect(playerid);
+forward accountOnGameModeExit();
+forward characterRespawn(playerid);
+forward accountOnUserFirstLoad(playerid);
+forward accountOnPlayerRequestClass(playerid, classid);
 
-public Acc_OnPlayerConnect(playerid)
+public OnDialogPerformed(playerid, const dialog[], response, success) {
+    return 1;
+}
+
+public accountOnPlayerConnect(playerid)
 {
 	new str[129];
 	ClearPlayerVars(playerid);
+	clear_wounds(playerid);
 	GetPlayerName(playerid, username[playerid], MAX_PLAYER_NAME);
 	formatt(str, "Conectando_%d", playerid);
 	SetPlayerName(playerid, str);
 	return 1;
 }
-public Acc_OnCharFirstLoad(playerid)
+public accountOnCharFirstLoad(playerid)
 {
 	if(cache_num_rows())
 	{
@@ -32,15 +39,15 @@ public Acc_OnCharFirstLoad(playerid)
 		return dialog_personajes(playerid);
 	}
 }
-forward Acc_OnCharInserted(playerid);
-public Acc_OnCharInserted(playerid){
+forward accountOnCharInserted(playerid);
+public accountOnCharInserted(playerid){
 	new query[128];
 	mysql_format(SQLDB, query, sizeof(query), "INSERT INTO `char_toys` VALUES ('%d')", Datos[playerid][jSQLIDP]);
 	mysql_tquery(SQLDB, query);
 	save_char(playerid);
 	return 1;
 }
-Char_TextDraws(playerid){
+characterTextDraws(playerid){
 	Gun_Hud[playerid][0] = CreatePlayerTextDraw(playerid, 586.000, 113.000, "Vacío");
 	PlayerTextDrawLetterSize(playerid, Gun_Hud[playerid][0], 0.260, 1.500);
     PlayerTextDrawAlignment(playerid, Gun_Hud[playerid][0], TEXT_DRAW_ALIGN_CENTER);
@@ -64,15 +71,17 @@ Char_TextDraws(playerid){
 load_character(playerid)
 {
 	Datos[playerid][EnChar] = true;
-	SetPlayerTeam(playerid, 0);
+	
+	SetPlayerTeam(playerid, 1);
 	SetPlayerHealth(playerid, Datos[playerid][jVida]);
+	SetPlayerArmour(playerid, Datos[playerid][jChaleco]);
 	SetPlayerSkin(playerid, Datos[playerid][jRopa]);
 	SetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
 	SetPlayerInterior(playerid, Datos[playerid][jInt]);
 	SetPlayerVirtualWorld(playerid, Datos[playerid][jVW]);
 	SetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
 	GivePlayerMoney(playerid, Datos[playerid][jDinero]);
-	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 1000);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 1);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL_SILENCED, 1000);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_SAWNOFF_SHOTGUN, 1);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_DESERT_EAGLE, 999);
@@ -83,24 +92,26 @@ load_character(playerid)
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 999);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_M4, 999);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_SNIPERRIFLE, 400);
-	Char_TextDraws(playerid);
+	characterTextDraws(playerid);
 	SetTimerEx("update_manos", 1000, false, "d", playerid);
 	SetTimerEx("update_torso", 1500, false, "d", playerid);
-	SetTimerEx("Acc_LoadToys", 1000, false, "d", playerid);
+	SetTimerEx(" accountLoadToys", 1000, false, "d", playerid);
 	SendClientMessage(playerid, COLOR_SYSTEM, "Bienvenido, %s (%s). Tu última conexión fue el %s.", GetRPName(playerid), username[playerid], Datos[playerid][UltimaConexion]);
+	alm(Datos[playerid][UltimaConexion], FechaActual());
 	SetTimerEx("CharVeh_Load", 1500, false, "d", Datos[playerid][jSQLIDP]);
 	if(muerto[playerid] == 1){
 		muerto[playerid] = 0;
-		Wound_LowerLife(playerid, 99.9, INVALID_PLAYER_ID);
+		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
 	}
 	else if(muerto[playerid] == 2){
-		muerto[playerid] = 1;
-		Wound_LowerLife(playerid, 99.9, INVALID_PLAYER_ID);
+		muerto[playerid] = 0;
+		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
+		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
 	}
 	return 1;
 }
 
-public Char_ReSpawn(playerid){
+public characterRespawn(playerid){
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 1000);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL_SILENCED, 1000);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_SAWNOFF_SHOTGUN, 1);
@@ -112,13 +123,13 @@ public Char_ReSpawn(playerid){
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 800);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_M4, 999);
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_SNIPERRIFLE, 400);
-	Char_TextDraws(playerid);
+	characterTextDraws(playerid);
 	SetTimerEx("update_manos", 1000, false, "d", playerid);
 	SetTimerEx("update_torso", 1500, false, "d", playerid);
-	SetTimerEx("Acc_LoadToys", 1000, false, "d", playerid);
+	SetTimerEx("accountLoadToys", 1000, false, "d", playerid);
 }
 
-public Acc_LoadToys(playerid){
+public accountLoadToys(playerid){
 	new query[128];
 	mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `char_toys` WHERE `character_id` = '%d'", Datos[playerid][jSQLIDP]);
 	new Cache:ToyCache = mysql_query(SQLDB, query);
@@ -147,14 +158,16 @@ public Acc_LoadToys(playerid){
 	cache_delete(ToyCache);
 	return 1;
 }
-public Acc_OnUserDataSaved(playerid) return 1;
-public Acc_OnCharDataSaved(playerid){
-	orm_clear_vars(CharToys[playerid][ORM_toy]);
-	return 1;
-}
+
+public  accountOnUserDataSaved(playerid) return 1;
+public  accountOnCharDataSaved(playerid) return 1;
+
 clear_chardata(playerid)
 {
-	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM) orm_destroy(Datos[playerid][ORMPJ]);
+	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM){
+		orm_destroy(Datos[playerid][ORMPJ]);
+		Datos[playerid][ORMPJ] = MYSQL_INVALID_ORM;
+	}
 	Datos[playerid][jSQLIDP] = 0;
 	Datos[playerid][EnChar] = false;
 	alm(Datos[playerid][jNombrePJ], "-");
@@ -211,6 +224,10 @@ clear_chardata(playerid)
 	Datos[playerid][jDiv2] = 0;
 	Datos[playerid][jDocumento] = 0;
 
+	if(CharToys[playerid][ORM_toy] != MYSQL_INVALID_ORM){
+		orm_destroy(CharToys[playerid][ORM_toy]);
+		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
+	}
 	//no guardables
 	DentroCasa[playerid] = 0;
 	DentroNegocio[playerid] = 0;
@@ -222,13 +239,18 @@ clear_chardata(playerid)
 	asesino[playerid] = "-";
 	checkpoints[playerid] = 0;
 	CinturonV[playerid] = 0;
-	CanRespawn[playerid] = true;
+	/*CanRespawn[playerid] = false;
 	KillTimer(RespawnTime[playerid]);
-	KillTimer(SuccumbTime[playerid]);
+	KillTimer(SuccumbTime[playerid]);*/
+
+
 }
 clear_account_data(playerid)
 {
-	if(Datos[playerid][ORMID] != MYSQL_INVALID_ORM) orm_destroy(Datos[playerid][ORMID]);
+	if(Datos[playerid][ORMID] != MYSQL_INVALID_ORM){
+		orm_destroy(Datos[playerid][ORMID]);
+		Datos[playerid][ORMID] = MYSQL_INVALID_ORM;
+	}
 	a_perms[playerid] = 0;
 	alm(Datos[playerid][jNombre], "-");
 	alm(Datos[playerid][jEmail], "-");
@@ -252,7 +274,7 @@ ClearPlayerVars(playerid)
 }
 save_account(playerid){
 	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM) printf("ORMID playerid %d invalida", playerid);
-	return orm_update(Datos[playerid][ORMID], "OnUserDataSaved", "d", playerid);
+	return orm_update(Datos[playerid][ORMID]);
 }
 save_char(playerid)
 {
@@ -262,14 +284,14 @@ save_char(playerid)
 	Datos[playerid][jVW] = GetPlayerVirtualWorld(playerid);
 	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM) printf("ORMPJ playerid %d invalida", playerid);
 	orm_update(CharToys[playerid][ORM_toy]);
-	return orm_update(Datos[playerid][ORMPJ], "OnCharDataSaved", "d", playerid);
+	return orm_update(Datos[playerid][ORMPJ]);
 }
 
-public Acc_OnPlayerDisconnect(playerid, reason)
+public accountOnPlayerDisconnect(playerid, reason)
 {
 	if(Datos[playerid][LoggedIn] == true)
 	{
-		new query[128];
+		new query[96];
 		save_account(playerid);
 		if(Datos[playerid][EnChar] == true)
 		{
@@ -277,7 +299,6 @@ public Acc_OnPlayerDisconnect(playerid, reason)
 		}
 		mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `online` = 0 WHERE `Nombre` = '%e'", username[playerid]);
 		mysql_tquery(SQLDB, query);
-		SetPlayerTeam(playerid, NO_TEAM);
 	}
 	for(new i; i < MAX_VEHICULOS; i++){
 		if(vehData[i][veh_SQLID] == Datos[playerid][jCoche][0] || vehData[i][veh_SQLID] == Datos[playerid][jCoche][1]){
@@ -290,7 +311,7 @@ public Acc_OnPlayerDisconnect(playerid, reason)
 	return 1;
 }
 
-public Users_OnGameModeExit(){
+public accountOnGameModeExit(){
 	for(new i; i < MAX_PLAYERS; i++){
 		if(IsPlayerConnected(i)){
 			if(Datos[i][EnChar] == true) save_char(i);
@@ -300,6 +321,32 @@ public Users_OnGameModeExit(){
 			continue;
 		}
 		else continue;
+	}
+	return 1;
+}
+
+public accountOnPlayerRequestClass(playerid, classid)
+{
+	new str[256];
+	orm_user(playerid);
+	mysql_format(SQLDB, str, sizeof(str), "SELECT * FROM `accounts` WHERE `Nombre` = '%e' LIMIT 1", username[playerid]);
+	mysql_tquery(SQLDB, str, "accountOnUserFirstLoad", "d", playerid);
+	return 1;
+}
+
+public accountOnUserFirstLoad(playerid)
+{
+	new str[150];
+	if(cache_num_rows())
+	{
+		orm_apply_cache(Datos[playerid][ORMID], 0);
+		formatt(str, "Bienvenido %s.\nIngresa tu contraseña para continuar.", username[playerid]);
+		Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", str, "Ingresar", "Salir");
+	}
+	else
+	{
+		formatt(str, "Bienvenido %s.\nIngrese una contraseña para continuar.", username[playerid]);
+		Dialog_Show(playerid, D_REGISTRO, DIALOG_STYLE_PASSWORD, "Registro", str, "Continuar", "Salir");
 	}
 	return 1;
 }

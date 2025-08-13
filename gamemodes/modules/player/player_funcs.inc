@@ -1,5 +1,5 @@
 forward TimeOutRequest(playerid);
-forward Ply_OnPlayerDisconnect(playerid, reason);
+forward playerOnPlayerDisconnect(playerid, reason);
 
 public TimeOutRequest(playerid){
     solicitud_tipo[playerid] = 0;
@@ -9,23 +9,29 @@ public TimeOutRequest(playerid){
     return 1;
 }
 
-public Ply_OnPlayerDisconnect(playerid, reason){
+public playerOnPlayerDisconnect(playerid, reason){
     new idex = GetPVarInt(playerid, "veh_mal");
     if(idex){
         vehData[idex-1][veh_Trunk] = false;
-        Vehicles_Trunk(idex-1);
+        vehiclesTrunk(idex-1);
     }
     return 1;
 }
 
-tp_player(playerid, Float:pos_x, Float:pos_y, Float:pos_z, interior, virtualworld){
+teleportPlayer(playerid, Float:pos_x, Float:pos_y, Float:pos_z, interior, virtualworld){
     SetPlayerPos(playerid, pos_x, pos_y, pos_z);
     SetPlayerInterior(playerid, interior);
     SetPlayerVirtualWorld(playerid, virtualworld);
     return 1;
 }
 
-spend_money(playerid, quantity){
+public OnPlayerTakeDamage(playerid, issuerid, Float:amount, WEAPON:weaponid, bodypart){
+    SetPlayerHealth(playerid, Datos[playerid][jVida]);
+    SetPlayerArmour(playerid, Datos[playerid][jChaleco]);
+    Wound_HandleDamage(playerid, issuerid, weaponid, bodypart, Float:amount);
+}
+
+playerspendMoney(playerid, quantity){
     if(!IsPlayerConnected(playerid)) return 1;
     if(quantity > Datos[playerid][jDinero]){
         if(ObjetoInfo[Datos[playerid][jMano][0]][ModeloObjeto] != 19792) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes suficiente dinero, ni una tarjeta de débito en tu mano derecha!");
@@ -40,7 +46,7 @@ spend_money(playerid, quantity){
     return 1;
 }
 
-add_money(playerid, quantity){
+playeraddMoney(playerid, quantity){
     if(!IsPlayerConnected(playerid)) return 1;
     ResetPlayerMoney(playerid);
     GivePlayerMoney(playerid, (Datos[playerid][jDinero]+=quantity));

@@ -1,3 +1,4 @@
+new IntentosLogin[MAX_PLAYERS];
 new jPJE[MAX_PLAYERS][3][MAX_PLAYER_NAME];
 enum jInfo
 {
@@ -8,6 +9,9 @@ enum jInfo
 	jClave[129],
 	jEmail[101],
 	jAdmin,
+	jFacMan,
+	jStaffMan,
+	jPropMan,
 	jIP[17],
 	jCreditos,
 	jPremium,
@@ -43,8 +47,8 @@ enum jInfo
 	jEspaldaCant,
 	jPecho,
 	jPechoCant,
-	jEspaldaData[32],
-	jPechoData[32],
+	jEspaldaData,
+	jPechoData,
 	Float:jVida,
 	Float:jChaleco,
 	Float:jPosX,
@@ -67,6 +71,22 @@ enum jInfo
 	jCasaLlaves,
 	jFechaCreacion[101],
 };
+/*enum jInventory
+{
+	jMano[2],
+	jManoCant[2],
+	jManoData[2][96],
+	jBolsillo[5],
+	jBolsilloCant[5],
+	jBolsilloData[5][96],
+	jEspalda,
+	jEspaldaCant,
+	jPecho,
+	jPechoCant,
+	jEspaldaData[96],
+	jPechoData[96]
+};
+new inventory[MAX_PLAYERS][jInventory];*/
 //No almacenables en la base de datos
 new
 	/*
@@ -79,7 +99,7 @@ new
 	/*
 	EditTypes
 	1 - Accesorios (Primera vez colocados)
-	2 - Edición de accesorios ya colocados
+	2 - Ediciï¿½n de accesorios ya colocados
 	*/	
 	EditType[MAX_PLAYERS],
 
@@ -94,7 +114,7 @@ new
 	CinturonV[MAX_PLAYERS],
 	DentroCasa[MAX_PLAYERS],
 	DentroNegocio[MAX_PLAYERS],
-	asesino[MAX_PLAYERS][MAX_PLAYER_NAME] //Contendrá la última persona que te asesinó/noqueo.
+	asesino[MAX_PLAYERS][MAX_PLAYER_NAME] //Contendrï¿½ la ï¿½ltima persona que te asesinï¿½/noqueo.
 ;
 enum PlayerToys
 {
@@ -120,7 +140,7 @@ enum PlayerToys
 	Float:PechoRot[3],
 	Float:PechoScale[3]
 };
-new CharToys[MAX_PLAYERS][PlayerToys];
 
+new CharToys[MAX_PLAYERS][PlayerToys];
 new Datos[MAX_PLAYERS][jInfo];
 new ChosenPJ[MAX_PLAYERS];

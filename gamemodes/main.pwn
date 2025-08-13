@@ -8,11 +8,11 @@
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
-//#include <jit>
+#include <jit>
 #include <YSI-Includes/YSI_Core/y_utils>
 #include <YSI-Includes/YSI_Game/y_vehicledata>
 //#include <bus>
-
+#pragma dynamic 8000
 //Módulos
 #include "modules/core/core_header" //Funciones core del servidor.
 #include "modules/misc/misc_header" // Misceláneos
@@ -21,7 +21,6 @@
 #include "modules/vehicle/vehicle_header"
 #include "modules/damage_system/damage_header"
 #include "modules/account-management/account_header"  //Management de los usuarios y sus personajes
-#include "modules/login-register/login-register_header" // Ingreso y Registro de usuarios/personajes
 #include "modules/rptools/rptools"
 #include "modules/player/player_header"
 #include "modules/commands/commands_header" // Comandos (Pawn.CMD)

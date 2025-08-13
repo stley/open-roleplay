@@ -195,7 +195,7 @@ flags:limpiarmanos(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_
 CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
-    if(sscanf(params, "r", objetivo)){
+    if(sscanf(params, "u[25]", objetivo)){
         SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
         return;
     }
@@ -225,15 +225,9 @@ CMD:darskin(playerid, params[]){
 
 flags:verstats(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
 CMD:verstats(playerid, params[]){
-    if(isnull(params)){
-        SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
-        return;
-    }
+    if(isnull(params)) return SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
     new target;
-    if(sscanf(params, "u", target)){
-        SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
-        return;
-    }
+    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
     new msg[512];
     SendClientMessage(playerid, COLOR_GREEN,"Estadísticas de %s (%s):", Datos[target][jNombrePJ], username[target]);
     SendClientMessage(playerid, COLOR_GREEN, "Estadísticas IC:");
@@ -257,7 +251,7 @@ CMD:verstats(playerid, params[]){
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos: %d — %d | Vehículo prestado: %d", Datos[target][jCoche][0], Datos[target][jCoche][1], Datos[target][jCocheLlaves]);
     SendClientMessage(playerid, COLOR_GREEN, "Interiores:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casa: %d — Negocio: %d | Interior: %d — VirtualWorld: %d", DentroCasa[target], DentroNegocio[target], GetPlayerInterior(target), GetPlayerVirtualWorld(target));
-    return;
+    return 1;
 }
 flags:crearvehiculo(CMD_OWNER | CMD_ADMIN)
 CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
@@ -302,7 +296,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
                     vehData[i][veh_Matricula] = get_plate();
                     orm_vehicle(i);
-                    orm_insert(vehData[i][vehORM], "OnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
+                    orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
                     vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);
                     PutPlayerInVehicle(nuevodueno, vehData[i][veh_vID], 0);
                     
@@ -321,7 +315,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
 flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
 CMD:ircoord(playerid, params[]){
     if(sscanf(params, "fff", params[0], params[1], params[2])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ircoord [X] [Y] [Z]");
-    tp_player(playerid, params[0], params[1], params[2], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid));
+    teleportPlayer(playerid, params[0], params[1], params[2], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid));
     return 1;
 }
 flags:setplayer(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
@@ -362,7 +356,7 @@ CMD:traerveh(playerid, params[]){
     SetVehiclePos(vid, player_pos[0], player_pos[1], player_pos[2]);
     SetVehicleZAngle(vid, player_pos[3]);
     LinkVehicleToInterior(vid, GetPlayerInterior(playerid));
-    SendClientMessage(playerid, COLOR_GREEN, "Trajiste el vehículo %s ID %d.", Model_RtrName(GetVehicleModel(vid)), vid);
+    SendClientMessage(playerid, COLOR_GREEN, "Trajiste el vehículo %s ID %d.", modelGetName(GetVehicleModel(vid)), vid);
     return 1;
 }
 flags:irveh(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
@@ -373,7 +367,7 @@ CMD:irveh(playerid, params[]){
     new Float:veh_pos[4];
     GetVehiclePos(vid, veh_pos[0], veh_pos[1], veh_pos[2]);
     GetVehicleZAngle(vid, veh_pos[3]);
-    tp_player(playerid, veh_pos[0], veh_pos[1], veh_pos[2], GetVehicleInterior(playerid), GetVehicleVirtualWorld(vid));
+    teleportPlayer(playerid, veh_pos[0], veh_pos[1], veh_pos[2], GetVehicleInterior(playerid), GetVehicleVirtualWorld(vid));
     SetPlayerFacingAngle(playerid, veh_pos[3]);
     return 1;
 }
@@ -385,5 +379,47 @@ CMD:crearv(playerid, params[]){
     GetPlayerPos(playerid, player_pos[0], player_pos[1], player_pos[2]);
     GetPlayerFacingAngle(playerid, player_pos[3]);
     CreateVehicle(vid, player_pos[0], player_pos[1], player_pos[2], player_pos[3], 1, 0, -1, false); 
+    return 1;
+}
+flags:darvida(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+CMD:darvida(playerid, params[]){
+    new target;
+    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
+    Datos[target][jVida] = 100.0;
+    SetPlayerHealth(target, Datos[target][jVida]);
+    clear_wounds(target);
+    SendClientMessage(playerid, COLOR_DARKRED, "ADM: Curas a %s con un comando de moderación.", Name_sin(GetRPName(target)));
+    SendClientMessage(target, COLOR_LIGHTBLUE, "%s (%s) te curó con un comando de moderación.", Name_sin(GetRPName(playerid)), username[playerid]);
+    return 1;
+}
+flags:darchaleco(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR )
+CMD:darchaleco(playerid, params[]){
+    new target;
+    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
+    Datos[target][jChaleco] = 100.0;
+    SetPlayerArmour(target, Datos[target][jChaleco]);
+    SendClientMessage(playerid, COLOR_DARKRED, "ADM: Le otorgas un chaleco a %s con un comando de moderación.", Name_sin(GetRPName(target)));
+    SendClientMessage(target, COLOR_LIGHTBLUE, "%s (%s) te dió un chaleco con un comando de moderación.", Name_sin(GetRPName(playerid)), username[playerid]);
+    return 1;
+}
+flags:revivir(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+CMD:revivir(playerid, params[]){
+    new target;
+    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /revivir [Nombre/ID]");
+    if(!muerto[target]) return SendClientMessage(playerid, COLOR_DARKRED,"¡Ese personaje no esta muerto!");
+    TogglePlayerControllable(target, true);
+    ClearAnimations(target, SYNC_ALL);
+    muerto[target] = 0;
+    Datos[target][jVida] = 100.0;
+    SetPlayerHealth(target, Datos[target][jVida]);
+    KillTimer(RespawnTimer[target]);
+    SendClientMessage(playerid, COLOR_DARKRED, "ADM: Revives a %s con un comando de moderación.", Name_sin(GetRPName(target)));
+    SendClientMessage(target, COLOR_LIGHTBLUE, "%s (%s) te revivió con un comando de moderación.", Name_sin(GetRPName(playerid)), username[playerid]);
+    clear_wounds(target);
+    return 1;
+}
+flags:test_wound(CMD_OWNER)
+CMD:test_wound(playerid){
+    Wound_HandleDamage(playerid, playerid, ObjetoInfo[Datos[playerid][jMano][0]][IDArma], 3, 40.0);
     return 1;
 }

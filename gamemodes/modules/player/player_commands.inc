@@ -28,7 +28,7 @@ CMD:aceptar(playerid){
             if(GetDistanceBetweenPlayers(playerid, solid) > 5.0) return SendClientMessage(solid, COLOR_DARKRED, "¡Estás muy lejos del jugador!");
             new veh_slot = GetPVarInt(playerid, "prestar_veh_slot");
             SendClientMessage(playerid, COLOR_GREEN, "Aceptaste las llaves de %s.", GetRPName(solid));
-            SendClientMessage(solid, COLOR_GREEN, "%s aceptó las llaves de tu %s.", GetRPName(playerid), Model_RtrName(vehData[FindVehIndxFromSQLID(Datos[solid][jCoche][veh_slot])][veh_Modelo]));
+            SendClientMessage(solid, COLOR_GREEN, "%s aceptó las llaves de tu %s.", GetRPName(playerid), modelGetName(vehData[FindVehIndxFromSQLID(Datos[solid][jCoche][veh_slot])][veh_Modelo]));
             for(new i; i < 2; i++){
                 if(Datos[playerid][jCocheLlaves][i]){
                     Datos[playerid][jCocheLlaves][i] = Datos[solid][jCoche][veh_slot];

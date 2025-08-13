@@ -1,32 +1,32 @@
-forward Vehicles_OnGameModeInit();
-forward Vehicles_OnGameModeExit();
+forward vehiclesOnGameModeInit();
+forward vehiclesOnGameModeExit();
 forward OnVehicleUpdate();
-forward Vehicles_OnPlayerExitVehicle(playerid, vehicleid);
-forward Vehicles_Engine(idex);
-forward Vehicles_Lock(idex);
-forward Vehicles_Lights(vehicleid);
-forward Vehicles_Trunk(idex);
-forward Vehicles_Hood(idex);
-forward Vehicles_OnVehicleUpdate();
-forward Vehicles_OnCharVehLoad(playerid);
-forward Vehicles_OnCharVehicleCreated(creatorid, ownerid, modelid, index, slot);
-forward Vehicles_OnPlayerEnterVehicle(playerid, vehicleid, ispassenger);
-forward Vehicles_OnPlayerEnterCheckpoint(playerid);
-forward Vehicles_OnPlayerLeaveCheckpoint(playerid);
-forward Vehicles_OnVehicleSpawn(vehicleid);
+forward vehiclesOnPlayerExitVehicle(playerid, vehicleid);
+forward vehiclesEngine(idex);
+forward vehiclesLock(idex);
+forward vehiclesLights(vehicleid);
+forward vehiclesTrunk(idex);
+forward vehiclesHood(idex);
+forward vehiclesOnVehicleUpdate();
+forward OnCharacterVehicleLoad(playerid);
+forward vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot);
+forward vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger);
+forward vehiclesOnPlayerEnterCheckpoint(playerid);
+forward vehiclesOnPlayerLeaveCheckpoint(playerid);
+forward vehiclesOnVehicleSpawn(vehicleid);
 forward CharVeh_Free(index);
 forward CharVeh_Spawn(indx);
 forward CharVeh_Unspawn(indx);
 forward CharVeh_Load(charid);
 
-public Vehicles_OnGameModeInit(){
+public vehiclesOnGameModeInit(){
     SetTimer("OnVehicleUpdate", 6000, true);
     for(new i; i < MAX_VEHICULOS; i++){
         vehData[i][veh_vID] = INVALID_VEHICLE_ID;
         continue;
     }
 }
-public Vehicles_OnGameModeExit(){
+public vehiclesOnGameModeExit(){
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_Tipo] || vehData[i][veh_Modelo]){
             clear_vehiclevars(i);
@@ -52,17 +52,17 @@ public CharVeh_Load(charid){
 			new query[128];
 			if(Datos[connected][jCoche][v]){
 				mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `SQLID` = '%d' LIMIT 1", Datos[connected][jCoche][v]);
-				mysql_tquery(SQLDB, query, "Vehicles_OnCharVehLoad", "d", connected);
+				mysql_tquery(SQLDB, query, "OnCharacterVehicleLoad", "d", connected);
 			}
 			if(Datos[connected][jCocheLlaves][v]){
 				mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `SQLID` = '%d' LIMIT 1", Datos[connected][jCoche][v]);
-				mysql_tquery(SQLDB, query, "Vehicles_OnCharVehLoad", "d", connected);
+				mysql_tquery(SQLDB, query, "OnCharacterVehicleLoad", "d", connected);
 			}
 		}
 	}
 }
 
-public Vehicles_OnCharVehLoad(playerid){
+public OnCharacterVehicleLoad(playerid){
 	if(cache_num_rows()){
 		new current;
 		cache_get_value_name_int(0, "SQLID", current);
@@ -70,11 +70,11 @@ public Vehicles_OnCharVehLoad(playerid){
 			if(!vehData[i][veh_Tipo] || !vehData[i][veh_Modelo]){
 				orm_vehicle(i);
 				orm_apply_cache(vehData[i][vehORM], 0);
-				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", Model_RtrName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
+				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
 				return 1;
 			}
 			else if(current == vehData[i][veh_SQLID]){
-				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ya fue cargado anteriormente, salteando...", Model_RtrName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID] );
+				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ya fue cargado anteriormente, salteando...", modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID] );
 				return 1;
 			}
 		}
@@ -82,14 +82,14 @@ public Vehicles_OnCharVehLoad(playerid){
 	return 1;
 }
 
-stock Model_RtrName(modelid){
+stock modelGetName(modelid){
     new string[32];
     //formatt(string, "%s", VehiclesName[modelid-400]);
     Model_GetName(modelid, string);
     return string;
 }
 
-public Vehicles_Engine(idex){
+public vehiclesEngine(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
@@ -97,7 +97,7 @@ public Vehicles_Engine(idex){
     else SetVehicleParamsEx(vehData[idex][veh_vID], false, lights, alarm, doors, bonnet, boot, objective);
     return 1;
 }
- Veh_Engine(vehicleid){
+Veh_Engine(vehicleid){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
@@ -105,7 +105,7 @@ public Vehicles_Engine(idex){
     else SetVehicleParamsEx(vehicleid, false, lights, alarm, doors, bonnet, boot, objective);
     return 1;
 }
-public Vehicles_Lock(idex){
+public vehiclesLock(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
@@ -113,7 +113,7 @@ public Vehicles_Lock(idex){
     else SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, false, bonnet, boot, objective); 
     return 1;
 }
-public Vehicles_Lights(vehicleid){
+public vehiclesLights(vehicleid){
     
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
@@ -122,19 +122,21 @@ public Vehicles_Lights(vehicleid){
     return 1;
 }
 
-public Vehicles_Trunk(idex){
+public vehiclesTrunk(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
-    SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, vehData[idex][veh_Trunk], objective);      
+    if(vehData[idex][veh_Trunk] == true) SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, true, objective); 
+    else SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, false, objective);      
     return 1;
 }
 
-public Vehicles_Hood(idex){
+public vehiclesHood(idex){
     new
         bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
-    SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, vehData[idex][veh_Hood], boot, objective);      
+    if(vehData[idex][veh_Hood] == true) SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, true, boot, objective);
+    else SetVehicleParamsEx(vehData[idex][veh_vID], engine, lights, alarm, doors, false, boot, objective);
     return 1;
 }
 
@@ -150,9 +152,9 @@ public OnVehicleUpdate()
                 SetVehicleHealth(vehData[i][veh_vID], 260.0);
                 vehData[i][veh_Engine] = VEHICLE_PARAMS_OFF;
                 vehData[i][veh_Vida] = 260.0;
-                Vehicles_Engine(i);
+                vehiclesEngine(i);
                 if(IsVehicleOccupied(vehData[i][veh_vID])){
-                    Vehicles_Lock(i);
+                    vehiclesLock(i);
                     for(new x; x < MAX_PLAYERS; x++){
                         if(IsPlayerConnected(x) && IsPlayerInVehicle(x, vehData[i][veh_vID])) GameTextForPlayer(x, "~r~VEHICULO DESTRUIDO!", 3000, 4);
                         else continue;
@@ -164,7 +166,7 @@ public OnVehicleUpdate()
     return 1;
 }
 
-public Vehicles_OnPlayerEnterCheckpoint(playerid){
+public vehiclesOnPlayerEnterCheckpoint(playerid){
     
     if(!checkpoints[playerid] || checkpoints[playerid] != 1) return 1;
     SendClientMessage(playerid, COLOR_GREEN, "Llegaste a la ubicación del vehículo.");
@@ -173,13 +175,13 @@ public Vehicles_OnPlayerEnterCheckpoint(playerid){
     return 1;
 }
  
-public Vehicles_OnPlayerLeaveCheckpoint(playerid){
+public vehiclesOnPlayerLeaveCheckpoint(playerid){
     checkpoints[playerid] = 0;
     return 1;
 }
 
 
-public Vehicles_OnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
+public vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_vID] != INVALID_VEHICLE_ID && vehData[i][veh_vID] == vehicleid){
             GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
@@ -189,7 +191,7 @@ public Vehicles_OnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
         }
     }
 }
-public Vehicles_OnPlayerExitVehicle(playerid, vehicleid){
+public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
     
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_vID] == vehicleid){
@@ -206,7 +208,7 @@ public Vehicles_OnPlayerExitVehicle(playerid, vehicleid){
     return 1;
 }
 
-public Vehicles_OnVehicleSpawn(vehicleid){
+public vehiclesOnVehicleSpawn(vehicleid){
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehicleid == vehData[i][veh_vID]){
             new plate[20];
@@ -214,11 +216,14 @@ public Vehicles_OnVehicleSpawn(vehicleid){
             SetVehicleNumberPlate(vehicleid, plate);
         }
     }
+    new bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
+    GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
+    SetVehicleParamsEx(vehicleid, engine, false, alarm, doors, bonnet, boot, objective);
     return 1;
 }
-public Vehicles_OnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
-    SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s) en su slot %d. SQLID: %d", Model_RtrName(modelid), ownerid, GetRPName(ownerid), slot, vehData[index][veh_SQLID]);
-    SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d) en tu slot %d.", Model_RtrName(modelid), GetRPName(creatorid),  vehData[index][veh_SQLID], slot);
+public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
+    SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s) en su slot %d. SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), slot, vehData[index][veh_SQLID]);
+    SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d) en tu slot %d.", modelGetName(modelid), GetRPName(creatorid),  vehData[index][veh_SQLID], slot);
     Datos[ownerid][jCoche][slot] = vehData[index][veh_SQLID];
     save_char(ownerid);
     return 1;
@@ -312,7 +317,9 @@ save_vehicle(index){
 clear_vehiclevars(index){
     if(vehData[index][vehORM] != MYSQL_INVALID_ORM){
         orm_clear_vars(vehData[index][vehORM]);
+        vehData[index][vehORM] = MYSQL_INVALID_ORM;
         orm_destroy(vehData[index][vehORM]);
+        vehData[index][vehORM] = MYSQL_INVALID_ORM;
     }
     alm(vehData[index][veh_Dueno], "-");
     vehData[index][veh_vID] = INVALID_VEHICLE_ID;

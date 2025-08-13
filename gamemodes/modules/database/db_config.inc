@@ -5,9 +5,11 @@
 #define db_pass    "" 
 new MySQL:SQLDB;
 new username[MAX_PLAYERS][MAX_PLAYER_NAME];
-forward SQL_OnGameModeInit();
-forward SQL_OnGameModeExit();
-public SQL_OnGameModeInit()
+
+forward databaseOnGameModeInit();
+forward databaseOnGameModeExit();
+
+public databaseOnGameModeInit()
 {
 	new MySQLOpt: option_id = mysql_init_options();
 	mysql_set_option(option_id, AUTO_RECONNECT, true);
@@ -21,10 +23,11 @@ public SQL_OnGameModeInit()
 		SendRconCommand("exit");
 	}
 	else printf("[MySQL] Conectado a la base de datos.");
+	mysql_log(ALL);
 	return 1;
 }
 
-public SQL_OnGameModeExit()
+public databaseOnGameModeExit()
 {
 	mysql_close(SQLDB); // Closing the database.
 	return 1;

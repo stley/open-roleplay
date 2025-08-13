@@ -4,12 +4,12 @@ alm(string[], const string2[])
     strmid(string, string2, 0, strlen(string2), strlen(string2) + 1);
     return 1;
 }
-/*GetIP(playerid)
+GetPIP(playerid)
 {
 	new IP[17];
 	GetPlayerIp(playerid, IP, sizeof(IP));
 	return IP;
-}
+}/*
 Random(min, max)
 {
 	new a = random(max - min) + min;
