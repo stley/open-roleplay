@@ -14,7 +14,7 @@
         "gravity": 0.008,
         "group_player_objects": false,
         "lag_compensation_mode": 1,
-        "map": "State of San Andreas",
+        "map": "Estado de San Andreas",
         "mode": "Roleplay",
         "nametag_draw_radius": 70.0,
         "player_marker_draw_radius": 250.0,
@@ -50,7 +50,7 @@
     },
     "max_bots": 0,
     "max_players": 50,
-    "name": "open.mp server",
+    "name": "Open Roleplay [0.3.DL]",
     "network": {
         "acks_limit": 3000,
         "aiming_sync_rate": 30,

@@ -4,18 +4,10 @@ CMD:crearobjeto(playerid, params[])
     new objetoid;
     new cantidad;
     new mano;
-    if(sscanf(params, "ddd", objetoid, cantidad, mano)){
-        SendClientMessage(playerid, COLOR_GRAYWHITE, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
-        return;
-    }
-    if(mano > 1){
-        SendClientMessage(playerid, COLOR_DARKRED, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
-        return;
-    }
-    if(objetoid > sizeof(ObjetoInfo)-1){
-        SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
-        return;
-    }
+    if(sscanf(params, "ddd", objetoid, cantidad, mano)) return SendClientMessage(playerid, COLOR_GRAYWHITE, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
+    if(mano > 1) return SendClientMessage(playerid, COLOR_DARKRED, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
+    if(objetoid > sizeof(ObjetoInfo)-1) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
+    if(strcmp(ObjetoInfo[objetoid][NombreObjeto], "SLOT LIBRE", true) == 0) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
     if(Datos[playerid][jMano][mano])
     {
         if(guardar_bol(playerid, mano))
@@ -24,6 +16,8 @@ CMD:crearobjeto(playerid, params[])
             if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
             else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
             update_manos(playerid);
+            printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], cantidad);
+            return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %s)", ObjetoInfo[objetoid][NombreObjeto], cantidad);
         }
     }
     else
@@ -32,7 +26,10 @@ CMD:crearobjeto(playerid, params[])
         if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
         else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
         update_manos(playerid);
+        printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], cantidad);
+        return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %s)", ObjetoInfo[objetoid][NombreObjeto], cantidad);
     }
+    return 1;
 }
 Dialog:D_PLACEHOLDER(playerid, response, listitem, inputtext[])
 {
@@ -297,6 +294,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_Matricula] = get_plate();
                     vehData[i][veh_Gasolina] = 100;
                     orm_vehicle(i);
+                    printf("Creando el vehículo index %d  (Matrícula: LS%s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Dueno], Datos[playerid][jNombrePJ], username[playerid]);
                     orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
                     vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);
                     PutPlayerInVehicle(nuevodueno, vehData[i][veh_vID], 0);

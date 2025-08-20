@@ -229,6 +229,7 @@ public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
     return 1;
 }
 public CharVeh_Unspawn(indx){
+    printf("Ocultando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Dueno]);
     save_vehicle(indx);
     if(vehData[indx][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[indx][veh_vID]);
     return 1;
@@ -239,6 +240,7 @@ public CharVeh_Spawn(indx){
         return 1;
     }
     else{
+        printf("Spawneando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Dueno]);
         vehData[indx][veh_vID] = CreateVehicle(vehData[indx][veh_Modelo], vehData[indx][veh_PosX], vehData[indx][veh_PosY], vehData[indx][veh_PosZ], vehData[indx][veh_PosR], vehData[indx][veh_Color1], vehData[indx][veh_Color2], -1, false);
         LinkVehicleToInterior(vehData[indx][veh_vID], vehData[indx][veh_Interior]);
         SetVehicleVirtualWorld(vehData[indx][veh_vID], vehData[indx][veh_VW]);

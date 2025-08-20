@@ -273,11 +273,13 @@ ClearPlayerVars(playerid)
 	return 1;	
 }
 save_account(playerid){
-	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM) printf("ORMID playerid %d invalida", playerid);
+	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM) printf("ORMID playerid %d invalida", playerid);
+	printf("Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	return orm_update(Datos[playerid][ORMID]);
 }
 save_char(playerid)
 {
+	printf("Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid);
 	GetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
 	GetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
 	Datos[playerid][jInt] = GetPlayerInterior(playerid);
@@ -314,6 +316,7 @@ public accountOnGameModeExit(){
 			if(Datos[i][EnChar] == true) save_char(i);
 			else if(Datos[i][LoggedIn] == true) save_account(i);
 			ClearPlayerVars(i);
+			SetPlayerName(i, username[i]);
 			SetTimerEx("Kick", 1000, false, "d", i);
 			continue;
 		}
