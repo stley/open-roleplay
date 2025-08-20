@@ -1,5 +1,5 @@
 stock orm_vehicle(index){
-    new ORM:ormid = vehData[index][vehORM] = orm_create("vehicles");
+    new ORM:ormid = vehData[index][vehORM] = orm_create("vehicles", SQLDB);
 
     orm_addvar_int(ormid, vehData[index][veh_SQLID], "SQLID");
     orm_addvar_string(ormid, vehData[index][veh_Dueno], 25, "Dueno");

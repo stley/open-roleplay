@@ -22,6 +22,7 @@ clear_wounds(playerid){
 
 public Wound_HandleDamage(playerid, issuerid, weaponid, bodypart, Float:amount){
 
+    if(!IsPlayerConnected(playerid) || !IsPlayerConnected(issuerid)) return 0;
     new
         ammo,
         Float:dmgtaken

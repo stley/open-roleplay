@@ -1,5 +1,11 @@
 #define MAX_WOUNDS (90)
 
+#define DEATH_INSTANT 90.0
+#define DEATH_HEADSHOT 85.0
+#define RESPAWN_TIME_INSTANT 180000  // 3 minutos
+#define RESPAWN_TIME_WOUNDED 240000  // 4 minutos  
+#define RESPAWN_TIME_DEAD 120000     // 2 minutos
+
 #define DMG_9MM_TORSO 12.5
 #define DMG_45ACP_TORSO 14.2
 #define DMG_38SPL_TORSO 14.2
