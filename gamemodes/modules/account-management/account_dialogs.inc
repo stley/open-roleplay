@@ -21,17 +21,20 @@ Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 		mysql_format(SQLDB, hashed, sizeof(hashed), "UPDATE `accounts` SET `online` = 1 WHERE `Nombre` = '%e'", username[playerid]);
 		alm(Datos[playerid][jIP], GetPIP(playerid));
 		mysql_tquery(SQLDB, hashed);
+		printf("%s ingresó al usuario %s (SQLID: %d)", Datos[playerid][jIP], username[playerid], Datos[playerid][jSQLID]);
 	}
 	else
 	{
 		if(IntentosLogin[playerid] < 3)
 		{
+			printf("%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
 			IntentosLogin[playerid]++;
 			return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "\tIngresaste una contraseña incorrecta.\n\tIntenta de nuevo.", "Ingresar", "Salir");
 		}
 		else
 		{
 			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
+			printf("%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
 			SetTimerEx("Kick", 2000, false, "d", playerid);
 		}
 	}
@@ -111,6 +114,8 @@ Dialog:D_FINREGPJ(playerid, response, listitem, inputtext[])
 	Datos[playerid][jUsuario] = Datos[playerid][jSQLID];
 	alm(Datos[playerid][jFechaCreacion], FechaActual());
 	Datos[playerid][jVida] = 100.0;
+	characterTextDraws(playerid);
+	printf("%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
 	orm_insert(Datos[playerid][ORMPJ], "accountOnCharInserted", "d", playerid);
 	switch(Datos[playerid][jAdmin]){
 		case 1337: a_perms[playerid] = CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD ;
@@ -165,6 +170,7 @@ Dialog:D_INGPJ(playerid, response, listitem, inputtext[])
 			}
 			SpawnPlayer(playerid);
 			load_character(playerid);
+			printf("%s (SQLID %d | IP %s) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
 			switch(Datos[playerid][jAdmin]){
 				case 1337: a_perms[playerid] = CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD ;
 				case 5: a_perms[playerid] = CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;

@@ -317,7 +317,7 @@ public accountOnGameModeExit(){
 			else if(Datos[i][LoggedIn] == true) save_account(i);
 			ClearPlayerVars(i);
 			SetPlayerName(i, username[i]);
-			SetTimerEx("Kick", 1000, false, "d", i);
+			SetTimerEx("Kick", 2000, false, "d", i);
 			continue;
 		}
 		else continue;

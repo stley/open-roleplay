@@ -289,7 +289,7 @@ CREATE TABLE `vehicles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices para tablas volcadas
+-- Ýndices para tablas volcadas
 --
 
 --
@@ -324,19 +324,19 @@ ALTER TABLE `vehicles`
 -- AUTO_INCREMENT de la tabla `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `SQLID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `SQLID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `SQLIDPJ` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `SQLIDPJ` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT de la tabla `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `SQLID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `SQLID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

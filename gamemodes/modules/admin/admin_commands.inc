@@ -5,7 +5,7 @@ CMD:crearobjeto(playerid, params[])
     new cantidad;
     new mano;
     if(sscanf(params, "ddd", objetoid, cantidad, mano)) return SendClientMessage(playerid, COLOR_GRAYWHITE, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
-    if(mano > 1) return SendClientMessage(playerid, COLOR_DARKRED, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
+    if(mano > 1 || mano < 0) return SendClientMessage(playerid, COLOR_DARKRED, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
     if(objetoid > sizeof(ObjetoInfo)-1) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
     if(strcmp(ObjetoInfo[objetoid][NombreObjeto], "SLOT LIBRE", true) == 0) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
     if(Datos[playerid][jMano][mano])
@@ -16,8 +16,8 @@ CMD:crearobjeto(playerid, params[])
             if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
             else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
             update_manos(playerid);
-            printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], cantidad);
-            return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %s)", ObjetoInfo[objetoid][NombreObjeto], cantidad);
+            printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
+            return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %d)", ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
         }
     }
     else
@@ -26,8 +26,8 @@ CMD:crearobjeto(playerid, params[])
         if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
         else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
         update_manos(playerid);
-        printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], cantidad);
-        return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %s)", ObjetoInfo[objetoid][NombreObjeto], cantidad);
+        printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
+        return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %d)", ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
     }
     return 1;
 }
@@ -192,10 +192,11 @@ flags:limpiarmanos(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_
 CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
-    if(sscanf(params, "u[25]", objetivo)){
-        SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
-        return;
-    }
+    if(sscanf(params, "u[25]", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
+    printf("AdmCmd: %s (%s) limpió las manos de %s (%s).", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
+    printf("Tenía en sus manos:");
+    if(Datos[objetivo][jMano][0]) printf("Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]);
+    if(Datos[objetivo][jMano][1]) printf("Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]);
     Datos[objetivo][jMano][0] = 0;
     Datos[objetivo][jManoCant][0] = 0;
     Datos[objetivo][jManoData][0] = 0;
@@ -203,21 +204,20 @@ CMD:limpiarmanos(playerid, params[])
     Datos[objetivo][jManoCant][1] = 0;
     Datos[objetivo][jManoData][1] = 0;
     update_manos(objetivo);
-    return;
+    SendClientMessage(playerid, COLOR_LIGHTRED, "AdmCmd: Borraste los objetos de las manos de %s.", Datos[objetivo][jNombrePJ]);
+    SendClientMessage(objetivo, COLOR_LIGHTRED, "AdmCmd: El staff %s (%s) borró los objetos de tus manos.", Datos[playerid][jNombrePJ], username[playerid]);
+    return 1;
 }
 flags:darskin(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
 CMD:darskin(playerid, params[]){
-    if(sscanf(params, "ud", params[0], params[1])){
-        SendClientMessage(playerid, COLOR_SYSTEM, "USO: /darskin [ID/Nombre] [ID Skin]");
-        return;
-    }
-    if(!IsPlayerConnected(params[0])){
-        SendClientMessage(playerid, COLOR_DARKRED, "El usuario seleccionado no esta conectado.");
-        return;
-    }
+    if(sscanf(params, "ud", params[0], params[1])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /darskin [ID/Nombre] [ID Skin]");
+    if(!IsPlayerConnected(params[0])) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario seleccionado no esta conectado.");
+
+    printf("%s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
+    SendClientMessage(params[0], COLOR_LIGHTRED, "AdmCmd: %s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
     SetPlayerSkin(params[0], params[1]);
     Datos[params[0]][jRopa] = params[1];
-    return;
+    return 1;
 }
 
 flags:verstats(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
