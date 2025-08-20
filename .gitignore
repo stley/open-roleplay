@@ -23,7 +23,6 @@ pawn.lock
 
 # binaries
 *.exe
-*.dll
 *.so
 announce
 samp03svr
