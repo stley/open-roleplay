@@ -295,6 +295,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_Interior] = GetPlayerInterior(nuevodueno);
                     vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
                     vehData[i][veh_Matricula] = get_plate();
+                    vehData[i][veh_Gasolina] = 100;
                     orm_vehicle(i);
                     orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
                     vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);

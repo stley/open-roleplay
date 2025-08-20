@@ -96,7 +96,7 @@ Dialog:D_FINREGPJ(playerid, response, listitem, inputtext[])
 		case 2: alm(jPJE[playerid][1], Datos[playerid][jNombrePJ]); 
 		case 3: alm(jPJE[playerid][2], Datos[playerid][jNombrePJ]); 
 	}
-	orm_update(Datos[playerid][ORMID]);
+	save_account(playerid);
 	ChosenPJ[playerid] = 0;
 	SpawnPlayer(playerid);
 	orm_char(playerid);
@@ -108,10 +108,18 @@ Dialog:D_FINREGPJ(playerid, response, listitem, inputtext[])
 	GivePlayerMoney(playerid, Datos[playerid][jDinero]);
 	SetPlayerSkin(playerid, Datos[playerid][jRopa]);
 	Datos[playerid][EnChar] = true;
-	alm(Datos[playerid][jUsuario], username[playerid]);
+	Datos[playerid][jUsuario] = Datos[playerid][jSQLID];
 	alm(Datos[playerid][jFechaCreacion], FechaActual());
 	Datos[playerid][jVida] = 100.0;
-	orm_insert(Datos[playerid][ORMPJ], " accountOnCharInserted", "d", playerid);
+	orm_insert(Datos[playerid][ORMPJ], "accountOnCharInserted", "d", playerid);
+	switch(Datos[playerid][jAdmin]){
+		case 1337: a_perms[playerid] = CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD ;
+		case 5: a_perms[playerid] = CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;
+		case 4: a_perms[playerid] = CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;
+		case 3: a_perms[playerid] = CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;
+		case 2: a_perms[playerid] = CMD_MOD | CMD_JR_MOD;
+		case 1: a_perms[playerid] = CMD_JR_MOD;
+	}
 	return 1;
 }
 

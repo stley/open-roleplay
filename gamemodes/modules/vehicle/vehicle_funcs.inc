@@ -223,7 +223,7 @@ public vehiclesOnVehicleSpawn(vehicleid){
 }
 public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
     SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s) en su slot %d. SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), slot, vehData[index][veh_SQLID]);
-    SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d) en tu slot %d.", modelGetName(modelid), GetRPName(creatorid),  vehData[index][veh_SQLID], slot);
+    SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d) en tu slot %d.", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID], slot);
     Datos[ownerid][jCoche][slot] = vehData[index][veh_SQLID];
     save_char(ownerid);
     return 1;

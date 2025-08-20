@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-11-2024 a las 19:28:21
+-- Tiempo de generación: 19-08-2025 a las 09:25:59
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -55,9 +55,7 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`SQLID`, `Nombre`, `Administrador`, `FacMan`, `StaffMan`, `PropMan`, `Creditos`, `Clave`, `Email`, `IP`, `Personaje_1`, `Personaje_2`, `Personaje_3`, `Fecha_Reg`, `Ultima_Conexion`, `Premium`, `dPremium`, `mPremium`, `aPremium`, `online`) VALUES
-(1, 'varky', 1337, 0, 0, 0, 0, '644D5F272C31098436B96386B7CC62F363E058C9CC478C032D617EC1FB622ACCD1C1732793D3088599485CCA56850721A8F1A434615785FE8E321DBDA349447A', 'email@dominio.com', '127.0.0.1', 'Gregory_Donovan', 'user_none', 'user_none', 'Domingo 29 de Octubre de 2023 [04:13 AM]', 'Domingo 17 de Noviembre de 2024 [12:07 AM]', 0, 0, 0, 0, 0),
-(2, 'FRANZCTDS', 0, 0, 0, 0, 0, '46ADB2A778CB2AC98D19D7CEA3E6178CB6BF4CE393CDD592CE052B371A409DF6957D2CD3AC6D6E4D6BEE4C567F8D74ECBEE2C7FFE74B63F6761B1390D635DCCC', 'playboysx13@gmail.com', '-', 'franz_elmejor', 'user_none', 'user_none', 'Domingo 24 de Marzo de 2024 [07:33 PM]', '-', 0, 0, 0, 0, 0),
-(3, 'Ahh', 0, 0, 0, 0, 0, 'EF991960798148ABAACB37ABCB126450A7D0F3FC2612BADD956A03C0E93F36C847341178A4018E5E668F992AFF924999C22BB648D5215B61A3BE396F96D700B2', 'melodyyeor@gmail.com\r\n', '186.138.80.39', 'Melody_Stern', 'user_none', 'user_none', 'Viernes 16 de Agosto de 2024 [01:19 AM]', 'Viernes 16 de Agosto de 2024 [01:28 AM]', 0, 0, 0, 0, 0);
+(1, 'varky', 1337, 0, 0, 0, 0, '644D5F272C31098436B96386B7CC62F363E058C9CC478C032D617EC1FB622ACCD1C1732793D3088599485CCA56850721A8F1A434615785FE8E321DBDA349447A', 'email@dominio.com', '127.0.0.1', 'user_none', 'user_none', 'user_none', 'Domingo 29 de Octubre de 2023 [04:13 AM]', 'Domingo 17 de Noviembre de 2024 [12:07 AM]', 0, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -67,7 +65,7 @@ INSERT INTO `accounts` (`SQLID`, `Nombre`, `Administrador`, `FacMan`, `StaffMan`
 
 CREATE TABLE `characters` (
   `SQLIDPJ` int(11) NOT NULL,
-  `Usuario` varchar(25) DEFAULT NULL,
+  `Usuario` int(11) DEFAULT NULL,
   `NombrePJ` varchar(25) DEFAULT NULL,
   `Fecha_Creacion` varchar(101) DEFAULT NULL,
   `Salud` float DEFAULT NULL,
@@ -133,15 +131,6 @@ CREATE TABLE `characters` (
   `CasaLlaves` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `characters`
---
-
-INSERT INTO `characters` (`SQLIDPJ`, `Usuario`, `NombrePJ`, `Fecha_Creacion`, `Salud`, `Muerto`, `Chaleco`, `PosX`, `PosY`, `PosZ`, `PosR`, `VirtualWorld`, `Interior`, `Nivel`, `Experiencia`, `Horas`, `PuntosRol`, `PuntosRolNeg`, `Edad`, `Sexo`, `Dinero`, `Ropa`, `ManoDer`, `ManoDerCant`, `ManoIzq`, `ManoIzCant`, `ManoDerData`, `ManoIzData`, `Bolsillo0`, `BolsilloCant0`, `BolsilloData0`, `Bolsillo1`, `BolsilloCant1`, `BolsilloData1`, `Bolsillo2`, `BolsilloCant2`, `BolsilloData2`, `Bolsillo3`, `BolsilloCant3`, `BolsilloData3`, `Bolsillo4`, `BolsilloCant4`, `BolsilloData4`, `Pecho`, `PechoCant`, `Espalda`, `EspaldaCant`, `EspaldaData`, `PechoData`, `Faccion`, `RangoFac`, `DivFac`, `Faccion2`, `RangoFac2`, `DivFac2`, `Documento`, `Licencia1`, `Licencia2`, `Coche1`, `Coche2`, `CocheLlaves1`, `CocheLlaves2`, `Casa`, `Casa2`, `CasaLlaves`) VALUES
-(3, 'varky', 'Gregory_Donovan', 'Domingo 29 de Octubre de 2023 [05:58 PM]', 100, 0, 0, 1533.26, -1669.87, 13.383, 6.155, 0, 0, 0, 0, 0, 0, 0, 20, 1, 1500, 72, 0, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 63, 8, 66, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0),
-(4, 'FRANZCTDS', 'franz_elmejor', 'Domingo 24 de Marzo de 2024 [07:34 PM]', 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 1, 1500, 299, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(5, 'Ahh', 'Melody_Stern', 'Viernes 16 de Agosto de 2024 [01:21 AM]', 100, 0, 100, 237.988, -192.365, 1.578, 316.669, 0, 0, 0, 0, 0, 0, 0, 20, 0, 1500, 20007, 0, 0, 0, 0, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -201,13 +190,6 @@ CREATE TABLE `char_toys` (
   `PechoScaleY` float NOT NULL DEFAULT 0,
   `PechoScaleZ` float NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `char_toys`
---
-
-INSERT INTO `char_toys` (`character_id`, `Gorro`, `Gafas`, `Boca`, `Cuerpo`, `Pecho`, `GorroPosX`, `GorroPosY`, `GorroPosZ`, `GorroRotX`, `GorroRotY`, `GorroRotZ`, `GorroScaleX`, `GorroScaleY`, `GorroScaleZ`, `GafasPosX`, `GafasPosY`, `GafasPosZ`, `GafasRotX`, `GafasRotY`, `GafasRotZ`, `GafasScaleX`, `GafasScaleY`, `GafasScaleZ`, `BocaPosX`, `BocaPosY`, `BocaPosZ`, `BocaRotX`, `BocaRotY`, `BocaRotZ`, `BocaScaleX`, `BocaScaleY`, `BocaScaleZ`, `CuerpoPosX`, `CuerpoPosY`, `CuerpoPosZ`, `CuerpoRotX`, `CuerpoRotY`, `CuerpoRotZ`, `CuerpoScaleX`, `CuerpoScaleY`, `CuerpoScaleZ`, `PechoPosX`, `PechoPosY`, `PechoPosZ`, `PechoRotX`, `PechoRotY`, `PechoRotZ`, `PechoScaleX`, `PechoScaleY`, `PechoScaleZ`) VALUES
-(3, 0, 0, 184, 0, 177, 0.117, 0.003, 0.006, -5.3, 0, -7.3, 1.029, 1.097, 1.066, 0.085, 0.03, 0, 0, 89.5, 90.2, 1, 1, 1, -0.00000003655, 0.151, -0.022, 172.1, 87.9, -92.1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.118, 0.123, -0.015, 0, -2.7, -6.5, 0.955, 0.835, 1.017);
 
 -- --------------------------------------------------------
 
@@ -305,15 +287,6 @@ CREATE TABLE `vehicles` (
   `GunrackCant` smallint(6) NOT NULL DEFAULT 0,
   `GunrackData` smallint(6) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `vehicles`
---
-
-INSERT INTO `vehicles` (`SQLID`, `Tipo`, `Matricula`, `Modelo`, `Color1`, `Color2`, `Dueno`, `Gasolina`, `Bloqueo`, `Vida`, `PosX`, `PosY`, `PosZ`, `PosR`, `VW`, `Interior`, `Deposito`, `DmgSuperficie`, `DmgPuertas`, `DmgLuces`, `DmgRuedas`, `mods0`, `mods1`, `mods2`, `mods3`, `mods4`, `mods5`, `mods6`, `mods7`, `mods8`, `mods9`, `mods10`, `mods11`, `mods12`, `mods13`, `mods14`, `EspacioMal`, `Maletero_0`, `MaleteroCant_0`, `MaleteroData_0`, `Maletero_1`, `MaleteroCant_1`, `MaleteroData_1`, `Maletero_2`, `MaleteroCant_2`, `MaleteroData_2`, `Maletero_3`, `MaleteroCant_3`, `MaleteroData_3`, `Maletero_4`, `MaleteroCant_4`, `MaleteroData_4`, `Maletero_5`, `MaleteroCant_5`, `MaleteroData_5`, `Maletero_6`, `MaleteroCant_6`, `MaleteroData_6`, `Maletero_7`, `MaleteroCant_7`, `MaleteroData_7`, `Maletero_8`, `MaleteroCant_8`, `MaleteroData_8`, `Maletero_9`, `MaleteroCant_9`, `MaleteroData_9`, `Maletero_10`, `MaleteroCant_10`, `MaleteroData_10`, `Maletero_11`, `MaleteroCant_11`, `MaleteroData_11`, `Maletero_12`, `MaleteroCant_12`, `MaleteroData_12`, `Maletero_13`, `MaleteroCant_13`, `MaleteroData_13`, `Maletero_14`, `MaleteroCant_14`, `MaleteroData_14`, `Guantera`, `GuanteraCant`, `GuanteraData`, `Gunrack`, `GunrackCant`, `GunrackData`) VALUES
-(2, 1, 937303, 560, 7, 0, 'Gregory_Donovan', 100, 0, 897.39, 1608.9, -1665.6, 13.252, 183.064, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 61, 9, 0, 86, 34, 0, 56, 9, 0, 177, 1, 0, 166, 1, 0, 68, 0, 0, 63, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(3, 1, 574781, 426, 6, 0, 'Gregory_Donovan', 100, 1, 951.25, 1259.33, -1341.45, 12.778, 283.295, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(4, 1, 870508, 560, 0, 0, 'Melody_Stern', 0, 0, 0, 196.326, -282.963, 1.431, 215.632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 --
 -- Índices para tablas volcadas

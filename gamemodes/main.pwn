@@ -8,7 +8,7 @@
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
-#include <jit>
+//#include <jit>
 #include <YSI-Includes/YSI_Core/y_utils>
 #include <YSI-Includes/YSI_Game/y_vehicledata>
 //#include <bus>

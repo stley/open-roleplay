@@ -26,7 +26,7 @@ enum jInfo
 	ORM:ORMPJ,
 	jSQLIDP,
 	bool: EnChar,
-	jUsuario[MAX_PLAYER_NAME],
+	jUsuario,
 	jNombrePJ[MAX_PLAYER_NAME],
 	jNivel,
 	jExp,

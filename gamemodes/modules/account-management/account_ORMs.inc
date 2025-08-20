@@ -28,7 +28,7 @@ orm_user(playerid)
 orm_char(playerid)
 {
 	new ORM:ormid = Datos[playerid][ORMPJ] = orm_create("characters", SQLDB);
-	orm_addvar_string(ormid, Datos[playerid][jUsuario], MAX_PLAYER_NAME, "Usuario");
+	orm_addvar_int(ormid, Datos[playerid][jUsuario], "Usuario");
 	orm_addvar_string(ormid, Datos[playerid][jNombrePJ], MAX_PLAYER_NAME, "NombrePJ");
 	orm_addvar_string(ormid, Datos[playerid][jFechaCreacion], 101, "Fecha_Creacion");
 	orm_addvar_int(ormid, Datos[playerid][jSQLIDP], "SQLIDPJ");

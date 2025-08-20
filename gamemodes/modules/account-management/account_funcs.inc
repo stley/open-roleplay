@@ -41,9 +41,9 @@ public accountOnCharFirstLoad(playerid)
 }
 forward accountOnCharInserted(playerid);
 public accountOnCharInserted(playerid){
-	new query[128];
-	mysql_format(SQLDB, query, sizeof(query), "INSERT INTO `char_toys` VALUES ('%d')", Datos[playerid][jSQLIDP]);
-	mysql_tquery(SQLDB, query);
+	printf("Cuenta %s creó el personaje %s", username[playerid], Datos[playerid][jNombrePJ]);
+	printf("Insertando tabla de objetos para el personaje %s (ID: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	orm_insert(CharToys[playerid][ORM_toy]);
 	save_char(playerid);
 	return 1;
 }
@@ -171,7 +171,7 @@ clear_chardata(playerid)
 	Datos[playerid][jSQLIDP] = 0;
 	Datos[playerid][EnChar] = false;
 	alm(Datos[playerid][jNombrePJ], "-");
-	alm(Datos[playerid][jUsuario], "-");
+	Datos[playerid][jUsuario] = 0;
 	alm(Datos[playerid][jFechaCreacion], "-");
 	Datos[playerid][jMano][0] = 0;
 	Datos[playerid][jManoCant][0] = 0;
@@ -293,10 +293,7 @@ public accountOnPlayerDisconnect(playerid, reason)
 	{
 		new query[96];
 		save_account(playerid);
-		if(Datos[playerid][EnChar] == true)
-		{
-			save_char(playerid);
-		}
+		if(Datos[playerid][EnChar] == true) save_char(playerid);
 		mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `online` = 0 WHERE `Nombre` = '%e'", username[playerid]);
 		mysql_tquery(SQLDB, query);
 	}

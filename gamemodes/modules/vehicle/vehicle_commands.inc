@@ -15,7 +15,7 @@
             }
         }
         else{
-            formatt(buff, "Personal %d]: Vacío\n", i+1);
+            formatt(buff, "Personal %d: Vacío\n", i+1);
             strcat(dlg, buff);
         }
         if(Datos[playerid][jCocheLlaves][i]){
