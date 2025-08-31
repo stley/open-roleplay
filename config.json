@@ -14,7 +14,7 @@
     "logo": "https://i.imgur.com/zcXOl4o.png",
     "discord": {
         "invite": "",
-        "bot_token": "MTQxMTExMDEzMzYzODg4OTUxMg.GBXw9m.nkQNJcv-YYAV7aMNvxXwzdO3qqBgqRv4p4AVbQ"
+        "bot_token": ""
     },
     "chat_input_filter": true,
     "enable_query": true,
