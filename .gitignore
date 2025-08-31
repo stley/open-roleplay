@@ -23,7 +23,6 @@ pawn.lock
 
 # binaries
 *.exe
-*.so
 announce
 samp03svr
 samp-npc
