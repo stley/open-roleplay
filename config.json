@@ -8,10 +8,10 @@
         "web_server_bind": ""
     },
     "banners": {
-        "dark": "https://i.imgur.com/Lt6vplV.png",
-        "light": "https://i.imgur.com/Lt6vplV.png"
+        "dark": "",
+        "light": ""
     },
-    "logo": "https://i.imgur.com/zcXOl4o.png",
+    "logo": "",
     "discord": {
         "invite": "",
         "bot_token": ""
@@ -104,7 +104,7 @@
     "rcon": {
         "allow_teleport": false,
         "enable": false,
-        "password": "changememe"
+        "password": "t3Dx690K7319"
     },
     "sleep": 5.0,
     "use_dyn_ticks": true,

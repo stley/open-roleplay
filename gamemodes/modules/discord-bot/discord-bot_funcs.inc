@@ -1,3 +1,6 @@
+new serverLogBufferLines;
+new serverLogBuffer[1900];
+
 forward discordOnGameModeInit();
 forward discordOnGameModeExit();
 forward discordOnMessageSent(channel);
@@ -15,7 +18,10 @@ public discordOnGameModeInit(){
 }
 
 public discordOnGameModeExit(){
-    if(strlen(serverLogBuffer))
+    if(strlen(serverLogBuffer)){
+        DCC_SendChannelMessage(LOG_CHANNEL, serverLogBuffer);
+        DCC_SendChannelMessage(LOG_CHANNEL, "FINALIZANDO serverLog...");
+    }
     return 1;
 }
 

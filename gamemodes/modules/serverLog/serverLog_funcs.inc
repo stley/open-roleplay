@@ -1,5 +1,4 @@
-new serverLogBufferLines;
-new serverLogBuffer[1900];
+
 
 stock serverLogRegister(const info[])
 {
