@@ -15,6 +15,7 @@ public discordOnGameModeInit(){
 }
 
 public discordOnGameModeExit(){
+    if(strlen(serverLogBuffer))
     return 1;
 }
 
