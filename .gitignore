@@ -38,5 +38,5 @@ samp.ban
 #
 # Common files
 #
-
+.vscode/
 *.sublime-workspace
