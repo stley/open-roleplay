@@ -5,7 +5,7 @@ enum jInfo
 	//Usuario
 	ORM:ORMID,
 	jSQLID,
-	jNombre[MAX_PLAYER_NAME],
+	jNombre[33],
 	jClave[129],
 	jEmail[101],
 	jAdmin,

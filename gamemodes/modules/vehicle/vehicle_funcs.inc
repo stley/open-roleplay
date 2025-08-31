@@ -150,7 +150,7 @@ public OnVehicleUpdate()
             GetVehicleHealth(vehData[i][veh_vID], vHealth);
             if(vHealth <= 250){
                 SetVehicleHealth(vehData[i][veh_vID], 260.0);
-                vehData[i][veh_Engine] = VEHICLE_PARAMS_OFF;
+                vehData[i][veh_Engine] = false;
                 vehData[i][veh_Vida] = 260.0;
                 vehiclesEngine(i);
                 if(IsVehicleOccupied(vehData[i][veh_vID])){
@@ -209,16 +209,22 @@ public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
 }
 
 public vehiclesOnVehicleSpawn(vehicleid){
-    for(new i; i < MAX_VEHICULOS; i++){
+    new i;
+    for(i = -1; i < MAX_VEHICULOS; i++){
+        if(i == -1) continue;
         if(vehicleid == vehData[i][veh_vID]){
             new plate[20];
             formatt(plate, "LS%d", vehData[i][veh_Matricula]);
             SetVehicleNumberPlate(vehicleid, plate);
+            SetVehicleHealth(vehicleid, vehData[i][veh_Vida]);
+            UpdateVehicleDamageStatus(vehicleid, vehData[i][veh_DmgSuperficie], vehData[i][veh_DmgPuertas], vehData[i][veh_DmgLuces], vehData[i][veh_DmgRuedas]);
         }
     }
     new bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
     GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
-    SetVehicleParamsEx(vehicleid, engine, false, alarm, doors, bonnet, boot, objective);
+    if(i == -1) SetVehicleParamsEx(vehicleid, false, false, false, false, false, false, false);
+    else SetVehicleParamsEx(vehicleid, false, false, false, vehData[i][veh_Bloqueo], false, false, false);
+    
     return 1;
 }
 public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
@@ -229,18 +235,24 @@ public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
     return 1;
 }
 public CharVeh_Unspawn(indx){
-    printf("Ocultando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Dueno]);
+    new dslog[512];
+    format(dslog, sizeof(dslog), "Ocultando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Dueno]);
+    serverLogRegister(dslog);
     save_vehicle(indx);
     if(vehData[indx][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[indx][veh_vID]);
     return 1;
 }
 public CharVeh_Spawn(indx){
     if(vehData[indx][veh_vID] != INVALID_VEHICLE_ID){
-        printf("Hubo un error al spawnear el coche index %d, SQLID %d: Ya esta spawneado!", indx, vehData[indx][veh_SQLID]);
+        new dslog[512];
+        format(dslog, sizeof(dslog), "Hubo un error al spawnear el coche index %d, SQLID %d: Ya esta spawneado!", indx, vehData[indx][veh_SQLID]);
+        serverLogRegister(dslog);
         return 1;
     }
     else{
-        printf("Spawneando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Dueno]);
+        new dslog[512];
+        format(dslog, sizeof(dslog), "Spawneando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Dueno]);
+        serverLogRegister(dslog);
         vehData[indx][veh_vID] = CreateVehicle(vehData[indx][veh_Modelo], vehData[indx][veh_PosX], vehData[indx][veh_PosY], vehData[indx][veh_PosZ], vehData[indx][veh_PosR], vehData[indx][veh_Color1], vehData[indx][veh_Color2], -1, false);
         LinkVehicleToInterior(vehData[indx][veh_vID], vehData[indx][veh_Interior]);
         SetVehicleVirtualWorld(vehData[indx][veh_vID], vehData[indx][veh_VW]);

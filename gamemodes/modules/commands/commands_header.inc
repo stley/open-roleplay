@@ -3,7 +3,7 @@
 	#include <Pawn.CMD>
 #endif
 
-#include "../gamemodes/modules/item_system/item_commands"
+#include "../gamemodes/modules/item-system/item_commands"
 #include "../gamemodes/modules/admin/admin_commands"
 #include "../gamemodes/modules/account-management/account_commands"
 #include "../gamemodes/modules/rptools/rptools_commands"

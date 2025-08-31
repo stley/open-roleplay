@@ -19,7 +19,7 @@ public accountOnPlayerConnect(playerid)
 	new str[129];
 	ClearPlayerVars(playerid);
 	clear_wounds(playerid);
-	GetPlayerName(playerid, username[playerid], MAX_PLAYER_NAME);
+	GetPlayerName(playerid, initialname[playerid], MAX_PLAYER_NAME);
 	formatt(str, "Conectando_%d", playerid);
 	SetPlayerName(playerid, str);
 	return 1;
@@ -41,12 +41,28 @@ public accountOnCharFirstLoad(playerid)
 }
 forward accountOnCharInserted(playerid);
 public accountOnCharInserted(playerid){
-	printf("Cuenta %s creó el personaje %s", username[playerid], Datos[playerid][jNombrePJ]);
-	printf("Insertando tabla de objetos para el personaje %s (ID: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	new dslog[512];
+	format(dslog, sizeof(dslog), "Cuenta %s creó el personaje %s", username[playerid], Datos[playerid][jNombrePJ]);
+	serverLogRegister(dslog);
+	format(dslog, sizeof(dslog), "Insertando tabla de objetos para el personaje %s (ID: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	serverLogRegister(dslog);
 	orm_insert(CharToys[playerid][ORM_toy]);
 	save_char(playerid);
 	return 1;
 }
+/*bool:accountCheck(account_name[]){
+	new query[128], sqlid;
+	if(isnull(account_name)) return 0;
+	mysql_format(SQLDB, "SELECT `SQLID` FROM `accounts` WHERE `Nombre` = `%e` LIMIT 1", account_name);
+	new Cache:accountQuery;
+	accountQuery = mysql_query(SQLDB, query);
+	cache_set_active(accountQuery);
+	cache_get_value_name_int(0, "SQLID", sqlid);
+	cache_delete(accountQuery);
+	return sqlid;
+}*/
+
+
 characterTextDraws(playerid){
 	Gun_Hud[playerid][0] = CreatePlayerTextDraw(playerid, 586.000, 113.000, "Vacío");
 	PlayerTextDrawLetterSize(playerid, Gun_Hud[playerid][0], 0.260, 1.500);
@@ -273,18 +289,25 @@ ClearPlayerVars(playerid)
 	return 1;	
 }
 save_account(playerid){
-	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM) printf("ORMID playerid %d invalida", playerid);
-	printf("Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
+	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM) serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
+	new dslog[512];
+	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
+	serverLogRegister(dslog);
 	return orm_update(Datos[playerid][ORMID]);
 }
 save_char(playerid)
 {
-	printf("Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid);
+	new dslog[512];
+	format(dslog, sizeof(dslog), "Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid);
+	serverLogRegister(dslog);
 	GetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
 	GetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
 	Datos[playerid][jInt] = GetPlayerInterior(playerid);
 	Datos[playerid][jVW] = GetPlayerVirtualWorld(playerid);
-	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM) printf("ORMPJ playerid %d invalida", playerid);
+	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM){
+		format(dslog, sizeof(dslog), "ORMPJ playerid %d invalida", playerid);
+		serverLogRegister(dslog);
+	}
 	orm_update(CharToys[playerid][ORM_toy]);
 	return orm_update(Datos[playerid][ORMPJ]);
 }
@@ -316,7 +339,7 @@ public accountOnGameModeExit(){
 			if(Datos[i][EnChar] == true) save_char(i);
 			else if(Datos[i][LoggedIn] == true) save_account(i);
 			ClearPlayerVars(i);
-			SetPlayerName(i, username[i]);
+			//SetPlayerName(i, username[i]);
 			SetTimerEx("Kick", 2000, false, "d", i);
 			continue;
 		}
@@ -327,10 +350,7 @@ public accountOnGameModeExit(){
 
 public accountOnPlayerRequestClass(playerid, classid)
 {
-	new str[256];
-	orm_user(playerid);
-	mysql_format(SQLDB, str, sizeof(str), "SELECT * FROM `accounts` WHERE `Nombre` = '%e' LIMIT 1", username[playerid]);
-	mysql_tquery(SQLDB, str, "accountOnUserFirstLoad", "d", playerid);
+	Dialog_Show(playerid, D_USERNAME, DIALOG_STYLE_INPUT, "¡Bienvenido!", "Ingresa tu nombre de usuario para continuar:", "Ingresar", "Salir");
 	return 1;
 }
 

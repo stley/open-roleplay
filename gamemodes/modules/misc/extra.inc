@@ -125,8 +125,28 @@ stock Weapon_IsValid(wepid)
   }
   return 0;
 }
+// CP1252 ? UTF-8 (covers Spanish letters and punctuation)
+stock Cp1252ToUtf8(out[], size, const in[])
+{
+    new i=0, j=0, c;
+    while ((c = in[i++] & 0xFF) && j < size-1)
+    {
+        if (c < 0x80) { out[j++] = c; continue; }                // ASCII
+        if (c >= 0xA0 && c <= 0xBF) {                            // U+00A0..00BF
+            if (j+2 >= size) break; out[j++] = 0xC2; out[j++] = c; continue;
+        }
+        if (c >= 0xC0) {                                         // U+00C0..00FF
+            if (j+2 >= size) break; out[j++] = 0xC3; out[j++] = c - 0x40; continue;
+        }
+        // Optional CP1252 specials (add more if you need)
+        if (c == 0x80) { if (j+3 >= size) break; out[j++] = 0xE2; out[j++] = 0x82; out[j++] = 0xAC; continue; } // €
+        // Fallback
+        out[j++] = '?';
+    }
+    out[j] = '\0'; return j;
+}
 
-stock strreplace(string[], const search[], const replacement[], bool:ignorecase = false, pos = 0, limit = -1, maxlength = sizeof(string)) {
+/*stock strreplace(string[], const search[], const replacement[], bool:ignorecase = false, pos = 0, limit = -1, maxlength = sizeof(string)) {
     // No need to do anything if the limit is 0.
     if (limit == 0)
         return 0;
@@ -171,7 +191,7 @@ stock strreplace(string[], const search[], const replacement[], bool:ignorecase 
     }
     
     return count;
-}
+}*/
 
 
 

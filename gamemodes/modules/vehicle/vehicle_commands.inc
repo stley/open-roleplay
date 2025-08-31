@@ -289,7 +289,7 @@ CMD:prestarveh(playerid, params[]){
         slot,
         veh_id
     ;
-    if(sscanf(params, "ud", user, slot) || isnull(params)){
+    if(sscanf(params, "rd", user, slot) || isnull(params)){
         SendClientMessage(playerid, COLOR_DARKRED, "USO: /prestarveh [id/Nombre] [SLOT]");
         SendClientMessage(playerid, COLOR_DARKBLUE, "Tus vehículos:");
         for(new i; i < 2; i++){

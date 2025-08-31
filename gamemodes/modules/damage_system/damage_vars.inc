@@ -59,4 +59,3 @@ enum woundInfo
 };
 
 new wound_data[MAX_PLAYERS][MAX_WOUNDS][woundInfo];
-

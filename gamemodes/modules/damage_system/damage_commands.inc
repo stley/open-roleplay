@@ -1,6 +1,6 @@
 CMD:heridas(playerid, params[]){
     new target;
-    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /heridas [Nombre/ID]");
+    if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /heridas [Nombre/ID]");
     new dialog[5000];
     new dialog_buff[256];
     new total_wounds;

@@ -1,3 +1,11 @@
+Dialog:D_USERNAME(playerid, response, listitem, inputtext[]){
+	if(!response) Kick(playerid);
+	orm_user(playerid);
+	strmid(username[playerid], inputtext, 0, strlen(inputtext));
+	new str[128];
+	mysql_format(SQLDB, str, sizeof(str), "SELECT * FROM `accounts` WHERE `Nombre` = '%e' LIMIT 1", username[playerid]);
+	mysql_tquery(SQLDB, str, "accountOnUserFirstLoad", "d", playerid);
+}
 Dialog:D_REGISTRO(playerid, response, listitem, inputtext[])
 {
 	if(!response) return Kick(playerid);
@@ -21,20 +29,26 @@ Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 		mysql_format(SQLDB, hashed, sizeof(hashed), "UPDATE `accounts` SET `online` = 1 WHERE `Nombre` = '%e'", username[playerid]);
 		alm(Datos[playerid][jIP], GetPIP(playerid));
 		mysql_tquery(SQLDB, hashed);
-		printf("%s ingresó al usuario %s (SQLID: %d)", Datos[playerid][jIP], username[playerid], Datos[playerid][jSQLID]);
+		new dslog[512];
+		format(dslog, sizeof(dslog), "%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(dslog);
 	}
 	else
 	{
 		if(IntentosLogin[playerid] < 3)
 		{
-			printf("%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
+			new dslog[512];
+			format(dslog, sizeof(dslog), "%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
+			serverLogRegister(dslog);
 			IntentosLogin[playerid]++;
 			return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "\tIngresaste una contraseña incorrecta.\n\tIntenta de nuevo.", "Ingresar", "Salir");
 		}
 		else
 		{
 			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
-			printf("%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
+			new dslog[512];
+			format(dslog, sizeof(dslog), "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
+			serverLogRegister(dslog);
 			SetTimerEx("Kick", 2000, false, "d", playerid);
 		}
 	}
@@ -49,7 +63,7 @@ Dialog:D_EMAIL(playerid, response, listitem, inputtext[])
 	if(IsValidEmail(inputtext)) return Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "No ingresaste un correo válido.\nInténta de nuevo.", "Continuar", "Salir");
 	
 	strmid(Datos[playerid][jEmail], inputtext, 0, 101);
-	strmid(Datos[playerid][jNombre], username[playerid], 0, MAX_PLAYER_NAME);
+	strmid(Datos[playerid][jNombre], username[playerid], 0, strlen(username[playerid]));
 	alm(Datos[playerid][FechaReg], FechaActual());
 	Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
 	orm_insert(Datos[playerid][ORMID]);
@@ -64,7 +78,7 @@ Dialog:D_REGPJ(playerid, response, listitem, inputtext[])
 {
 	if(!response) return dialog_personajes(playerid);
 	if(isnull(inputtext)) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "No ingresaste un nombre válido. Intentalo de nuevo.", "Continuar", "Cancelar");
-	if(strlen(inputtext) < 12 || strlen(inputtext) > 24) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "El nombre de tu personaje tiene que estar entre los 18 - 24 carácteres.\n Intentalo de nuevo.", "Continuar", "Cancelar");
+	if(strlen(inputtext) < 6 || strlen(inputtext) > 24) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "El nombre de tu personaje tiene que estar entre los 18 - 24 carácteres.\n Intentalo de nuevo.", "Continuar", "Cancelar");
 	if(!strcmp(inputtext, "user_none", true)) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "No ingresaste un nombre válido. Intentalo de nuevo.", "Continuar", "Cancelar"); 
 	if(strfind(inputtext, "_") == -1) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "Ingresa un nombre para tu personaje, incluyendo el '_'. (Ejemplo: Pedro_Perez)", "Continuar", "Cancelar");
 	alm(Datos[playerid][jNombrePJ], inputtext);
@@ -115,7 +129,9 @@ Dialog:D_FINREGPJ(playerid, response, listitem, inputtext[])
 	alm(Datos[playerid][jFechaCreacion], FechaActual());
 	Datos[playerid][jVida] = 100.0;
 	characterTextDraws(playerid);
-	printf("%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
+	new dslog[512];
+	format(dslog, sizeof(dslog), "%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
+	serverLogRegister(dslog);
 	orm_insert(Datos[playerid][ORMPJ], "accountOnCharInserted", "d", playerid);
 	switch(Datos[playerid][jAdmin]){
 		case 1337: a_perms[playerid] = CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD ;
@@ -170,15 +186,10 @@ Dialog:D_INGPJ(playerid, response, listitem, inputtext[])
 			}
 			SpawnPlayer(playerid);
 			load_character(playerid);
-			printf("%s (SQLID %d | IP %s) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-			switch(Datos[playerid][jAdmin]){
-				case 1337: a_perms[playerid] = CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD ;
-				case 5: a_perms[playerid] = CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;
-				case 4: a_perms[playerid] = CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;
-				case 3: a_perms[playerid] = CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD;
-				case 2: a_perms[playerid] = CMD_MOD | CMD_JR_MOD;
-				case 1: a_perms[playerid] = CMD_JR_MOD;
-			}
+			new dslog[512];
+			format(dslog, sizeof(dslog), "%s (SQLID %d | IP %s | playerid %d) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), playerid, Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			serverLogRegister(dslog);
+			CallLocalFunction("adminRefresh", "d", playerid);
 		}
 		case 1:
 		{

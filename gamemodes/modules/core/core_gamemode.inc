@@ -3,13 +3,10 @@ public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
 	DisableInteriorEnterExits();
-	//EnableVehicleFriendlyFire();
     CallLocalFunction("databaseOnGameModeInit");
     CallLocalFunction("Models_OnGameModeInit");
 	CallLocalFunction("vehiclesOnGameModeInit");
-	/*new retstr[94];
-	FindModelFileNameFromCRC(0x575F1C5E, retstr);
-	printf("%s", retstr);*/
+	CallLocalFunction("discordOnGameModeInit");
     return 1;
 }
 public OnGameModeExit()
@@ -17,10 +14,12 @@ public OnGameModeExit()
     CallLocalFunction("databaseOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
+	CallLocalFunction("discordOnGameModeExit");
 	return 1;
 }
 //player
 public OnPlayerConnect(playerid){
+	CallLocalFunction("discordOnPlayerConnect", "d", playerid);
 	CallLocalFunction("accountOnPlayerConnect", "d", playerid);
 	return 1;
 }

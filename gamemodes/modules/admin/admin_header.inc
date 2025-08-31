@@ -1,0 +1,1 @@
+#include "../gamemodes/modules/admin/admin_funcs" 

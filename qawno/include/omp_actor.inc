@@ -9,7 +9,7 @@
  *     This Source Code Form is subject to the terms of the Mozilla Public License,
  *     v. 2.0. If a copy of the MPL was not distributed with this file, You can
  *     obtain one at http://mozilla.org/MPL/2.0/.
- *    
+ *
  *     The original code is copyright (c) 2023, open.mp team and contributors.
  *   </license>
  *   <summary pawndoc="true">
@@ -372,6 +372,12 @@ native bool:GetActorSpawnInfo(actorid, &skin, &Float:spawnX = 0.0, &Float:spawnY
 
 /**
  * <library>omp_actor</library>
+ * <summary>Get an array variable of the IDs of the created actors on the server.</summary>
+ * <param name="actors">An array into which to store the actor IDs, passed by reference.</param>
+ * <param name="size">The size of the array.</param>
+ * <seealso name="GetPlayers" />
+ * <seealso name="GetVehicles" />
+ * <returns>The number of actors stored in the array.</returns>
  */
 native GetActors(actors[], size = sizeof (actors));
 
@@ -439,4 +445,3 @@ forward OnActorStreamIn(actorid, forplayerid);
  * <returns>This callback does not handle returns.</returns>
  */
 forward OnActorStreamOut(actorid, forplayerid);
-

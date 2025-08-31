@@ -16,7 +16,9 @@ CMD:crearobjeto(playerid, params[])
             if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
             else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
             update_manos(playerid);
-            printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
+            new dslog[512];
+            format(dslog, sizeof(dslog), "%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
+            serverLogRegister(dslog);
             return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %d)", ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
         }
     }
@@ -26,7 +28,9 @@ CMD:crearobjeto(playerid, params[])
         if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
         else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
         update_manos(playerid);
-        printf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
+        new dslog[512];
+        format(dslog, sizeof(dslog), "%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
+        serverLogRegister(dslog);
         return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %d)", ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
     }
     return 1;
@@ -192,11 +196,20 @@ flags:limpiarmanos(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_
 CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
-    if(sscanf(params, "u[25]", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
-    printf("AdmCmd: %s (%s) limpió las manos de %s (%s).", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
-    printf("Tenía en sus manos:");
-    if(Datos[objetivo][jMano][0]) printf("Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]);
-    if(Datos[objetivo][jMano][1]) printf("Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]);
+    if(sscanf(params, "r", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
+    new dslog[512];
+    format(dslog, sizeof(dslog), "AdmCmd: %s (%s) limpió las manos de %s (%s).", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
+    serverLogRegister(dslog);
+    format(dslog, sizeof(dslog), "Tenía en sus manos:");
+    serverLogRegister(dslog);
+    if(Datos[objetivo][jMano][0]){
+        format(dslog, sizeof(dslog), "Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]);
+        serverLogRegister(dslog);
+    }
+    if(Datos[objetivo][jMano][1]){
+        format(dslog, sizeof(dslog), "Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]);
+        serverLogRegister(dslog);
+    }
     Datos[objetivo][jMano][0] = 0;
     Datos[objetivo][jManoCant][0] = 0;
     Datos[objetivo][jManoData][0] = 0;
@@ -210,10 +223,12 @@ CMD:limpiarmanos(playerid, params[])
 }
 flags:darskin(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
 CMD:darskin(playerid, params[]){
-    if(sscanf(params, "ud", params[0], params[1])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /darskin [ID/Nombre] [ID Skin]");
+    if(sscanf(params, "rd", params[0], params[1])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /darskin [ID/Nombre] [ID Skin]");
     if(!IsPlayerConnected(params[0])) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario seleccionado no esta conectado.");
 
-    printf("%s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
+    new dslog[512];
+    format(dslog, sizeof(dslog), "%s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
+    serverLogRegister(dslog);
     SendClientMessage(params[0], COLOR_LIGHTRED, "AdmCmd: %s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
     SetPlayerSkin(params[0], params[1]);
     Datos[params[0]][jRopa] = params[1];
@@ -224,7 +239,7 @@ flags:verstats(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD 
 CMD:verstats(playerid, params[]){
     if(isnull(params)) return SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
     new target;
-    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
+    if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
     new msg[512];
     SendClientMessage(playerid, COLOR_GREEN,"Estadísticas de %s (%s):", Datos[target][jNombrePJ], username[target]);
     SendClientMessage(playerid, COLOR_GREEN, "Estadísticas IC:");
@@ -258,7 +273,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
         color1,
         color2
     ;
-    if(sscanf(params, "uddd", nuevodueno, modelo, color1, color2)){
+    if(sscanf(params, "rddd", nuevodueno, modelo, color1, color2)){
         SendClientMessage(playerid, COLOR_SYSTEM, "USO: /crearvehiculo [ID/nombrejugador] [modelo] [Color 1] [Color 2]");
         return;
     }
@@ -293,8 +308,11 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
                     vehData[i][veh_Matricula] = get_plate();
                     vehData[i][veh_Gasolina] = 100;
+                    vehData[i][veh_Vida] = 1000.0;
                     orm_vehicle(i);
-                    printf("Creando el vehículo index %d  (Matrícula: LS%s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Dueno], Datos[playerid][jNombrePJ], username[playerid]);
+                    new dslog[512];
+                    format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: LS%s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Dueno], Datos[playerid][jNombrePJ], username[playerid]);
+                    serverLogRegister(dslog);
                     orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
                     vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);
                     PutPlayerInVehicle(nuevodueno, vehData[i][veh_vID], 0);
@@ -321,7 +339,7 @@ flags:setplayer(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
 CMD:setplayer(playerid, params[]){
     new id2, vwid, intid;
     if(isnull(params)) return SendClientMessage(playerid, COLOR_DARKRED, "VirtualWorld: %d, Interior: %d", GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
-    if(sscanf(params, "udd", id2, vwid, intid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /setplayer [id/Nombre] [Dim] [Interior]");
+    if(sscanf(params, "rdd", id2, vwid, intid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /setplayer [id/Nombre] [Dim] [Interior]");
     SetPlayerVirtualWorld(playerid, vwid);
     SetPlayerInterior(playerid, intid);
     return 1;
@@ -383,7 +401,7 @@ CMD:crearv(playerid, params[]){
 flags:darvida(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
 CMD:darvida(playerid, params[]){
     new target;
-    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
+    if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
     Datos[target][jVida] = 100.0;
     SetPlayerHealth(target, Datos[target][jVida]);
     clear_wounds(target);
@@ -394,7 +412,7 @@ CMD:darvida(playerid, params[]){
 flags:darchaleco(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR )
 CMD:darchaleco(playerid, params[]){
     new target;
-    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
+    if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
     Datos[target][jChaleco] = 100.0;
     SetPlayerArmour(target, Datos[target][jChaleco]);
     SendClientMessage(playerid, COLOR_DARKRED, "ADM: Le otorgas un chaleco a %s con un comando de moderación.", Name_sin(GetRPName(target)));
@@ -404,7 +422,7 @@ CMD:darchaleco(playerid, params[]){
 flags:revivir(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
 CMD:revivir(playerid, params[]){
     new target;
-    if(sscanf(params, "u[25]", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /revivir [Nombre/ID]");
+    if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /revivir [Nombre/ID]");
     if(!muerto[target]) return SendClientMessage(playerid, COLOR_DARKRED,"¡Ese personaje no esta muerto!");
     TogglePlayerControllable(target, true);
     ClearAnimations(target, SYNC_ALL);
@@ -415,6 +433,48 @@ CMD:revivir(playerid, params[]){
     SendClientMessage(playerid, COLOR_DARKRED, "ADM: Revives a %s con un comando de moderación.", Name_sin(GetRPName(target)));
     SendClientMessage(target, COLOR_LIGHTBLUE, "%s (%s) te revivió con un comando de moderación.", Name_sin(GetRPName(playerid)), username[playerid]);
     clear_wounds(target);
+    return 1;
+}
+flags:darmod(CMD_OWNER | CMD_ADMIN)
+CMD:darmod(playerid, params[]){
+    new target[32], level;
+    if(sscanf(params, "s[32]d", target, level)) return SendClientMessage(playerid, COLOR_BRIGHTRED, "USO: /darmod [Cuenta] [Nivel de Rango Administrativo]");
+    if(level >= Datos[playerid][jAdmin]) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes ceder rangos administrativos superiores o igual al tuyo!");
+    //if(!accountCheck(target)) return SendClientMessage(playerid, COLOR_DARKRED, "¡La cuenta %s no existe!");
+    new query[256];
+    for(new i; i < MAX_PLAYERS; i++){
+        if(strcmp(target, username[i], true) == 0){
+            if(Datos[i][jAdmin] >= Datos[playerid][jAdmin]) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes cambiar el rango de un superior o un usuario de tu mismo rango!");
+            SendClientMessage(playerid, COLOR_LIGHTBLUE, "Le cediste el rango administrativo nivel %d a %s (%s)", level, username[i], Name_sin(GetName(i)));
+            SendClientMessage(i, COLOR_LIGHTBLUE, "%s (%s) te cedió el rango administrativo nivel %d.", username[playerid], Name_sin(GetName(playerid)), level);
+            formatt(query, "%s (%s) le cedió el rango administrativo nivel %d a %s (%s).", username[playerid], Name_sin(GetName(playerid)), level, username[i], Name_sin(GetName(i)));
+            serverLogRegister(query);
+            Datos[i][jAdmin] = level;
+            save_account(i);
+            return 1;
+        }
+    }
+    mysql_format(SQLDB, query, sizeof(query), "SELECT `accounts`.`Administrador`, `accounts`.`Nombre`,`accounts`.`SQLID` FROM `accounts` WHERE `Nombre` = '%e' LIMIT 1", target);
+    mysql_tquery(SQLDB, query, "adminUpdate", "d", playerid);
+    return 1;
+}
+forward adminUpdate(playerid, account[], rank);
+public adminUpdate(playerid, account[], rank){
+    if(cache_num_rows()){
+        new curr_rank, sqlid, retrieved_acc[35];
+        cache_get_value_name_int(0, "SQLID", sqlid);
+        cache_get_value_name(0, "Nombre", retrieved_acc, sizeof(retrieved_acc));
+        cache_get_value_name_int(0, "Admin", curr_rank);
+        if(curr_rank == rank) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario ya tiene ese rango administrativo.");
+        SendClientMessage(playerid, COLOR_LIGHTBLUE, "Le cediste el rango administrativo nivel %d a %s. (%d > %d)", rank, retrieved_acc, curr_rank, rank);
+        new query[96];
+        formatt(query, "%s (%s) le cedió rango administrativo nivel %d a %s. (%d > %d)", username[playerid], Name_sin(GetName(playerid)), curr_rank, rank);
+        serverLogRegister(query);
+        mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `Admin` = %d WHERE `SQLID` = %d", rank, sqlid);
+        mysql_tquery(SQLDB, query);
+        return 1;
+    }
+    else SendClientMessage(playerid, COLOR_DARKRED, "¡La cuenta %s no existe!", account);
     return 1;
 }
 flags:test_wound(CMD_OWNER)
