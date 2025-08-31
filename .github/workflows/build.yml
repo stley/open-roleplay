@@ -1,0 +1,44 @@
+name: Build Pawn
+
+on:
+  pull_request:
+    paths:
+      - "gamemodes/main.pwn"
+      - "gamemodes/modules/**"
+      - "include/**"
+      - "**/*.inc"
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pawncc
+        run: |
+          set -e
+          ver=3.10.11
+          curl -sL https://github.com/pawn-lang/compiler/releases/download/${ver}/pawnc-${ver}-linux.tar.gz | tar xz
+          sudo cp pawnc-${ver}-linux/bin/pawncc /usr/local/bin/
+          sudo cp pawnc-${ver}-linux/lib/libpawnc.so /usr/local/lib/
+          sudo ldconfig
+
+      - name: Compile main.pwn
+        run: |
+          pawncc gamemodes/main.pwn \
+            -i include \
+            -i gamemodes/modules
+
+      - name: Upload AMX
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-amx
+          path: gamemodes/main.amx
