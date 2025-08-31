@@ -22,6 +22,7 @@ pawn.lock
 #plugins/
 
 # binaries
+gamemodes/*.zip
 *.exe
 announce
 samp03svr

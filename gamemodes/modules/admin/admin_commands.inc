@@ -7,7 +7,7 @@ CMD:crearobjeto(playerid, params[])
     if(sscanf(params, "ddd", objetoid, cantidad, mano)) return SendClientMessage(playerid, COLOR_GRAYWHITE, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
     if(mano > 1 || mano < 0) return SendClientMessage(playerid, COLOR_DARKRED, "/crearobjeto [id objeto] [cantidad] [mano (0 - Derecha, 1 - Izquierda)]");
     if(objetoid > sizeof(ObjetoInfo)-1) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
-    if(strcmp(ObjetoInfo[objetoid][NombreObjeto], "SLOT LIBRE", true) == 0) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
+    if(ObjetoInfo[objetoid][Tipo] == 0) return SendClientMessage(playerid, COLOR_DARKRED, "ID de objeto inválida, utiliza /listaobjetos para ver los objetos disponibles.");
     if(Datos[playerid][jMano][mano])
     {
         if(guardar_bol(playerid, mano))
