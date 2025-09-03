@@ -7,24 +7,48 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin/pawnc-3.10.11-linux/lib
+
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
-      - name: Fetch pawncc v3.10.11 (Linux x64)
+      - name: Get pawncc v3.10.11 (release) or fallback to source
         shell: bash
         run: |
           set -euo pipefail
+          # Try official release (needs lib/ at runtime)
           URL="https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-linux.tar.gz"
-          curl -fsSL "$URL" -o pawncc.tar.gz
           mkdir -p pawnc-bin
-          tar -xzf pawncc.tar.gz -C pawnc-bin
-          chmod +x pawnc-bin/pawnc-3.10.11-linux/bin/pawncc
-          ls -R pawnc-bin
+          if curl -fsSL "$URL" -o pawncc.tar.gz; then
+            tar -xzf pawncc.tar.gz -C pawnc-bin
+            REL_DIR="pawnc-bin/pawnc-3.10.11-linux"
+            chmod +x "$REL_DIR/bin/pawncc"
+            export LD_LIBRARY_PATH="$PWD/$REL_DIR/lib"
+            # Smoke test with attached flags (no spaces)
+            echo 'main(){}' > /tmp/_t.pwn
+            set +e
+            "$REL_DIR/bin/pawncc" /tmp/_t.pwn -o/dev/null
+            rc=$?
+            set -e
+            if [ $rc -eq 0 ]; then
+              echo "USE_REL=$REL_DIR" >> $GITHUB_ENV
+            else
+              echo "Release pawncc failed (rc=$rc), building from source."
+            fi
+          else
+            echo "Release download failed, building from source."
+          fi
+
+          # Fallback build if release missing or failed
+          if [ -z "${USE_REL-}" ]; then
+            sudo apt-get update && sudo apt-get install -y build-essential cmake git
+            git clone --depth=1 https://github.com/pawn-lang/compiler.git pawnc-src
+            cmake -S pawnc-src -B pawnc-src/build -DCMAKE_BUILD_TYPE=Release
+            cmake --build pawnc-src/build -j
+            echo "USE_SRC=1" >> $GITHUB_ENV
+          fi
 
       - name: Validate layout
         shell: bash
@@ -37,22 +61,26 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          pawnc-bin/pawnc-3.10.11-linux/bin/pawncc gamemodes/main.pwn \
+          TARGET="gamemodes/main.pwn"
+
+          if [ -n "${USE_REL-}" ]; then
+            PAWNCC="$USE_REL/bin/pawncc"
+            export LD_LIBRARY_PATH="$PWD/$USE_REL/lib"
+            echo "Using release pawncc: $PAWNCC"
+          else
+            PAWNCC="$PWD/pawnc-src/build/bin/pawncc"
+            echo "Using source-built pawncc: $PAWNCC"
+          fi
+
+          # Attached flags only
+          "$PAWNCC" "$TARGET" \
             -iqawno/include \
             -igamemodes/modules \
             -d3 -Z+ -E -o/dev/null 2>&1 | tee build.log
+
           ec=${PIPESTATUS[0]}
           warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log || true)
-          errs=$(grep -Eic 'error[[:space:]]+[0-9]+:' build.log || true)
-          echo "pawncc exit: $ec  warnings: $warns  errors: $errs"
-          if [ $ec -ne 0 ]; then
-            echo "::error::pawncc exit $ec"
-            tail -n 200 build.log || true
-            exit $ec
-          fi
-          if [ "$warns" -gt 0 ]; then
-            echo "::error::Pawn warnings detected ($warns). Failing build."
-            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true
-            exit 1
-          fi
+          echo "pawncc exit: $ec  warnings: $warns"
+          if [ $ec -ne 0 ]; then echo "::error::pawncc exit $ec"; tail -n 200 build.log || true; exit $ec; fi
+          if [ "$warns" -gt 0 ]; then echo "::error::Warnings detected ($warns)"; grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true; exit 1; fi
           echo "OK: no warnings"
