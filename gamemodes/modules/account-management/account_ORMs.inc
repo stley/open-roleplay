@@ -12,9 +12,9 @@ orm_user(playerid)
 	orm_addvar_string(ormid, Datos[playerid][jEmail], 101, "Email");
 	orm_addvar_string(ormid, Datos[playerid][jIP], 17, "IP");
 
-	orm_addvar_string(ormid, jPJE[playerid][0], MAX_PLAYER_NAME, "Personaje_1");
+	/*orm_addvar_string(ormid, jPJE[playerid][0], MAX_PLAYER_NAME, "Personaje_1");
 	orm_addvar_string(ormid, jPJE[playerid][1], MAX_PLAYER_NAME, "Personaje_2");
-	orm_addvar_string(ormid, jPJE[playerid][2], MAX_PLAYER_NAME, "Personaje_3");
+	orm_addvar_string(ormid, jPJE[playerid][2], MAX_PLAYER_NAME, "Personaje_3");*/
 
 	orm_addvar_string(ormid, Datos[playerid][FechaReg], 101, "Fecha_Reg");
 	orm_addvar_string(ormid, Datos[playerid][UltimaConexion], 101, "Ultima_Conexion");
@@ -23,6 +23,7 @@ orm_user(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jDpremium], "dPremium");
 	orm_addvar_int(ormid, Datos[playerid][jMpremium], "mPremium");
 	orm_addvar_int(ormid, Datos[playerid][jApremium], "aPremium");
+	orm_addvar_int(ormid, Datos[playerid][CharacterLimit], "CharacterLimit");
 	orm_setkey(ormid, "SQLID");
 }
 orm_char(playerid)
@@ -150,7 +151,6 @@ orm_char(playerid)
 	orm_addvar_float(ormtoy, CharToys[playerid][PechoScale][1], "PechoScaleY");
 	orm_addvar_float(ormtoy, CharToys[playerid][PechoScale][2], "PechoScaleZ");
 	
-	orm_setkey(ormtoy, "character_id");
 	orm_setkey(ormid, "SQLIDPJ");
 	return 1;
 }

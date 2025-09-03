@@ -93,8 +93,7 @@
             "crashdetect",
             "mysql",
             "Whirlpool",
-            "streamer",
-            "discord-connnector"
+            "streamer"
         ],
         "main_scripts": [
             "main"
