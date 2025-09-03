@@ -1,88 +1,70 @@
-# .github/workflows/pawn-build.yml
-name: Pawn Build
+# .github/workflows/pawn-build-windows.yml
+name: Pawn Build (Windows)
 on:
   pull_request:
     branches: ["**"]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
-      - name: Get pawncc v3.10.11 or prepare source fallback
-        id: get-rel
-        shell: bash
+      - name: Fetch pawncc v3.10.11 (Windows)
+        shell: pwsh
         run: |
-          set -euo pipefail
-          URL="https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-linux.tar.gz"
-          mkdir -p pawnc-bin
-          if curl -fsSL "$URL" -o pawncc.tar.gz; then
-            tar -xzf pawncc.tar.gz -C pawnc-bin
-            REL="pawnc-bin/pawnc-3.10.11-linux"
-            chmod +x "$REL/bin/pawncc"
-            export LD_LIBRARY_PATH="$PWD/$REL/lib"
-            echo 'main(){}' > /tmp/_t.pwn
-            set +e
-            "$REL/bin/pawncc" /tmp/_t.pwn -o/dev/null
-            rc=$?
-            set -e
-            if [ $rc -eq 0 ]; then
-              echo "use_rel=$REL" >> "$GITHUB_OUTPUT"
-            else
-              echo "::warning::release pawncc failed (rc=$rc); will build from source"
-            fi
-          else
-            echo "::warning::release download failed; will build from source"
-          fi
-
-      - name: Build pawncc from source (32-bit cells)
-        if: ${{ steps.get-rel.outputs.use_rel == '' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get update && sudo apt-get install -y build-essential cmake git
-          # try openmultiplayer first, then pawn-lang
-          for R in openmultiplayer/compiler pawn-lang/compiler; do
-            rm -rf pawnc-src || true
-            git clone --depth=1 "https://github.com/$R.git" pawnc-src || continue
-            [ -f pawnc-src/source/compiler/CMakeLists.txt ] && break
-          done
-          cmake -S pawnc-src/source/compiler -B pawnc-src/build -DCMAKE_BUILD_TYPE=Release -DAMX_32BIT=ON
-          cmake --build pawnc-src/build -j
-          echo "use_src=1" >> "$GITHUB_OUTPUT"
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-windows.zip'
+          Invoke-WebRequest $url -OutFile pawncc.zip
+          New-Item -ItemType Directory -Path pawnc-bin | Out-Null
+          Expand-Archive -Path pawncc.zip -DestinationPath pawnc-bin -Force
+          Get-ChildItem -Recurse pawnc-bin
+          $root = Join-Path $PWD 'pawnc-bin\pawnc-3.10.11-windows'
+          $env:Path = "$($root)\bin;$($root)\lib;$env:Path"
+          # Smoke test (non-zero ok)
+          'main(){}' | Out-File -Encoding ascii -FilePath $env:TEMP\_t.pwn
+          & "$root\bin\pawncc.exe" $env:TEMP\_t.pwn -oNUL; $global:rc=$LASTEXITCODE
+          Write-Host "smoke rc=$rc"
 
       - name: Validate layout
-        shell: bash
+        shell: pwsh
         run: |
-          test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
-          test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
-          test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
+          if (-not (Test-Path 'gamemodes\main.pwn')) { Write-Error 'missing gamemodes\main.pwn' }
+          if (-not (Test-Path 'qawno\include'))     { Write-Error 'missing qawno\include' }
+          if (-not (Test-Path 'gamemodes\modules')) { Write-Error 'missing gamemodes\modules' }
 
-      - name: Compile main.pwn (warnings fail)
-        shell: bash
+      - name: Compile main.pwn (warnings fail, no artifact)
+        shell: pwsh
         run: |
-          set -o pipefail
-          if [ -n "${{ steps.get-rel.outputs.use_rel }}" ]; then
-            PAWNCC="${{ steps.get-rel.outputs.use_rel }}/bin/pawncc"
-            export LD_LIBRARY_PATH="$PWD/${{ steps.get-rel.outputs.use_rel }}/lib"
-            echo "Using release pawncc"
-          else
-            PAWNCC="$PWD/pawnc-src/build/bin/pawncc"
-            echo "Using source-built pawncc (AMX_32BIT=ON)"
-          fi
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $PWD 'pawnc-bin\pawnc-3.10.11-windows'
+          $env:Path = "$($root)\bin;$($root)\lib;$env:Path"
 
-          "$PAWNCC" gamemodes/main.pwn \
-            -iqawno/include \
-            -igamemodes/modules \
-            -d3 -Z+ -E -o/dev/null 2>&1 | tee build.log
+          $cmd = @(
+            "$root\bin\pawncc.exe"
+            "gamemodes\main.pwn"
+            "-iqawno\include"
+            "-igamemodes\modules"
+            "-d3","-Z+","-E","-oNUL"
+          )
+          Write-Host "Running: $($cmd -join ' ')"
+          & $cmd 2>&1 | Tee-Object -FilePath build.log
+          $rc = $LASTEXITCODE
 
-          ec=${PIPESTATUS[0]}
-          warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log || true)
-          echo "pawncc exit=$ec warnings=$warns"
-          if [ $ec -ne 0 ]; then echo "::error::pawncc exit $ec"; tail -n 200 build.log || true; exit $ec; fi
-          if [ "$warns" -gt 0 ]; then
+          $warns = (Select-String -Path build.log -Pattern 'warning\s+\d+:' -SimpleMatch:$false -AllMatches | Measure-Object).Count
+          Write-Host "pawncc exit=$rc warnings=$warns"
+
+          if ($rc -ne 0) {
+            Write-Host "::error::pawncc exit $rc"
+            Get-Content build.log -Tail 200
+            exit $rc
+          }
+          if ($warns -gt 0) {
+            Write-Host "::error::Pawn warnings detected ($warns)"
+            Select-String -Path build.log -Pattern 'warning\s+\d+:' | Select-Object -Last 100
+            exit 1
+          }
+          Write-Host "OK: no warnings"
