@@ -36,17 +36,27 @@ jobs:
           if (-not (Test-Path 'gamemodes\modules')) { Write-Error 'missing gamemodes\modules' }
 
       - name: Compile main.pwn (warnings fail, no artifact)
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $root = $env:PAWN_ROOT
-          if (-not $root) { Write-Error 'PAWN_ROOT not set' }
-          $exe  = Join-Path $root 'bin\pawncc.exe'
-          # Use stop-parsing to pass special flags -;+ and -(+
-          & "$exe" --% gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 2>&1 | Tee-Object -FilePath build.log
-          $rc = $LASTEXITCODE
-          $warns = (Select-String -Path build.log -Pattern 'warning\s+\d+:' -AllMatches | Measure-Object).Count
-          Write-Host "pawncc exit=$rc warnings=$warns"
-          if ($rc -ne 0) { Write-Host '::error::pawncc exit ' $rc; Get-Content build.log -Tail 200; exit $rc }
-          if ($warns -gt 0) { Write-Host "::error::Pawn warnings detected ($warns)"; Select-String build.log -Pattern 'warning\s+\d+:' | Select-Object -Last 100; exit 1 }
-          Write-Host 'OK: no warnings'
+  shell: cmd
+  run: |
+    setlocal
+    set "ROOT=%PAWN_ROOT%"
+    if not exist "%ROOT%\bin\pawncc.exe" (
+      echo ::error::pawncc not found at "%ROOT%\bin\pawncc.exe"
+      exit /b 1
+    )
+    echo Using pawncc: "%ROOT%\bin\pawncc.exe"
+    "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 1>build.log 2>&1
+    set EC=%ERRORLEVEL%
+    for /f "delims=" %%A in ('findstr /ri "warning[ ][0-9][0-9]*:" build.log ^| find /c ":"') do set "WARNS=%%A"
+    echo pawncc exit=%EC% warnings=%WARNS%
+    if not %EC%==0 (
+      type build.log
+      exit /b %EC%
+    )
+    if not "%WARNS%"=="0" (
+      echo ::error::Pawn warnings detected (%WARNS%)
+      findstr /ri "warning[ ][0-9][0-9]*:" build.log
+      exit /b 1
+    )
+    echo OK: no warnings
+
