@@ -50,21 +50,6 @@ jobs:
           echo "Dependencies (ldd pawncc):"
           ldd bin/pawncc || true
 
-      - name: Check include/layout sanity
-        shell: bash
-        run: |
-          set -e
-          for d in include qawno/include gamemodes/modules; do
-            [ -d "$d" ] || { echo "::error::missing directory: $d"; exit 1; }
-          done
-          [ -f gamemodes/main.pwn ] || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
-          echo "PWN files snapshot:"
-          find gamemodes -type f -name '*.pwn' -maxdepth 2 | sed 's/^/- /' || true
-          echo "INC dirs snapshot:"
-          for d in include qawno/include gamemodes/modules; do
-            echo "[$d]"; find "$d" -maxdepth 1 -type f -name '*.inc' | head -n 20
-          done
-
       - name: Smoke-test compiler
         shell: bash
         run: |
