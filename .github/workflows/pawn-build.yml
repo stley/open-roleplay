@@ -15,41 +15,49 @@ jobs:
           lfs: true
           fetch-depth: 0
 
-      - name: Show workspace
+      - name: Prepare compiler
         shell: bash
         run: |
-          echo "WS: $GITHUB_WORKSPACE"
-          ls -la
-          ls -la bin || true
-          ls -la gamemodes || true
-          ls -la qawno || true
-
-      - name: Validate layout and compiler
-        shell: bash
-        run: |
-          set -e
-          [ -f bin/pawncc ] || { echo "::error::missing bin/pawncc"; exit 1; }
-          [ -f bin/libpawnc.so ] || { echo "::error::missing bin/libpawnc.so"; exit 1; }
+          ls -la bin
           chmod +x bin/pawncc
-          [ -f gamemodes/main.pwn ] || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
-          [ -d qawno/include ] || { echo "::error::missing qawno/include"; exit 1; }
-          [ -d gamemodes/modules ] || { echo "::error::missing gamemodes/modules"; exit 1; }
-          file bin/pawncc || true
-          ldd bin/pawncc || true
+          file bin/pawncc
+          file bin/libpawnc.so
+
+      - name: Sanity check layout
+        shell: bash
+        run: |
+          test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
+          test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
+          test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
 
       - name: Compile main.pwn (fail on warnings)
         shell: bash
         run: |
           set -o pipefail
+          # Build include args safely: each -i + dir in one array element
           INCLUDES=(-i qawno/include -i gamemodes -i gamemodes/modules)
-          # add every subdir under gamemodes/modules
-          while IFS= read -r -d '' d; do INCLUDES+=(-i "$d"); done < <(find gamemodes/modules -type d -print0)
-          echo "Include paths:" "${INCLUDES[@]}"
+          while IFS= read -r -d '' d; do INCLUDES+=("-i" "$d"); done < <(find gamemodes/modules -type d -print0)
+
+          echo "Include paths:"
+          printf '  %s\n' "${INCLUDES[@]}"
+
           ./bin/pawncc gamemodes/main.pwn "${INCLUDES[@]}" -d3 -E -o /dev/null 2>&1 | tee build.log
           ec=${PIPESTATUS[0]}
           warns=$(grep -Eio 'warning[[:space:]]+[0-9]+:' build.log | wc -l || true)
           errs=$(grep -Eio 'error[[:space:]]+[0-9]+:' build.log | wc -l || true)
-          echo "pawncc exit: $ec  warnings: $warns  errors: $errs"
-          if [ $ec -ne 0 ]; then echo "::error::pawncc exit $ec"; tail -n 200 build.log || true; exit $ec; fi
-          if [ "$warns" -gt 0 ]; then echo "::error::Warnings detected ($warns)"; grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true; exit 1; fi
+
+          echo "pawncc exit: $ec"
+          echo "Warnings:    $warns"
+          echo "Errors:      $errs"
+
+          if [ $ec -ne 0 ]; then
+            echo "::error::pawncc exit $ec"
+            tail -n 200 build.log || true
+            exit $ec
+          fi
+          if [ "$warns" -gt 0 ]; then
+            echo "::error::Warnings detected ($warns)"
+            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true
+            exit 1
+          fi
           echo "OK: no warnings"
