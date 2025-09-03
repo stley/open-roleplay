@@ -31,11 +31,19 @@ jobs:
           # Remove any hidden or problematic files that might interfere
           find qawno/include -name ".*" -type f -delete 2>/dev/null || true
           find gamemodes -name ".*" -type f -delete 2>/dev/null || true
+          
           # List what's actually in the include directories
-          echo "=== qawno/include contents ==="
-          find qawno/include -type f -name "*.inc" | head -20
-          echo "=== gamemodes/modules contents ==="
-          find gamemodes/modules -type f -name "*.inc" | head -20
+          echo "=== qawno/include contents (first 20) ==="
+          find qawno/include -type f -name "*.inc" 2>/dev/null | head -20 || true
+          
+          echo "=== gamemodes/modules contents (first 20) ==="
+          find gamemodes/modules -type f -name "*.inc" 2>/dev/null | head -20 || true
+          
+          echo "=== Directory structure ==="
+          echo "qawno/include directories:"
+          find qawno/include -type d 2>/dev/null | head -10 || true
+          echo "gamemodes/modules directories:"
+          find gamemodes/modules -type d 2>/dev/null | head -10 || true
 
       - name: Sanity check layout
         shell: bash
