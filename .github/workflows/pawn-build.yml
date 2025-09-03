@@ -2,11 +2,15 @@
 name: Pawn Build (Windows)
 on:
   pull_request:
-    branches: ["**"]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -16,65 +20,57 @@ jobs:
       - name: Fetch pawncc v3.10.11 (Windows)
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Stop'
-          $url = 'https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-windows.zip'
-          Invoke-WebRequest $url -OutFile pawncc.zip
+          $u='https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-windows.zip'
+          Invoke-WebRequest $u -OutFile pawncc.zip
           New-Item -ItemType Directory -Path pawnc-bin | Out-Null
           Expand-Archive -Path pawncc.zip -DestinationPath pawnc-bin -Force
           $root = Get-ChildItem pawnc-bin -Directory | Where-Object { $_.Name -like 'pawnc-*windows*' } | Select-Object -First 1
-          if (-not $root) { Write-Error 'Cannot locate extracted pawnc root' }
-          $full = (Resolve-Path $root.FullName).Path
-          "PAWN_ROOT=$full" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Get-ChildItem -Recurse $full
+          if (-not $root) { throw 'pawnc root not found' }
+          "PAWN_ROOT=$((Resolve-Path $root.FullName).Path)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Validate layout
         shell: pwsh
         run: |
-          if (-not (Test-Path 'gamemodes\main.pwn')) { Write-Error 'missing gamemodes\main.pwn' }
-          if (-not (Test-Path 'qawno\include'))     { Write-Error 'missing qawno\include' }
-          if (-not (Test-Path 'gamemodes\modules')) { Write-Error 'missing gamemodes\modules' }
+          if (-not (Test-Path 'gamemodes\main.pwn')) { throw 'missing gamemodes\main.pwn' }
+          if (-not (Test-Path 'qawno\include'))     { throw 'missing qawno\include' }
+          if (-not (Test-Path 'gamemodes\modules')) { throw 'missing gamemodes\modules' }
 
-      - name: Compile main.pwn (warnings fail, except 203)
+      - name: Compile to AMX (warnings fail except 203)
         shell: cmd
         run: |
           setlocal
           set "ROOT=%PAWN_ROOT%"
-          if not defined ROOT (
-            echo ::error::PAWN_ROOT not set
-            exit /b 1
-          )
-          if not exist "%ROOT%\bin\pawncc.exe" (
-            echo ::error::pawncc not found at "%ROOT%\bin\pawncc.exe"
-            exit /b 1
-          )
-          echo Using pawncc: "%ROOT%\bin\pawncc.exe"
-          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 1>build.log 2>&1
+          if not exist "%ROOT%\bin\pawncc.exe" exit /b 1
+          if not exist dist mkdir dist
+          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -;+ -(+ -odist\main.amx 1>build.log 2>&1
           set EC=%ERRORLEVEL%
-
-          rem Separate warnings
           findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
           findstr /ri "warning 203:" all_warns.txt > warns_203.txt
           findstr /ri "warning[ ][0-9][0-9]*:" all_warns.txt | findstr /v "warning 203:" > warns_other.txt
-
           for /f "delims=" %%A in ('find /c /v "" ^< warns_203.txt') do set "WARNS203=%%A"
           for /f "delims=" %%A in ('find /c /v "" ^< warns_other.txt') do set "WARNSOTHER=%%A"
-
           echo pawncc exit=%EC% warnings(except 203)=%WARNSOTHER% ignored203=%WARNS203%
+          if not %EC%==0 (type build.log & exit /b %EC%)
+          if not "%WARNS203%"=="0" echo "::notice::Ignored %WARNS203% warning(s) 203"
+          if not "%WARNSOTHER%"=="0" (echo "::error::Warnings (%WARNSOTHER%)" & type warns_other.txt & exit /b 1)
+          echo OK
 
-          if not %EC%==0 (
-            type build.log
-            exit /b %EC%
-          )
+      - name: Set artifact name (dev vs nightly)
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:PR_NUMBER) {
+            $name = "dev-pr-$($env:PR_NUMBER)"
+          } elseif ($env:GITHUB_REF_NAME -eq 'main') {
+            $name = "nightly-main"
+          } else {
+            $name = "build-$($env:GITHUB_REF_NAME)"
+          }
+          "ARTIFACT_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Artifact: $name"
 
-          if not "%WARNS203%"=="0" (
-            echo "::notice::Ignored %WARNS203% warning(s) 203 (symbol never used)"
-            type warns_203.txt
-          )
-
-          if not "%WARNSOTHER%"=="0" (
-            echo "::error::Pawn warnings detected (%WARNSOTHER%)"
-            type warns_other.txt
-            exit /b 1
-          )
-
-          echo OK: no warnings (ignoring 203)
+      - name: Upload AMX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: dist/main.amx
+          retention-days: 14
