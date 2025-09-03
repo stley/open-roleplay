@@ -15,74 +15,37 @@ jobs:
           lfs: true
           fetch-depth: 0
 
-      - name: Show runner and workspace
+      - name: Prep compiler
         shell: bash
         run: |
-          echo "Workspace: $GITHUB_WORKSPACE"
-          echo "Kernel:    $(uname -a)"
-          echo "Shell:     $SHELL"
-          echo "PATH:      $PATH"
-          echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH:-<empty>}"
-          echo "HEAD:      $(git rev-parse --short HEAD)"
-          echo "Top-level:"
-          ls -la
+          ls -la bin
+          chmod +x bin/pawncc
+          file bin/pawncc
+          file bin/libpawnc.so
 
-      - name: Validate bin/ and compiler payload
+      - name: Sanity check layout
         shell: bash
         run: |
-          set -e
-          [ -d bin ] || { echo "::error::missing bin/ directory"; exit 1; }
-          ls -la bin || true
-          # Existence
-          [ -f bin/pawncc ]      || { echo "::error file=bin/pawncc::missing bin/pawncc"; exit 1; }
-          [ -f bin/libpawnc.so ] || { echo "::error file=bin/libpawnc.so::missing bin/libpawnc.so"; exit 1; }
-          # Non-empty
-          [ -s bin/pawncc ]      || { echo "::error file=bin/pawncc::bin/pawncc is empty"; exit 1; }
-          [ -s bin/libpawnc.so ] || { echo "::error file=bin/libpawnc.so::bin/libpawnc.so is empty"; exit 1; }
-          # Make executable if needed
-          if [ ! -x bin/pawncc ]; then
-            echo "Setting execute bit on bin/pawncc"
-            chmod +x bin/pawncc
-          fi
-          echo "File types:"
-          file bin/pawncc || true
-          file bin/libpawnc.so || true
-          echo "Dependencies (ldd pawncc):"
-          ldd bin/pawncc || true
+          test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
+          for d in include qawno/include gamemodes gamemodes/modules; do
+            [ -d "$d" ] || { echo "::error::missing $d"; exit 1; }
+          done
 
-      - name: Smoke-test compiler
-        shell: bash
-        run: |
-          set +e
-          echo "Invoking ./bin/pawncc with no args to print usage; non-zero exit is expected."
-          ./bin/pawncc
-          ec=$?
-          echo "pawncc exit code (usage): $ec"
-          # do not fail here
-
-      - name: Compile gamemode (fail on warnings)
+      - name: Compile main.pwn (fail on warnings)
         shell: bash
         run: |
           set -o pipefail
-          echo "Compiling..."
           ./bin/pawncc gamemodes/main.pwn \
+            -i include \
             -i qawno/include \
+            -i gamemodes \
             -i gamemodes/modules \
             -d3 -E -o /dev/null 2>&1 | tee build.log
-          comp_ec=${PIPESTATUS[0]}
-          warn_count=$(grep -Eio 'warning[[:space:]]+[0-9]+:' build.log | wc -l || true)
-          err_count=$(grep -Eio 'error[[:space:]]+[0-9]+:' build.log | wc -l || true)
-          echo "Compile exit code: $comp_ec"
-          echo "Warnings found:    $warn_count"
-          echo "Errors found:      $err_count"
-          if [ $comp_ec -ne 0 ]; then
-            echo "::error::pawncc returned non-zero ($comp_ec). Showing last 200 lines:"
-            tail -n 200 build.log || true
-            exit $comp_ec
+          ec=${PIPESTATUS[0]}
+          if [ $ec -ne 0 ]; then
+            echo "::error::pawncc exit $ec"; tail -n 200 build.log || true; exit $ec
           fi
-          if [ "$warn_count" -gt 0 ]; then
-            echo "::error::Pawn warnings detected ($warn_count). Treating as failure."
-            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 50 || true
-            exit 1
+          if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
+            echo "::error::Warnings detected"; grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100; exit 1
           fi
-          echo "Build OK. No warnings. No artifact saved."
+          echo "OK: no warnings"
