@@ -16,7 +16,7 @@ jobs:
         run: |
           chmod +x ./bin/pawncc
           ls -l ./bin
-          ./bin/pawncc --version
+          ./bin/pawncc
 
       - name: Compile gamemode
         run: |
