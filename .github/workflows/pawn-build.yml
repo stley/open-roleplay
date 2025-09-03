@@ -111,4 +111,4 @@ jobs:
             exit 1
           fi
           
-          echo "? Build successful: no warnings or errors!"
+          echo "? Build successful: no warnings or errors"
