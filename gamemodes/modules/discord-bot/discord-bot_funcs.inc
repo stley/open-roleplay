@@ -16,16 +16,8 @@ public discordOnGameModeInit(){
     format(buff, sizeof(buff), "Gamemode iniciada, el bot se conectó correctamente - (%s)", FechaActual());
     Cp1252ToUtf8(logutf, sizeof(logutf), buff);
     DCC_SendChannelMessage(LOG_CHANNEL, logutf);
-    //serverLogRegister(dslog);
     return 1;
 }
-/*public discordOnGameModeExit(){
-    if(strlen(serverLogBuffer)){
-        DCC_SendChannelMessage(LOG_CHANNEL, serverLogBuffer);
-        DCC_SendChannelMessage(LOG_CHANNEL, "FINALIZANDO serverLog...");
-    }
-    return 1;
-}*/
 
 public DCC_OnMessageCreate(DCC_Message:message){
     new DCC_Channel:curr_channel;
@@ -35,7 +27,7 @@ public DCC_OnMessageCreate(DCC_Message:message){
         DCC_GetMessageAuthor(message, author);
         new UID[DCC_ID_SIZE];
         DCC_GetUserId(author, UID);
-        if(strcmp(UID, "1411110133638889512") != 0) DCC_DeleteMessage(message);
+        if(strcmp(UID, BOT_USERID) != 0) DCC_DeleteMessage(message);
         return 1;    
     }
     return 1;
