@@ -36,5 +36,8 @@ main(){}
 //#pragma warning disable 239
 //#pragma warning disable 214
 #pragma unused CONSOLE_CHANNEL
+#pragma unused anuncioadmin
+#pragma unused playerspendMoney
+#pragma unused playeraddMoney
 #pragma option -d3
 //
