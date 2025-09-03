@@ -66,7 +66,6 @@ jobs:
           set -o pipefail
           echo "Compiling..."
           ./bin/pawncc gamemodes/main.pwn \
-            -i include \
             -i qawno/include \
             -i gamemodes/modules \
             -d3 -E -o /dev/null 2>&1 | tee build.log
