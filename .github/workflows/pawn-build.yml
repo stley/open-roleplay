@@ -21,7 +21,6 @@ jobs:
           Invoke-WebRequest $url -OutFile pawncc.zip
           New-Item -ItemType Directory -Path pawnc-bin | Out-Null
           Expand-Archive -Path pawncc.zip -DestinationPath pawnc-bin -Force
-          # Find extracted root dir (avoids hardcoding)
           $root = Get-ChildItem pawnc-bin -Directory | Where-Object { $_.Name -like 'pawnc-*windows*' } | Select-Object -First 1
           if (-not $root) { Write-Error 'Cannot locate extracted pawnc root' }
           $full = (Resolve-Path $root.FullName).Path
@@ -36,27 +35,30 @@ jobs:
           if (-not (Test-Path 'gamemodes\modules')) { Write-Error 'missing gamemodes\modules' }
 
       - name: Compile main.pwn (warnings fail, no artifact)
-  shell: cmd
-  run: |
-    setlocal
-    set "ROOT=%PAWN_ROOT%"
-    if not exist "%ROOT%\bin\pawncc.exe" (
-      echo ::error::pawncc not found at "%ROOT%\bin\pawncc.exe"
-      exit /b 1
-    )
-    echo Using pawncc: "%ROOT%\bin\pawncc.exe"
-    "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 1>build.log 2>&1
-    set EC=%ERRORLEVEL%
-    for /f "delims=" %%A in ('findstr /ri "warning[ ][0-9][0-9]*:" build.log ^| find /c ":"') do set "WARNS=%%A"
-    echo pawncc exit=%EC% warnings=%WARNS%
-    if not %EC%==0 (
-      type build.log
-      exit /b %EC%
-    )
-    if not "%WARNS%"=="0" (
-      echo ::error::Pawn warnings detected (%WARNS%)
-      findstr /ri "warning[ ][0-9][0-9]*:" build.log
-      exit /b 1
-    )
-    echo OK: no warnings
-
+        shell: cmd
+        run: |
+          setlocal
+          set "ROOT=%PAWN_ROOT%"
+          if not defined ROOT (
+            echo ::error::PAWN_ROOT not set
+            exit /b 1
+          )
+          if not exist "%ROOT%\bin\pawncc.exe" (
+            echo ::error::pawncc not found at "%ROOT%\bin\pawncc.exe"
+            exit /b 1
+          )
+          echo Using pawncc: "%ROOT%\bin\pawncc.exe"
+          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 1>build.log 2>&1
+          set EC=%ERRORLEVEL%
+          for /f "delims=" %%A in ('findstr /ri "warning[ ][0-9][0-9]*:" build.log ^| find /c ":"') do set "WARNS=%%A"
+          echo pawncc exit=%EC% warnings=%WARNS%
+          if not %EC%==0 (
+            type build.log
+            exit /b %EC%
+          )
+          if not "%WARNS%"=="0" (
+            echo ::error::Pawn warnings detected (%WARNS%)
+            findstr /ri "warning[ ][0-9][0-9]*:" build.log
+            exit /b 1
+          )
+          echo OK: no warnings
