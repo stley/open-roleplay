@@ -1,6 +1,5 @@
 # .github/workflows/pawn-build.yml
 name: Pawn Build
-
 on:
   pull_request:
     branches: ["**"]
@@ -8,19 +7,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      LD_LIBRARY_PATH: ${{ github.workspace }}/bin
     steps:
       - uses: actions/checkout@v4
 
       - name: Use repo compiler
         run: |
           chmod +x ./bin/pawncc
-          echo "$PWD/bin" >> "$GITHUB_PATH"
           ls -l ./bin
-          pawncc --version || true
+          ./bin/pawncc --version
 
       - name: Compile gamemode
         run: |
-          pawncc gamemodes/main.pwn \
+          ./bin/pawncc gamemodes/main.pwn \
             -i include \
             -i qawno/include \
             -i gamemodes/modules \
