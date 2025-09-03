@@ -8,8 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # point loader to the release's lib/
-      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin/lib
+      # point to the lib folder inside the extracted release
+      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin/pawnc-3.10.11-linux/lib
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,19 +21,15 @@ jobs:
         run: |
           set -euo pipefail
           URL="https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-linux.tar.gz"
-          echo "Downloading: $URL"
           curl -fsSL "$URL" -o pawncc.tar.gz
           mkdir -p pawnc-bin
           tar -xzf pawncc.tar.gz -C pawnc-bin
-          ls -la pawnc-bin pawnc-bin/bin pawnc-bin/lib || true
-          chmod +x pawnc-bin/bin/pawncc
-          file pawnc-bin/bin/pawncc || true
-          ldd pawnc-bin/bin/pawncc || true
+          ls -R pawnc-bin || true
+          chmod +x pawnc-bin/pawnc-3.10.11-linux/bin/pawncc
 
       - name: Validate layout
         shell: bash
         run: |
-          set -e
           test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
           test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
           test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
@@ -48,7 +44,7 @@ jobs:
           while IFS= read -r -d '' d; do INCLUDES+=(-i "$d"); done < <(find gamemodes/modules -type d -print0)
 
           echo "Include paths:" "${INCLUDES[@]}"
-          pawnc-bin/bin/pawncc "$TARGET" "${INCLUDES[@]}" -d3 -Z+ -E -o /dev/null 2>&1 | tee build.log
+          pawnc-bin/pawnc-3.10.11-linux/bin/pawncc "$TARGET" "${INCLUDES[@]}" -d3 -Z+ -E -o /dev/null 2>&1 | tee build.log
           ec=${PIPESTATUS[0]}
           warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log || true)
           errs=$(grep -Eic 'error[[:space:]]+[0-9]+:' build.log || true)
