@@ -1,4 +1,3 @@
-
 # .github/workflows/pawn-build.yml
 name: Pawn Build
 on:
@@ -50,28 +49,27 @@ jobs:
         run: |
           set -o pipefail
           
-          # Build include paths more carefully
+          # Build include paths - add ALL subdirectories recursively
           INCLUDES=()
           
-          # Add base include directories
-          if [ -d "qawno/include" ]; then
-            INCLUDES+=("-i" "qawno/include")
-          fi
-          
+          # Add base gamemodes directory
           if [ -d "gamemodes" ]; then
             INCLUDES+=("-i" "gamemodes")
           fi
           
-          if [ -d "gamemodes/modules" ]; then
-            INCLUDES+=("-i" "gamemodes/modules")
+          # Add qawno/include and ALL its subdirectories recursively
+          if [ -d "qawno/include" ]; then
+            while IFS= read -r -d '' dir; do
+              INCLUDES+=("-i" "$dir")
+            done < <(find qawno/include -type d -print0 2>/dev/null || true)
           fi
           
-          # Add subdirectories of gamemodes/modules, but only ones with .inc files
-          while IFS= read -r -d '' dir; do
-            if [ -n "$(find "$dir" -maxdepth 1 -name "*.inc" -type f 2>/dev/null)" ]; then
+          # Add gamemodes/modules and ALL its subdirectories recursively
+          if [ -d "gamemodes/modules" ]; then
+            while IFS= read -r -d '' dir; do
               INCLUDES+=("-i" "$dir")
-            fi
-          done < <(find gamemodes/modules -mindepth 1 -type d -print0 2>/dev/null || true)
+            done < <(find gamemodes/modules -type d -print0 2>/dev/null || true)
+          fi
           
           echo "Include paths:"
           printf '  %s\n' "${INCLUDES[@]}"
