@@ -41,3 +41,7 @@ samp.ban
 #
 .vscode/
 *.sublime-workspace
+
+qawno/*
+!qawno/include/
+!qawno/include/**
