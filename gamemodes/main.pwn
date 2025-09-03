@@ -15,10 +15,10 @@
 #pragma dynamic 8000
 //Módulos
 
+#include "modules/misc/misc_header" // Misceláneos
 #include "modules/discord-bot/discord-bot_header" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header"
 #include "modules/core/core_header" //Funciones core del servidor.
-#include "modules/misc/misc_header" // Misceláneos
 #include "modules/database/database_header" // conexión a la base de datos en OnGameModeInit y OnGameModeExit
 #include "modules/item-system/item_header" // Objetos
 #include "modules/admin/admin_header" // Objetos

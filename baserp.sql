@@ -38,24 +38,21 @@ CREATE TABLE `accounts` (
   `Clave` tinytext NOT NULL,
   `Email` tinytext NOT NULL,
   `IP` tinytext NOT NULL,
-  `Personaje_1` tinytext NOT NULL DEFAULT 'user_none',
-  `Personaje_2` tinytext NOT NULL DEFAULT 'user_none',
-  `Personaje_3` tinytext NOT NULL DEFAULT 'user_none',
   `Fecha_Reg` tinytext NOT NULL,
   `Ultima_Conexion` tinytext NOT NULL,
   `Premium` int(11) NOT NULL,
   `dPremium` int(11) NOT NULL,
   `mPremium` int(11) NOT NULL,
   `aPremium` int(11) NOT NULL,
+  `CharacterLimit` int(11) NOT NULL DEFAULT 3,
   `online` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Volcado de datos para la tabla `accounts`
 --
 
-INSERT INTO `accounts` (`SQLID`, `Nombre`, `Administrador`, `FacMan`, `StaffMan`, `PropMan`, `Creditos`, `Clave`, `Email`, `IP`, `Personaje_1`, `Personaje_2`, `Personaje_3`, `Fecha_Reg`, `Ultima_Conexion`, `Premium`, `dPremium`, `mPremium`, `aPremium`, `online`) VALUES
-(1, 'varky', 1337, 0, 0, 0, 0, '644D5F272C31098436B96386B7CC62F363E058C9CC478C032D617EC1FB622ACCD1C1732793D3088599485CCA56850721A8F1A434615785FE8E321DBDA349447A', 'email@dominio.com', '127.0.0.1', 'user_none', 'user_none', 'user_none', 'Domingo 29 de Octubre de 2023 [04:13 AM]', 'Domingo 17 de Noviembre de 2024 [12:07 AM]', 0, 0, 0, 0, 0);
+INSERT INTO `accounts` (`SQLID`, `Nombre`, `Administrador`, `FacMan`, `StaffMan`, `PropMan`, `Creditos`, `Clave`, `Email`, `IP`, `Fecha_Reg`, `Ultima_Conexion`, `Premium`, `dPremium`, `mPremium`, `aPremium`, `CharacterLimit`, `online`) VALUES
+(1, 'varky', 1337, 0, 0, 0, 0, '644D5F272C31098436B96386B7CC62F363E058C9CC478C032D617EC1FB622ACCD1C1732793D3088599485CCA56850721A8F1A434615785FE8E321DBDA349447A', 'email@dominio.com', '127.0.0.1', 'Domingo 29 de Octubre de 2023 [04:13 AM]', 'Domingo 17 de Noviembre de 2024 [12:07 AM]', 0, 0, 0, 0, 3, 0);
 
 -- --------------------------------------------------------
 
@@ -307,8 +304,6 @@ ALTER TABLE `characters`
 --
 -- Indices de la tabla `char_toys`
 --
-ALTER TABLE `char_toys`
-  ADD PRIMARY KEY (`character_id`);
 
 --
 -- Indices de la tabla `vehicles`

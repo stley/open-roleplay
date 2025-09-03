@@ -10,6 +10,10 @@ stock serverLogRegister(const info[])
 
     // bytes needed if we append now (newline only when buffer not empty)
     new need = (serverLogBufferLines > 0 ? 1 : 0) + strlen(line);
+    new hour, minute, second;
+    new day, month, year;
+    getdate(year, month, day);
+    gettime(hour, minute, second);
 
     // flush BEFORE overflowing line count or size
     if (serverLogBufferLines >= MAX_LINES || strlen(serverLogBuffer) + need > MAX_BYTES)
@@ -19,6 +23,9 @@ stock serverLogRegister(const info[])
         serverLogBufferLines = 0;
     }
     if (serverLogBufferLines > 0) strcat(serverLogBuffer, "\n");
+    new today[32];
+    formatt(today, "[%d/%d/%d %d:%d:%d] ", day, month, year, hour, minute, second);
+    strcat(serverLogBuffer, today);
     strcat(serverLogBuffer, line);
     serverLogBufferLines++;
     print(info);

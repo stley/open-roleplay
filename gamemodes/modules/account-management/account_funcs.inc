@@ -9,6 +9,10 @@ forward accountOnGameModeExit();
 forward characterRespawn(playerid);
 forward accountOnUserFirstLoad(playerid);
 forward accountOnPlayerRequestClass(playerid, classid);
+forward accountOnUserCharacterList(playerid);
+forward accountOnCharToyInsert(playerid);
+forward accountOnCharInserted(playerid);
+forward updateToys(playerid);
 
 public OnDialogPerformed(playerid, const dialog[], response, success) {
     return 1;
@@ -24,30 +28,65 @@ public accountOnPlayerConnect(playerid)
 	SetPlayerName(playerid, str);
 	return 1;
 }
+
+public accountOnUserCharacterList(playerid){
+	new dlg[2000], dlg_buff[96];
+	new charname[MAX_PLAYER_NAME];
+	if(cache_num_rows()){
+		for(new i; i < cache_num_rows(); i++){
+			cache_get_value_name_int(i, "Usuario", cachePersonajes[playerid][userID][i]);
+			cache_get_value_name_int(i, "SQLIDPJ", cachePersonajes[playerid][charID][i]);
+			cache_get_value_name(i, "NombrePJ", charname);
+			if(i == 0) formatt(dlg_buff, "%s [%d]\n", charname, cachePersonajes[playerid][charID][i]);
+			else if(i == cache_num_rows()-1) formatt(dlg_buff, "%s [%d]", charname, cachePersonajes[playerid][charID][i]);
+			else formatt(dlg_buff, "%s [%d]\n", charname, cachePersonajes[playerid][charID][i]);
+			strcat(dlg, dlg_buff);
+		}
+	}	
+	if(cache_num_rows() && cache_num_rows() < Datos[playerid][CharacterLimit]){
+		strcat(dlg, "\n{C0C0C0}Crear otro personaje");
+	}
+	else{
+		strcat(dlg, "\n{C0C0C0}Crear un personaje");
+	}
+	return Dialog_Show(playerid, D_PERSONAJES, DIALOG_STYLE_LIST, "Personajes disponibles", dlg, "Ingresar", "Salir");
+}
+
 public accountOnCharFirstLoad(playerid)
 {
-	if(cache_num_rows())
-	{
+	if(cache_num_rows()){
 		orm_apply_cache(Datos[playerid][ORMPJ], 0);
-		return Dialog_Show(playerid, D_INGPJ, DIALOG_STYLE_LIST, jPJE[playerid][ChosenPJ[playerid]-1], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
+		return Dialog_Show(playerid, D_INGPJ, DIALOG_STYLE_LIST, Datos[playerid][jNombrePJ], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
 	}
 	else
 	{
-		alm(jPJE[playerid][ChosenPJ[playerid]-1], "user_none");
 		clear_chardata(playerid);
 		save_account(playerid);
 		return dialog_personajes(playerid);
 	}
 }
-forward accountOnCharInserted(playerid);
 public accountOnCharInserted(playerid){
 	new dslog[512];
-	format(dslog, sizeof(dslog), "Cuenta %s creó el personaje %s", username[playerid], Datos[playerid][jNombrePJ]);
+	new slot;
+	for(new i; i < Datos[playerid][CharacterLimit]; i++){
+		if(cachePersonajes[playerid][charID][i] == Datos[playerid][jSQLIDP]){
+			slot = i;
+			break;
+		}
+		else continue;
+	}
+	format(dslog, sizeof(dslog), "La cuenta %s (SQLID %d) creó el personaje %s en su slot %d/%d", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ], slot+1, Datos[playerid][CharacterLimit]);
 	serverLogRegister(dslog);
-	format(dslog, sizeof(dslog), "Insertando tabla de objetos para el personaje %s (ID: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-	serverLogRegister(dslog);
-	orm_insert(CharToys[playerid][ORM_toy]);
+	mysql_format(SQLDB, dslog, sizeof(dslog), "INSERT INTO `char_toys` (`character_id`) VALUES (%d)", Datos[playerid][jSQLIDP]);
+	mysql_tquery(SQLDB, dslog);
 	save_char(playerid);
+	return 1;
+}
+public accountOnCharToyInsert(playerid){
+	new dslog[512];
+	format(dslog, sizeof(dslog), "Insertando tabla de objetos para el personaje %s (SQLID PJ: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	serverLogRegister(dslog);
+	orm_setkey(CharToys[playerid][ORM_toy], "character_id");
 	return 1;
 }
 /*bool:accountCheck(account_name[]){
@@ -111,7 +150,7 @@ load_character(playerid)
 	characterTextDraws(playerid);
 	SetTimerEx("update_manos", 1000, false, "d", playerid);
 	SetTimerEx("update_torso", 1500, false, "d", playerid);
-	SetTimerEx(" accountLoadToys", 1000, false, "d", playerid);
+	SetTimerEx("accountLoadToys", 1000, false, "d", playerid);
 	SendClientMessage(playerid, COLOR_SYSTEM, "Bienvenido, %s (%s). Tu última conexión fue el %s.", GetRPName(playerid), username[playerid], Datos[playerid][UltimaConexion]);
 	alm(Datos[playerid][UltimaConexion], FechaActual());
 	SetTimerEx("CharVeh_Load", 1500, false, "d", Datos[playerid][jSQLIDP]);
@@ -142,14 +181,32 @@ public characterRespawn(playerid){
 	characterTextDraws(playerid);
 	SetTimerEx("update_manos", 1000, false, "d", playerid);
 	SetTimerEx("update_torso", 1500, false, "d", playerid);
-	SetTimerEx("accountLoadToys", 1000, false, "d", playerid);
+	SetTimerEx("updateToys", 1500, false, "d", playerid);
+	//SetTimerEx("accountLoadToys", 1000, false, "d", playerid);
+}
+public updateToys(playerid){
+	new modelid;
+	if(CharToys[playerid][jToy_Gorro]){
+		modelid = ObjetoInfo[CharToys[playerid][jToy_Gorro]][ModeloObjeto];
+		SetPlayerAttachedObject(playerid, 4, modelid, 2, CharToys[playerid][GorroPos][0], CharToys[playerid][GorroPos][1], CharToys[playerid][GorroPos][2], CharToys[playerid][GorroRot][0], CharToys[playerid][GorroRot][1], CharToys[playerid][GorroRot][2], CharToys[playerid][GorroScale][0], CharToys[playerid][GorroScale][1], CharToys[playerid][GorroScale][2]);
+	}
+	if(CharToys[playerid][jToy_Gafas]){
+		modelid = ObjetoInfo[CharToys[playerid][jToy_Gafas]][ModeloObjeto];
+		SetPlayerAttachedObject(playerid, 5, modelid, 2, CharToys[playerid][GafasPos][0], CharToys[playerid][GafasPos][1], CharToys[playerid][GafasPos][2], CharToys[playerid][GafasRot][0], CharToys[playerid][GafasRot][1], CharToys[playerid][GafasRot][2], CharToys[playerid][GafasScale][0], CharToys[playerid][GafasScale][1], CharToys[playerid][GafasScale][2]);
+	}
+	if(CharToys[playerid][jToy_Boca]){
+		modelid = ObjetoInfo[CharToys[playerid][jToy_Boca]][ModeloObjeto];
+		SetPlayerAttachedObject(playerid, 6, modelid, 2, CharToys[playerid][BocaPos][0], CharToys[playerid][BocaPos][1], CharToys[playerid][BocaPos][2], CharToys[playerid][BocaRot][0], CharToys[playerid][BocaRot][1], CharToys[playerid][BocaRot][2], CharToys[playerid][BocaScale][0], CharToys[playerid][BocaScale][1], CharToys[playerid][BocaScale][2]);
+	}
+	if(CharToys[playerid][jToy_Pecho]){
+		modelid = ObjetoInfo[CharToys[playerid][jToy_Pecho]][ModeloObjeto];
+		SetPlayerAttachedObject(playerid, 7, modelid, 1, CharToys[playerid][PechoPos][0], CharToys[playerid][PechoPos][1], CharToys[playerid][PechoPos][2], CharToys[playerid][PechoRot][0], CharToys[playerid][PechoRot][1], CharToys[playerid][PechoRot][2], CharToys[playerid][PechoScale][0], CharToys[playerid][PechoScale][1], CharToys[playerid][PechoScale][2]);	
+	}
+	return 1;
 }
 
-public accountLoadToys(playerid){
-	new query[128];
-	mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `char_toys` WHERE `character_id` = '%d'", Datos[playerid][jSQLIDP]);
-	new Cache:ToyCache = mysql_query(SQLDB, query);
-	cache_set_active(ToyCache);
+forward accountOnCharLoadToys(playerid);
+public accountOnCharLoadToys(playerid){
 	if(cache_num_rows()){
 		orm_apply_cache(CharToys[playerid][ORM_toy], 0);
 	
@@ -171,7 +228,19 @@ public accountLoadToys(playerid){
 			SetPlayerAttachedObject(playerid, 7, modelid, 1, CharToys[playerid][PechoPos][0], CharToys[playerid][PechoPos][1], CharToys[playerid][PechoPos][2], CharToys[playerid][PechoRot][0], CharToys[playerid][PechoRot][1], CharToys[playerid][PechoRot][2], CharToys[playerid][PechoScale][0], CharToys[playerid][PechoScale][1], CharToys[playerid][PechoScale][2]);	
 		}
 	}
-	cache_delete(ToyCache);
+	else{
+		new query[128];
+		mysql_format(SQLDB, query, sizeof(query), "INSERT INTO `char_toys` (`character_id`) VALUES (%d);", Datos[playerid][jSQLIDP]);
+		mysql_query(SQLDB, query, false);
+		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `char_toys` WHERE `character_id` = '%d'", Datos[playerid][jSQLIDP]);
+		mysql_tquery(SQLDB, query, "accountOnCharLoadToys", "d", playerid);
+	}
+	return 1;
+}
+public accountLoadToys(playerid){
+	new query[128];
+	mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `char_toys` WHERE `character_id` = '%d'", Datos[playerid][jSQLIDP]);
+	mysql_tquery(SQLDB, query, "accountOnCharLoadToys", "d", playerid);
 	return 1;
 }
 
@@ -277,10 +346,13 @@ clear_account_data(playerid)
 	Datos[playerid][jSQLID] = 0;
 	Datos[playerid][jAdmin] = 0;
 	Datos[playerid][jCreditos] = 0;
-	alm(jPJE[playerid][0], "user_none");
-	alm(jPJE[playerid][1], "user_none");
-	alm(jPJE[playerid][2], "user_none");
+	Datos[playerid][CharacterLimit] = DEFAULT_MAX_CHARACTERS;
 	Datos[playerid][LoggedIn] = false;
+	for(new i; i < MAX_CHARACTERS; i++){
+		cachePersonajes[playerid][charID][i] = 0;
+		cachePersonajes[playerid][userID][i] = 0;
+		//cachePersonajes[playerid][slotOrder][i] = 0;
+	}
 }
 ClearPlayerVars(playerid)
 {
