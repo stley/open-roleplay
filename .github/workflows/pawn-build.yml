@@ -13,23 +13,25 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify compiler presence
+        shell: bash
         run: |
           test -x ./bin/pawncc || { echo "pawncc missing or not executable"; exit 1; }
+          test -f ./bin/libpawnc.so || { echo "libpawnc.so missing in ./bin"; exit 1; }
           ldd ./bin/pawncc || true
-          # Call once to print usage, ignore its non-zero exit
           ./bin/pawncc || true
 
       - name: Compile gamemode (fail on warnings)
-  shell: bash
-  run: |
-    ./bin/pawncc gamemodes/main.pwn \
-      -i include \
-      -i qawno/include \
-      -i gamemodes/modules \
-      -d3 -E -o /dev/null 2>&1 | tee build.log
-    s=${PIPESTATUS[0]}
-    if [ $s -ne 0 ]; then exit $s; fi
-    if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
-      echo "::error::Pawn warnings detected; failing build."
-      exit 1
-    fi
+        shell: bash
+        run: |
+          set -o pipefail
+          ./bin/pawncc gamemodes/main.pwn \
+            -i include \
+            -i qawno/include \
+            -i gamemodes/modules \
+            -d3 -E -o /dev/null 2>&1 | tee build.log
+          s=${PIPESTATUS[0]}
+          if [ $s -ne 0 ]; then exit $s; fi
+          if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
+            echo "::error::Pawn warnings detected; failing build."
+            exit 1
+          fi
