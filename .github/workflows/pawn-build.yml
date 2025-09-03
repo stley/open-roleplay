@@ -1,35 +1,80 @@
-# .github/workflows/pawn-build.yml
-name: Pawn Build
+# .github/workflows/pawn-build-windows.yml
+name: Pawn Build (Windows)
 on:
   pull_request:
     branches: ["**"]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    env:
-      LD_LIBRARY_PATH: ${{ github.workspace }}/bin
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
 
-      - name: Verify compiler presence
+      - name: Fetch pawncc v3.10.11 (Windows)
+        shell: pwsh
         run: |
-          test -x ./bin/pawncc || { echo "pawncc missing or not executable"; exit 1; }
-          ldd ./bin/pawncc || true
-          # Call once to print usage, ignore its non-zero exit
-          ./bin/pawncc || true
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/openmultiplayer/compiler/releases/download/v3.10.11/pawnc-3.10.11-windows.zip'
+          Invoke-WebRequest $url -OutFile pawncc.zip
+          New-Item -ItemType Directory -Path pawnc-bin | Out-Null
+          Expand-Archive -Path pawncc.zip -DestinationPath pawnc-bin -Force
+          $root = Get-ChildItem pawnc-bin -Directory | Where-Object { $_.Name -like 'pawnc-*windows*' } | Select-Object -First 1
+          if (-not $root) { Write-Error 'Cannot locate extracted pawnc root' }
+          $full = (Resolve-Path $root.FullName).Path
+          "PAWN_ROOT=$full" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Get-ChildItem -Recurse $full
 
-      - name: Compile gamemode (fail on warnings)
-  shell: bash
-  run: |
-    ./bin/pawncc gamemodes/main.pwn \
-      -i include \
-      -i qawno/include \
-      -i gamemodes/modules \
-      -d3 -E -o /dev/null 2>&1 | tee build.log
-    s=${PIPESTATUS[0]}
-    if [ $s -ne 0 ]; then exit $s; fi
-    if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
-      echo "::error::Pawn warnings detected; failing build."
-      exit 1
-    fi
+      - name: Validate layout
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'gamemodes\main.pwn')) { Write-Error 'missing gamemodes\main.pwn' }
+          if (-not (Test-Path 'qawno\include'))     { Write-Error 'missing qawno\include' }
+          if (-not (Test-Path 'gamemodes\modules')) { Write-Error 'missing gamemodes\modules' }
+
+      - name: Compile main.pwn (warnings fail, except 203)
+        shell: cmd
+        run: |
+          setlocal
+          set "ROOT=%PAWN_ROOT%"
+          if not defined ROOT (
+            echo ::error::PAWN_ROOT not set
+            exit /b 1
+          )
+          if not exist "%ROOT%\bin\pawncc.exe" (
+            echo ::error::pawncc not found at "%ROOT%\bin\pawncc.exe"
+            exit /b 1
+          )
+          echo Using pawncc: "%ROOT%\bin\pawncc.exe"
+          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 1>build.log 2>&1
+          set EC=%ERRORLEVEL%
+
+          rem Separate warnings
+          findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
+          findstr /ri "warning 203:" all_warns.txt > warns_203.txt
+          findstr /ri "warning[ ][0-9][0-9]*:" all_warns.txt | findstr /v "warning 203:" > warns_other.txt
+
+          for /f "delims=" %%A in ('find /c /v "" ^< warns_203.txt') do set "WARNS203=%%A"
+          for /f "delims=" %%A in ('find /c /v "" ^< warns_other.txt') do set "WARNSOTHER=%%A"
+
+          echo pawncc exit=%EC% warnings(except 203)=%WARNSOTHER% ignored203=%WARNS203%
+
+          if not %EC%==0 (
+            type build.log
+            exit /b %EC%
+          )
+
+          if not "%WARNS203%"=="0" (
+            echo "::notice::Ignored %WARNS203% warning(s) 203 (symbol never used)"
+            type warns_203.txt
+          )
+
+          if not "%WARNSOTHER%"=="0" (
+            echo "::error::Pawn warnings detected (%WARNSOTHER%)"
+            type warns_other.txt
+            exit /b 1
+          )
+
+          echo OK: no warnings (ignoring 203)

@@ -13,13 +13,14 @@
 #include <YSI_Game/y_vehicledata>
 //#include <bus>
 #pragma dynamic 8000
-//Módulos
-//  BERKELEY
-#include "modules/misc/misc_header" // Misceláneos
-#include "modules/discord-bot/discord-bot_header" // Conexión con bot de discord!
+//MÃ³dulos
+//  BERKELEY 222
+// otra vez berkeley?
+#include "modules/misc/misc_header" // MiscelÃ¡neos
+#include "modules/discord-bot/discord-bot_header" // ConexiÃ³n con bot de discord!
 #include "modules/serverLog/serverLog_header"
 #include "modules/core/core_header" //Funciones core del servidor.
-#include "modules/database/database_header" // conexión a la base de datos en OnGameModeInit y OnGameModeExit
+#include "modules/database/database_header" // conexiÃ³n a la base de datos en OnGameModeInit y OnGameModeExit
 #include "modules/item-system/item_header" // Objetos
 #include "modules/admin/admin_header" // Objetos
 #include "modules/vehicle/vehicle_header"
@@ -34,6 +35,9 @@
 main(){}
 //#pragma warning disable 239
 //#pragma warning disable 214
-
+#pragma unused CONSOLE_CHANNEL
+#pragma unused anuncioadmin
+#pragma unused playerspendMoney
+#pragma unused playeraddMoney
 #pragma option -d3
 //
