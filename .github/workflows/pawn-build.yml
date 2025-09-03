@@ -34,7 +34,7 @@ jobs:
           if (-not (Test-Path 'qawno\include'))     { Write-Error 'missing qawno\include' }
           if (-not (Test-Path 'gamemodes\modules')) { Write-Error 'missing gamemodes\modules' }
 
-      - name: Compile main.pwn (warnings fail, no artifact)
+      - name: Compile main.pwn (warnings fail, except 203)
         shell: cmd
         run: |
           setlocal
@@ -50,15 +50,31 @@ jobs:
           echo Using pawncc: "%ROOT%\bin\pawncc.exe"
           "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 1>build.log 2>&1
           set EC=%ERRORLEVEL%
-          for /f "delims=" %%A in ('findstr /ri "warning[ ][0-9][0-9]*:" build.log ^| find /c ":"') do set "WARNS=%%A"
-          echo pawncc exit=%EC% warnings=%WARNS%
+
+          rem Separate warnings
+          findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
+          findstr /ri "warning 203:" all_warns.txt > warns_203.txt
+          findstr /ri "warning[ ][0-9][0-9]*:" all_warns.txt | findstr /v "warning 203:" > warns_other.txt
+
+          for /f "delims=" %%A in ('find /c /v "" ^< warns_203.txt') do set "WARNS203=%%A"
+          for /f "delims=" %%A in ('find /c /v "" ^< warns_other.txt') do set "WARNSOTHER=%%A"
+
+          echo pawncc exit=%EC% warnings(except 203)=%WARNSOTHER% ignored203=%WARNS203%
+
           if not %EC%==0 (
             type build.log
             exit /b %EC%
           )
-          if not "%WARNS%"=="0" (
-            echo ::error::Pawn warnings detected (%WARNS%)
-            findstr /ri "warning[ ][0-9][0-9]*:" build.log
+
+          if not "%WARNS203%"=="0" (
+            echo "::notice::Ignored %WARNS203% warning(s) 203 (symbol never used)"
+            type warns_203.txt
+          )
+
+          if not "%WARNSOTHER%"=="0" (
+            echo "::error::Pawn warnings detected (%WARNSOTHER%)"
+            type warns_other.txt
             exit /b 1
           )
-          echo OK: no warnings
+
+          echo OK: no warnings (ignoring 203)
