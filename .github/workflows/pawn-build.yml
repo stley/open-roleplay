@@ -12,16 +12,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use repo compiler
+      - name: Verify compiler presence
         run: |
-          chmod +x ./bin/pawncc
-          ls -l ./bin
-          ./bin/pawncc
+          test -x ./bin/pawncc || { echo "pawncc missing or not executable"; exit 1; }
+          ldd ./bin/pawncc || true
+          # Call once to print usage, ignore its non-zero exit
+          ./bin/pawncc || true
 
-      - name: Compile gamemode
-        run: |
-          ./bin/pawncc gamemodes/main.pwn \
-            -i include \
-            -i qawno/include \
-            -i gamemodes/modules \
-            -d3 -Z+ -E -o /dev/null
+      - name: Compile gamemode (fail on warnings)
+  shell: bash
+  run: |
+    ./bin/pawncc gamemodes/main.pwn \
+      -i include \
+      -i qawno/include \
+      -i gamemodes/modules \
+      -d3 -E -o /dev/null 2>&1 | tee build.log
+    s=${PIPESTATUS[0]}
+    if [ $s -ne 0 ]; then exit $s; fi
+    if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
+      echo "::error::Pawn warnings detected; failing build."
+      exit 1
+    fi
