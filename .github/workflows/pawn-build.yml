@@ -20,17 +20,16 @@ jobs:
           ./bin/pawncc || true
 
       - name: Compile gamemode (fail on warnings)
-        shell: bash
-        run: |
-          set -o pipefail
-          ./bin/pawncc gamemodes/main.pwn \
-            -i include \
-            -i qawno/include \
-            -i gamemodes/modules \
-            -d3 -E -o /dev/null 2>&1 | tee build.log
-          status=${PIPESTATUS[0]}
-          if [ $status -ne 0 ]; then exit $status; fi
-          if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
-            echo "::error::Pawn warnings detected; failing build."
-            exit 1
-          fi
+  shell: bash
+  run: |
+    ./bin/pawncc gamemodes/main.pwn \
+      -i include \
+      -i qawno/include \
+      -i gamemodes/modules \
+      -d3 -E -o /dev/null 2>&1 | tee build.log
+    s=${PIPESTATUS[0]}
+    if [ $s -ne 0 ]; then exit $s; fi
+    if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
+      echo "::error::Pawn warnings detected; failing build."
+      exit 1
+    fi
