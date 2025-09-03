@@ -1,3 +1,4 @@
+# .github/workflows/pawn-build.yml
 name: Pawn Build
 
 on:
@@ -13,12 +14,14 @@ jobs:
       - name: Install deps
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake git
 
-      - name: Build pawncc
+      - name: Build pawncc from source
         run: |
-          git clone --depth=1 https://github.com/pawn-lang/compiler.git
-          cmake -S compiler -B compiler/build -DCMAKE_BUILD_TYPE=Release
-          cmake --build compiler/build -j
-          echo "$(pwd)/compiler/build/bin" >> $GITHUB_PATH
+          # Clone into a unique directory to avoid conflict with your repo's "compiler" folder
+          git clone --depth=1 https://github.com/pawn-lang/compiler.git pawnc-src
+          cmake -S pawnc-src -B pawnc-src/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build pawnc-src/build -j
+          echo "$PWD/pawnc-src/build/bin" >> $GITHUB_PATH
+          pawncc --version
 
       - name: Compile gamemode
         run: |
