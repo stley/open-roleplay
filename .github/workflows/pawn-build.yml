@@ -8,66 +8,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Allow pawncc to find libpawnc.so inside repo/bin
-      LD_LIBRARY_PATH: ${{ github.workspace }}/bin
+      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
-      - name: Show workspace
-        shell: bash
-        run: |
-          echo "Workspace: $GITHUB_WORKSPACE"
-          ls -la
-          ls -la bin || true
-          ls -la gamemodes || true
-          ls -la qawno || true
-
-      - name: Validate compiler and layout
+      - name: Download pawncc release v3.10.11
         shell: bash
         run: |
           set -e
-          [ -f bin/pawncc ] || { echo "::error::missing bin/pawncc"; exit 1; }
-          [ -f bin/libpawnc.so ] || { echo "::error::missing bin/libpawnc.so"; exit 1; }
-          chmod +x bin/pawncc
-          [ -f gamemodes/main.pwn ] || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
-          [ -d qawno/include ] || { echo "::error::missing qawno/include"; exit 1; }
-          [ -d gamemodes/modules ] || { echo "::error::missing gamemodes/modules"; exit 1; }
-          file bin/pawncc || true
-          ldd bin/pawncc || true
+          TAG="v3.10.11"
+          BASE="https://github.com/openmultiplayer/compiler/releases/download/${TAG}"
+          ASSET="pawnc-linux-x64.tar.gz"
+          URL="${BASE}/${ASSET}"
+          echo "Fetching $URL"
+          curl -fsSL "$URL" -o pawncc.tar.gz
+          mkdir pawnc-bin
+          tar -xzf pawncc.tar.gz -C pawnc-bin
+          chmod +x pawnc-bin/pawncc
+          echo "pawncc version output:"
+          pawnc-bin/pawncc --help | head -n 5
 
-      - name: Compile main.pwn (warnings fail, no artifact)
+      - name: Validate layout
+        shell: bash
+        run: |
+          test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
+          test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
+          test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
+
+      - name: Compile main.pwn (fail on warnings)
         shell: bash
         run: |
           set -o pipefail
           TARGET="gamemodes/main.pwn"
 
-          # Build include args in attached form: -idir
-          INCLUDES=(-igamemodes -iqawno/include -igamemodes/modules)
-          while IFS= read -r -d '' d; do INCLUDES+=("-i$d"); done < <(find gamemodes/modules -type d -print0)
+          INCLUDES=(-i qawno/include -i gamemodes -i gamemodes/modules)
+          while IFS= read -r -d '' d; do INCLUDES+=(-i "$d"); done < <(find gamemodes/modules -type d -print0)
 
-          echo "Include args:"; printf '  %s\n' "${INCLUDES[@]}"
-
-          ./bin/pawncc "$TARGET" "${INCLUDES[@]}" -d3 -E -o/dev/null 2>&1 | tee build.log
+          echo "Include paths:" "${INCLUDES[@]}"
+          pawnc-bin/pawncc "$TARGET" "${INCLUDES[@]}" -d3 -Z+ -E -o /dev/null 2>&1 | tee build.log
           ec=${PIPESTATUS[0]}
           warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log || true)
           errs=$(grep -Eic 'error[[:space:]]+[0-9]+:' build.log || true)
-
-          echo "pawncc exit: $ec"
-          echo "warnings:    $warns"
-          echo "errors:      $errs"
-
-          if [ $ec -ne 0 ]; then
-            echo "::error::pawncc returned non-zero ($ec). Showing last 200 lines:"
-            tail -n 200 build.log || true
-            exit $ec
-          fi
-          if [ "$warns" -gt 0 ]; then
-            echo "::error::Pawn warnings detected ($warns). Treating as failure."
-            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true
-            exit 1
-          fi
-
-          echo "OK: compiled with zero warnings; no .amx stored."
+          echo "pawncc exit: $ec  warnings: $warns  errors: $errs"
+          if [ $ec -ne 0 ]; then echo "::error::pawncc exit $ec"; tail -n 200 build.log || true; exit $ec; fi
+          if [ "$warns" -gt 0 ]; then echo "::error::Pawn warnings detected ($warns). Failing build."; grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true; exit 1; fi
+          echo "OK: no warnings"
