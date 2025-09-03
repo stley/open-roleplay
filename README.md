@@ -6,3 +6,5 @@ Tambien se incluye el compilador utilizado en Windows, y sus includes.
 
 # RECURSOS
 [Documentación del lenguaje Pawn (Archivo PDF)](https://github.com/pawn-lang/compiler/raw/master/doc/pawn-lang.pdf)
+[Compiler 3.10.11 de Pawn (repositorio de openmultiplayer)](https://github.com/openmultiplayer/compiler)
+[Compiler 3.10.10 de Pawn (repositorio de pawn-lang)](https://github.com/pawn-lang/compiler)
