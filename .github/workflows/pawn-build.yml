@@ -35,7 +35,7 @@ jobs:
         run: |
           set -o pipefail
           # Build include args safely: each -i + dir in one array element
-          INCLUDES=(-i qawno/include -i gamemodes -i gamemodes/modules)
+          INCLUDES=(-i qawno/include/ -i gamemodes/ -i gamemodes/modules/)
           while IFS= read -r -d '' d; do INCLUDES+=("-i" "$d"); done < <(find gamemodes/modules -type d -print0)
 
           echo "Include paths:"
