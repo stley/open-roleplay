@@ -8,7 +8,6 @@
 #include <Pawn.RakNet>
 #include <easyDialog>
 #include <discord-connector>
-//#include <jit>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
 #pragma dynamic 8000
