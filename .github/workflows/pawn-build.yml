@@ -11,17 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y build-essential cmake git
-
-      - name: Build pawncc from source
+      - name: Use repo compiler
         run: |
-          # Clone into a unique directory to avoid conflict with your repo's "compiler" folder
-          git clone --depth=1 https://github.com/pawn-lang/compiler.git pawnc-src
-          cmake -S pawnc-src -B pawnc-src/build -DCMAKE_BUILD_TYPE=Release
-          cmake --build pawnc-src/build -j
-          echo "$PWD/pawnc-src/build/bin" >> $GITHUB_PATH
-          pawncc --version
+          chmod +x ./bin/pawncc
+          echo "$PWD/bin" >> "$GITHUB_PATH"
+          ls -l ./bin
+          pawncc --version || true
 
       - name: Compile gamemode
         run: |
