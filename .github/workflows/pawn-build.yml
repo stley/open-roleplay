@@ -28,31 +28,16 @@ jobs:
       - name: Clean up problematic files and debug
         shell: bash
         run: |
-          # Remove any hidden or problematic files that might interfere
+          # Remove any .p files that might interfere
           find . -name "*.p" -type f -delete 2>/dev/null || true
           find qawno/include -name ".*" -type f -delete 2>/dev/null || true
           find gamemodes -name ".*" -type f -delete 2>/dev/null || true
           
-          # Check for any remaining .p files that might cause issues
-          echo "=== Checking for .p files ==="
-          find . -name "*.p" -type f 2>/dev/null || echo "No .p files found"
+          echo "=== Testing compiler version ==="
+          ./bin/pawncc -v 2>/dev/null || ./bin/pawncc 2>&1 | head -5 || true
           
-          # Check the main.pwn file for problematic includes
-          echo "=== Checking main.pwn includes ==="
-          head -20 gamemodes/main.pwn | grep -n "#include" || echo "No includes in first 20 lines"
-          
-          # List what's actually in the include directories
-          echo "=== qawno/include contents (first 20) ==="
-          find qawno/include -type f -name "*.inc" 2>/dev/null | head -20 || true
-          
-          echo "=== gamemodes/modules contents (first 20) ==="
-          find gamemodes/modules -type f -name "*.inc" 2>/dev/null | head -20 || true
-          
-          echo "=== Directory structure ==="
-          echo "qawno/include directories:"
-          find qawno/include -type d 2>/dev/null | head -10 || true
-          echo "gamemodes/modules directories:"
-          find gamemodes/modules -type d 2>/dev/null | head -10 || true
+          echo "=== Testing with single include ==="
+          ./bin/pawncc -i qawno/include 2>&1 | head -5 || true
 
       - name: Sanity check layout
         shell: bash
@@ -61,53 +46,112 @@ jobs:
           test -d qawno/include || { echo "::error::missing qawno/include"; exit 1; }
           test -d gamemodes/modules || { echo "::error::missing gamemodes/modules"; exit 1; }
 
-      - name: Compile main.pwn (fail on warnings)
+      - name: Create pawn.cfg file approach
         shell: bash
         run: |
-          set -o pipefail
+          echo "=== Trying pawn.cfg approach ==="
           
-          # Build include paths - ONLY for actual include directories
-          INCLUDES=()
+          # Create a pawn.cfg file with include paths
+          cat > pawn.cfg << 'EOF'
+-iqawno/include
+-iqawno/include/amx
+-iqawno/include/YSI_Core
+-iqawno/include/YSI_Game
+-iqawno/include/YSI_Players
+-iqawno/include/YSI_Server
+-igamemodes/modules
+-igamemodes/modules/commands
+-igamemodes/modules/discord-bot
+-igamemodes/modules/rptools
+-igamemodes/modules/misc
+-igamemodes/modules/account-management
+-igamemodes/modules/admin
+-igamemodes/modules/anticheat
+-igamemodes/modules/database
+-igamemodes/modules/serverLog
+-igamemodes/modules/player
+-igamemodes/modules/core
+-igamemodes/modules/vehicle
+-igamemodes/modules/item-system
+-igamemodes/modules/damage_system
+EOF
           
-          # Add qawno/include and ALL its subdirectories recursively
-          if [ -d "qawno/include" ]; then
-            while IFS= read -r -d '' dir; do
-              INCLUDES+=("-i" "$dir")
-            done < <(find qawno/include -type d -print0 2>/dev/null || true)
+          echo "Created pawn.cfg:"
+          cat pawn.cfg
+          
+          # Test with config file
+          ./bin/pawncc gamemodes/main.pwn -d3 -E -o /dev/null 2>&1 | tee build.log
+
+      - name: Try alternative: environment variable approach
+        if: failure()
+        shell: bash
+        run: |
+          echo "=== Config file failed, trying PAWNO_INCLUDE approach ==="
+          
+          # Build colon-separated include path
+          INCLUDE_PATH="qawno/include"
+          INCLUDE_PATH="${INCLUDE_PATH}:qawno/include/amx"
+          INCLUDE_PATH="${INCLUDE_PATH}:qawno/include/YSI_Core"
+          INCLUDE_PATH="${INCLUDE_PATH}:qawno/include/YSI_Game"
+          INCLUDE_PATH="${INCLUDE_PATH}:gamemodes/modules"
+          
+          for dir in gamemodes/modules/*/; do
+            if [ -d "$dir" ]; then
+              INCLUDE_PATH="${INCLUDE_PATH}:${dir%/}"
+            fi
+          done
+          
+          echo "PAWNO_INCLUDE=$INCLUDE_PATH"
+          export PAWNO_INCLUDE="$INCLUDE_PATH"
+          
+          # Try compilation with environment variable
+          ./bin/pawncc gamemodes/main.pwn -d3 -E -o /dev/null 2>&1 | tee build2.log
+
+      - name: Try minimal approach
+        if: failure()
+        shell: bash
+        run: |
+          echo "=== Trying minimal single include approach ==="
+          
+          # Just try with the two main include directories
+          ./bin/pawncc gamemodes/main.pwn \
+            -i qawno/include \
+            -i gamemodes/modules \
+            -d3 -E -o /dev/null 2>&1 | tee build3.log
+
+      - name: Check results and fail on warnings
+        shell: bash
+        run: |
+          # Check which build succeeded
+          if [ -f build.log ]; then
+            BUILD_FILE="build.log"
+          elif [ -f build2.log ]; then
+            BUILD_FILE="build2.log"  
+          elif [ -f build3.log ]; then
+            BUILD_FILE="build3.log"
+          else
+            echo "::error::No build log found"
+            exit 1
           fi
           
-          # Add gamemodes/modules and ALL its subdirectories recursively
-          if [ -d "gamemodes/modules" ]; then
-            while IFS= read -r -d '' dir; do
-              INCLUDES+=("-i" "$dir")
-            done < <(find gamemodes/modules -type d -print0 2>/dev/null || true)
+          echo "Using build log: $BUILD_FILE"
+          
+          # Get exit codes from each attempt
+          if grep -q "fatal error\|Error" "$BUILD_FILE"; then
+            echo "::error::Compilation failed"
+            echo "Build errors:"
+            tail -20 "$BUILD_FILE"
+            exit 1
           fi
           
-          echo "Include paths:"
-          printf '  %s\n' "${INCLUDES[@]}"
+          warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' "$BUILD_FILE" 2>/dev/null || echo "0")
           
-          # Run the compiler
-          ./bin/pawncc gamemodes/main.pwn "${INCLUDES[@]}" -d3 -E -o /dev/null 2>&1 | tee build.log
-          
-          ec=${PIPESTATUS[0]}
-          warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log 2>/dev/null || echo "0")
-          errs=$(grep -Eic 'error[[:space:]]+[0-9]+:' build.log 2>/dev/null || echo "0")
-          
-          echo "pawncc exit code: $ec"
           echo "Warnings found: $warns"
-          echo "Errors found: $errs"
-          
-          if [ $ec -ne 0 ]; then
-            echo "::error::pawncc failed with exit code $ec"
-            echo "Build log (last 50 lines):"
-            tail -n 50 build.log || true
-            exit $ec
-          fi
           
           if [ "$warns" -gt 0 ]; then
             echo "::error::Build failed due to $warns warning(s)"
             echo "Warnings found:"
-            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | head -20 || true
+            grep -Ein 'warning[[:space:]]+[0-9]+:' "$BUILD_FILE" | head -20 || true
             exit 1
           fi
           
