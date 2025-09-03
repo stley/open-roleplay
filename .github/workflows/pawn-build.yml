@@ -12,6 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Show workspace contents
+        shell: bash
+        run: |
+          echo "Workspace: $GITHUB_WORKSPACE"
+          echo "Top-level:"
+          ls -la
+          echo "bin/:"
+          ls -la bin || echo "no bin/ found"
       - name: Verify compiler presence
         shell: bash
         run: |
