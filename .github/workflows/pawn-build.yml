@@ -25,12 +25,21 @@ jobs:
             file bin/libpawnc.so
           fi
 
-      - name: Clean up problematic files
+      - name: Clean up problematic files and debug
         shell: bash
         run: |
           # Remove any hidden or problematic files that might interfere
+          find . -name "*.p" -type f -delete 2>/dev/null || true
           find qawno/include -name ".*" -type f -delete 2>/dev/null || true
           find gamemodes -name ".*" -type f -delete 2>/dev/null || true
+          
+          # Check for any remaining .p files that might cause issues
+          echo "=== Checking for .p files ==="
+          find . -name "*.p" -type f 2>/dev/null || echo "No .p files found"
+          
+          # Check the main.pwn file for problematic includes
+          echo "=== Checking main.pwn includes ==="
+          head -20 gamemodes/main.pwn | grep -n "#include" || echo "No includes in first 20 lines"
           
           # List what's actually in the include directories
           echo "=== qawno/include contents (first 20) ==="
@@ -57,13 +66,8 @@ jobs:
         run: |
           set -o pipefail
           
-          # Build include paths - add ALL subdirectories recursively
+          # Build include paths - ONLY for actual include directories
           INCLUDES=()
-          
-          # Add base gamemodes directory
-          if [ -d "gamemodes" ]; then
-            INCLUDES+=("-i" "gamemodes")
-          fi
           
           # Add qawno/include and ALL its subdirectories recursively
           if [ -d "qawno/include" ]; then
