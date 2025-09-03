@@ -73,4 +73,4 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: dist/main.amx
-          retention-days: 14
+          retention-days: 7

@@ -136,7 +136,7 @@ stock _y@T(GLOBAL_TAG_TYPES:b, tag = tagof (b))
 	return (tag == tagof (Float:)) ? ret1 : ret2;
 }
 
-stock bool:_@yT(a, GLOBAL_TAG_TYPES:b, op, tag = tagof (b))
+stock bool:_yT@(a, GLOBAL_TAG_TYPES:b, op, tag = tagof (b))
 {
 	if (tag == tagof (Float:))
 	{
@@ -185,12 +185,12 @@ stock bool:_@yT(a, GLOBAL_TAG_TYPES:b, op, tag = tagof (b))
 // Just don't do side-effects in assertations!
 // `_EQ` and `_NE` now convert to float and check the values are close-enough.
 // For ints the subtraction will always be whole, so fail or pass correctly.
-#define ASSERT_EQ(%1,%0) Testing_Test(_@yT(J@,(%0),0),_y@T((%0)),STRINGISE__(%1 == %0),(J@=_:(((%0)^(%0))|(%1))))
-#define ASSERT_NE(%1,%0) Testing_Test(_@yT(J@,(%0),1),_y@T((%0)),STRINGISE__(%1 != %0),(J@=_:(((%0)^(%0))|(%1))))
-#define ASSERT_LE(%1,%0) Testing_Test(_@yT(J@,(%0),2),_y@T((%0)),STRINGISE__(%1 <= %0),(J@=_:(((%0)^(%0))|(%1))))
-#define ASSERT_LT(%1,%0) Testing_Test(_@yT(J@,(%0),3),_y@T((%0)),STRINGISE__(%1 <  %0),(J@=_:(((%0)^(%0))|(%1))))
-#define ASSERT_GE(%1,%0) Testing_Test(_@yT(J@,(%0),4),_y@T((%0)),STRINGISE__(%1 >= %0),(J@=_:(((%0)^(%0))|(%1))))
-#define ASSERT_GT(%1,%0) Testing_Test(_@yT(J@,(%0),5),_y@T((%0)),STRINGISE__(%1 >  %0),(J@=_:(((%0)^(%0))|(%1))))
+#define ASSERT_EQ(%1,%0) Testing_Test(_yT@(J@,(%0),0),_y@T((%0)),STRINGISE__(%1 == %0),(J@=_:(((%0)^(%0))|(%1))))
+#define ASSERT_NE(%1,%0) Testing_Test(_yT@(J@,(%0),1),_y@T((%0)),STRINGISE__(%1 != %0),(J@=_:(((%0)^(%0))|(%1))))
+#define ASSERT_LE(%1,%0) Testing_Test(_yT@(J@,(%0),2),_y@T((%0)),STRINGISE__(%1 <= %0),(J@=_:(((%0)^(%0))|(%1))))
+#define ASSERT_LT(%1,%0) Testing_Test(_yT@(J@,(%0),3),_y@T((%0)),STRINGISE__(%1 <  %0),(J@=_:(((%0)^(%0))|(%1))))
+#define ASSERT_GE(%1,%0) Testing_Test(_yT@(J@,(%0),4),_y@T((%0)),STRINGISE__(%1 >= %0),(J@=_:(((%0)^(%0))|(%1))))
+#define ASSERT_GT(%1,%0) Testing_Test(_yT@(J@,(%0),5),_y@T((%0)),STRINGISE__(%1 >  %0),(J@=_:(((%0)^(%0))|(%1))))
 
 // Zeroes.
 #define ASSERT_ZE(%1) Testing_Test(J@==0,"%s%s(%d)",STRINGISE__(%1==0),(J@=_:(%1)))
@@ -401,10 +401,66 @@ stock
 //#define _Q@y0000%0\32; _Q@y0000
 //#define _y@Q0000%0\32; _y@Q0000
 
+///*-------------------------------------------------------------------------*//**
+// * <library>y_testing</library>
+// * <param name="a">The first string to compare.</param>
+// * <param name="b">The second string to compare.</param>
+// * <remarks>
+// *   A wrapper for <c>strcmp</c> that takes a pointer instead of a string.
+// * </remarks>
+// *//*------------------------------------------------------------------------**/
+//
+//native Testing_StrCmp__(const a[], b, bool:ignoreCase = false, length = cellmax) = strcmp;
+//
+///*-------------------------------------------------------------------------*//**
+// * <library>y_testing</library>
+// * <param name="name">Name of the current test.</param>
+// * <remarks>
+// *   If <c>JUST_TEST</c> is defined this confirms whether the current test is
+// *   in the list of desired tests.
+// * </remarks>
+// *//*------------------------------------------------------------------------**/
+//
+//static stock bool:Testing_ShouldRun(const name[], ...)
+//{
+//	new
+//		n = numargs() - 1,
+//		addr,
+//		str;
+//	#emit ADDR.pri         __param1_offset
+//	#emit STOR.S.pri       addr
+//	while (n--)
+//	{
+//		#emit LREF.S.pri       addr
+//		#emit STOR.S.pri       str
+//		addr += cellbytes;
+//		if (Testing_StrCmp__(name, str) == 0)
+//		{
+//			return true;
+//		}
+//	}
+//	return false;
+//}
+//
+//// Detect multiple parameters and convert them all to strings.
+//#define Testing_ShouldRun(%0""#%1,%2) Testing_ShouldRun(%0#%1,""#%2)
+
+// Until I work out the macro for `Testing_ShouldRun` to stringise multiple
+// arguments, despite them being given in `JUST_TEST`, which is evaluated later
+// in the pre-processing step, just alias this to `strcmp` and stick with the
+// old method.
+#define Testing_ShouldRun(%0,%1) (!strcmp(%0,%1))
+
 /*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
  * <param name="name">Name of the current function.</param>
+ * <param name="run">Should we actually do this test?</param>
+ * <param name="group">Which group of tests is this a member of?</param>
+ * <param name="slow">Does this take a long time?  If so, usually skip.</param>
  * <remarks>
- *   Gets a reference to the 
+ *   Called from inside a test to initialise the information for the test.  May
+ *   force-end the test if it isn't to be run now.  This state variation just
+ *   collects the initial information for determining whether we should run it.
  * </remarks>
  *//*------------------------------------------------------------------------**/
 
@@ -415,7 +471,7 @@ stock _Testing_Start(const name[], run = true, const group[] = "", slow = false)
 	#pragma unused slow, group
 	// Never skip a `JUST_TEST` test, even if it is slow and we don't want
 	// slow tests.  Always `[2]`, even with string packing.
-	if (!run || strcmp(name[2], #JUST_TEST))
+	if (!run || !Testing_ShouldRun(name[2], ""#JUST_TEST))
 #elseif defined RUN_SLOW_TESTS
 	#pragma unused name, slow
 	if (!run)
@@ -470,6 +526,19 @@ stock _Testing_Start(const name[], run = true, const group[] = "", slow = false)
 	#emit RETN
 }
 
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <param name="name">Name of the current function.</param>
+ * <param name="run">Should we actually do this test?</param>
+ * <param name="group">Which group of tests is this a member of?</param>
+ * <param name="slow">Does this take a long time?  If so, usually skip.</param>
+ * <remarks>
+ *   Called from inside a test to initialise the information for the test.  May
+ *   force-end the test if it isn't to be run now.  This state variation
+ *   actually starts the execution.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
+
 stock _Testing_Start(const name[], run = true, const group[] = "", slow = false) <y_testing_phase : y_testing_phase_call>
 {
 	#pragma unused run, group, slow
@@ -490,9 +559,10 @@ stock _Testing_Start(const name[], run = true, const group[] = "", slow = false)
 }
 
 /*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
  * <param name="playerid">Player to ask a question to.</param>
  * <param name="str">What to ask.</param>
- * <param name="va_args">Additional data.</param>
+ * <param name="...">Additional data.</param>
  * <remarks>
  *   Calls a dialog to ask the player if the given test actually passed.
  * </remarks>
@@ -559,10 +629,16 @@ stock _Testing_Start(const name[], run = true, const group[] = "", slow = false)
 			TextDrawTextSize(YSI_g_sQuestionTD, 600.0, 50.0),
 			TextDrawSetOutline(YSI_g_sQuestionTD, 0),
 			TextDrawSetShadow(YSI_g_sQuestionTD, 0),
-			TextDrawAlignment(YSI_g_sQuestionTD, TEXT_DRAW_ALIGN:1),
-			TextDrawColor(YSI_g_sQuestionTD, 0xFF7F37FF),
-			TextDrawBackgroundColor(YSI_g_sQuestionTD, 0xFFFFFFFF),
-			TextDrawBoxColor(YSI_g_sQuestionTD, 0x000000AA),
+			TextDrawAlignment(YSI_g_sQuestionTD, TEXT_DRAW_ALIGN:1);
+			#if defined _INC_open_mp
+				TextDrawColour(YSI_g_sQuestionTD, 0xFF7F37FF),
+				TextDrawBackgroundColour(YSI_g_sQuestionTD, 0xFFFFFFFF),
+				TextDrawBoxColour(YSI_g_sQuestionTD, 0x000000AA);
+			#else
+				TextDrawColor(YSI_g_sQuestionTD, 0xFF7F37FF),
+				TextDrawBackgroundColor(YSI_g_sQuestionTD, 0xFFFFFFFF),
+				TextDrawBoxColor(YSI_g_sQuestionTD, 0x000000AA);
+			#endif
 			TextDrawUseBox(YSI_g_sQuestionTD, true),
 			TextDrawSetProportional(YSI_g_sQuestionTD, true),
 			TextDrawSetSelectable(YSI_g_sQuestionTD, false),
@@ -571,6 +647,15 @@ stock _Testing_Start(const name[], run = true, const group[] = "", slow = false)
 			YSI_g_sAsked = true;
 	}
 #endif
+
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <param name="x">The test result.</param>
+ * <param name="str">The failure message.</param>
+ * <remarks>
+ *   Prints the result of an <c>ASSERT</c>.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
 
 stock Testing_Test(bool:x, const str[] = "", GLOBAL_TAG_TYPES:...)
 {
@@ -619,9 +704,9 @@ stock Testing_Test(bool:x, const str[] = "", GLOBAL_TAG_TYPES:...)
 }
 
 /*-------------------------------------------------------------------------*//**
- * <param name="name">Name of the current function.</param>
+ * <library>y_testing</library>
  * <remarks>
- *   Gets a reference to the 
+ *   Called at the end of a test to validate global state changes.
  * </remarks>
  *//*------------------------------------------------------------------------**/
 
@@ -643,6 +728,7 @@ stock bool:_Testing_End()
 }
 
 /*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
  * <param name="tests">Number of tests run.</param>
  * <param name="fails">Number of tests which failed.</param>
  * <param name="buffer">The name of the first test which failed.</param>
@@ -782,6 +868,7 @@ stock bool:Testing_Run(&tests, &checks, &fails, const lastfail[33] = "", bool:p 
 }
 
 /*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
  * <param name="playerid">Player to test on.</param>
  * <param name="idx">Next test to run.</param>
  * <param name="tests">Number of tests run.</param>
@@ -1175,6 +1262,13 @@ forward OnPlayerTestsComplete(playerid, tests, checks, fails);
 	#define OnRuntimeError(%0) CHAIN_PUBLIC:Testing_OnRuntimeError(%0)
 #endif
 
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <remarks>
+ *   Explicitly runs all registered tests.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
+
 stock Testing_RunAll()
 {
 	// Disable error messages (as we're likely to generate them).
@@ -1235,12 +1329,27 @@ stock Testing_RunAll()
 
 // Meta tests.
 
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <remarks>
+ *   A hook to test that <c>ASSERT</c> itself works.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
+
 stock Testing_TestRedirect(bool:x, const str[] = "", GLOBAL_TAG_TYPES:...)
 {
 	ASSERT(x == bool:YSI_g_sTestResult);
 	ASSERT(str[0] != '\0');
 	ASSERT(!strcmp(str, "%s %s", false, 5));
 }
+
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <remarks>
+ *   Reduces the number of seen failures, to test that failures themselves work
+ *   without failing the entire suite.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
 
 stock Testing_SurpressOneFail()
 {
@@ -1304,10 +1413,24 @@ stock Testing_SurpressOneFail()
 	++YSI_g_sTestResult;
 }
 
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <remarks>
+ *   Returns the number <c>7</c>, for testing purposes.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
+
 static stock y_testing_Return7()
 {
 	return 7;
 }
+
+/*-------------------------------------------------------------------------*//**
+ * <library>y_testing</library>
+ * <remarks>
+ *   Returns the string <c>"Hello"</c>, for testing purposes.
+ * </remarks>
+ *//*------------------------------------------------------------------------**/
 
 static stock y_testing_ReturnHello()
 {
@@ -1344,9 +1467,23 @@ static stock y_testing_ReturnHello()
 #include ".\libs\y_testing_c"
 #include ".\libs\y_testing_f"
 
+#if defined YSI_NO_TEST_WARNINGS
+	#pragma warning push
+	#pragma warning disable 203
+	#pragma warning disable 204
+	#pragma warning disable 213
+	#pragma warning disable 214
+	#pragma warning disable 219
+	#pragma warning disable 234
+	#pragma warning disable 239
+	#pragma warning disable 240
+#endif
 #include "..\y_core\y_utils_tests"
 #include "..\y_core\y_als_tests"
 #include "..\y_core\y_cell_tests"
 #include "..\y_core\y_amx_tests"
 #include "..\..\YSI_Coding\y_unique\y_unique_tests"
+#if defined YSI_NO_TEST_WARNINGS
+	#pragma warning pop
+#endif
 

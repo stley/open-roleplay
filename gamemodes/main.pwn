@@ -11,11 +11,8 @@
 //#include <jit>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
-//#include <bus>
 #pragma dynamic 8000
 //Módulos
-//  BERKELEY 222
-// otra vez berkeley?
 #include "modules/misc/misc_header" // Misceláneos
 #include "modules/discord-bot/discord-bot_header" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header"

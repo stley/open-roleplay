@@ -97,31 +97,15 @@ Optional plugins:
 	#pragma warning disable 231
 #endif
 
-#include "y_amx-assembly"
-#include "y_formatex"
-#include "y_md-sort"
-#include "y_codeparse"
-#include "y_indirection"
+#include "y3_addressof"
+#include "y3_amx_assembly"
+#include "y3_formatex"
+#include "y3_md_sort"
+#include "y3_codeparse"
+#include "y3_indirection"
 
 // "y_thirdpartyinclude_tests" is NOT included here when tests are active, because it complicates
 // dependency orders massively!
-
-public OnCodeInit()
-{
-	AddressofResolve();
-	Indirect_Init();
-	#if defined ThirdParty_OnCodeInit
-		return ThirdParty_OnCodeInit();
-	#else
-		return 1;
-	#endif
-}
-
-#undef OnCodeInit
-#define OnCodeInit ThirdParty_OnCodeInit
-#if defined ThirdParty_OnCodeInit
-	forward ThirdParty_OnCodeInit();
-#endif
 
 #if __COMPILER_WARNING_SUPPRESSION
 	#pragma warning pop
@@ -130,6 +114,20 @@ public OnCodeInit()
 #include "..\..\YSI_Storage\y_dumpamx\y_dumpamx_entry"
 
 #if defined YSI_TESTS
+	#if defined YSI_NO_TEST_WARNINGS
+		#pragma warning push
+		#pragma warning disable 203
+		#pragma warning disable 204
+		#pragma warning disable 213
+		#pragma warning disable 214
+		#pragma warning disable 219
+		#pragma warning disable 234
+		#pragma warning disable 239
+		#pragma warning disable 240
+	#endif
 	#include "y_thirdpartyinclude_tests"
+	#if defined YSI_NO_TEST_WARNINGS
+		#pragma warning pop
+	#endif
 #endif
 

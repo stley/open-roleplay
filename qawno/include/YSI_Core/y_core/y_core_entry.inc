@@ -79,8 +79,8 @@ Optional plugins:
 #define YSI_VERSION_RESPO               2
 
 #define YSI_VERSION_MAJOR               5
-#define YSI_VERSION_MINOR               08
-#define YSI_VERSION_BUILD               4329
+#define YSI_VERSION_MINOR               10
+#define YSI_VERSION_BUILD               0006
 
 #define YSI_VERSION                     #YSI_VERSION_MAJOR "." #YSI_VERSION_MINOR "." #YSI_VERSION_BUILD
 
@@ -119,9 +119,12 @@ Optional plugins:
 	#define volatile
 #endif
 
+// Completely stand-alone code.
+#include "y_const_correct"
+
 // The most first include, since it determines compiler settings that might be
 // used by literally any other include.
-#include "..\..\YSI_Server\y_thirdpartyinclude\y_addressof"
+#include "..\..\YSI_Server\y_thirdpartyinclude\y3_addressof"
 #include "y_interning"
 #include "y_emit"
 #include "y_compilerdata"
@@ -249,7 +252,7 @@ stock const
 
 enum E_YSI_DIR
 {
-#if _DEBUG
+#if _DEBUG || defined DEBUG_DUMP
 	E_YSI_DIR_DEBUG,
 #endif
 #if defined YSI_TESTS

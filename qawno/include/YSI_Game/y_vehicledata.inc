@@ -118,9 +118,6 @@ Optional plugins:
 	#tryinclude "YSI_Game\y_vehicledata\y_vehicledata_entry"
 #endif
 #if !defined _INC_y_vehicledata
-	#tryinclude "YSI-Includes\YSI_Game\y_vehicledata\y_vehicledata_entry"
-#endif
-#if !defined _INC_y_vehicledata
 	#tryinclude "YSI\YSI_Game\y_vehicledata\y_vehicledata_entry"
 #endif
 #if !defined _INC_y_vehicledata

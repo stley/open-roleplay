@@ -47,6 +47,24 @@
 	#define __pawn_build 0
 #endif
 
+#if !defined cellbytes
+	const cellbytes = cellbits / charbits;
+#endif
+
+#if !defined __register_names
+	const __cod = 0;
+	const __dat = 1;
+	const __hea = 2;
+	const __stp = 3;
+	const __stk = 4;
+	const __frm = 5;
+	const __cip = 6;
+	const __jit = 7;
+	const __jmp = 8;
+	const __flg = 9;
+	#define __register_names
+#endif
+
 #if __pawn_build >= 10
 	#define HasSysreqD() (bool:(__emit(zero.pri, lctrl __flg, eq.c.pri 0)))
 	#define HasReloc() (bool:(__emit(zero.pri, lctrl __flg, const.alt 512, and, eq.c.pri 0)))
@@ -91,13 +109,7 @@ stock GetAmxBaseAddressNow() {
 	GetAmxBaseAddress_helper();
 	#emit lctrl __cip
 	#emit stor.s.pri call_addr
-	#if cellbits == 32
-		call_addr = call_addr - 12 + code_start;
-	#elseif cellbits == 64
-		call_addr = call_addr - 24 + code_start;
-	#else
-		#error Unsupported `cellbits`.
-	#endif
+	call_addr = call_addr - 3 * cellbytes + code_start;
 	#emit lref.s.pri call_addr
 	#emit stor.s.pri fn_addr_reloc
 
