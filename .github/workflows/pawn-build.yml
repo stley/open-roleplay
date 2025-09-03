@@ -11,35 +11,94 @@ jobs:
       LD_LIBRARY_PATH: ${{ github.workspace }}/bin
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
 
-      - name: Show workspace contents
+      - name: Show runner and workspace
         shell: bash
         run: |
           echo "Workspace: $GITHUB_WORKSPACE"
+          echo "Kernel:    $(uname -a)"
+          echo "Shell:     $SHELL"
+          echo "PATH:      $PATH"
+          echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH:-<empty>}"
+          echo "HEAD:      $(git rev-parse --short HEAD)"
           echo "Top-level:"
           ls -la
-          echo "bin/:"
-          ls -la bin || echo "no bin/ found"
-      - name: Verify compiler presence
+
+      - name: Validate bin/ and compiler payload
         shell: bash
         run: |
-          test -x ./bin/pawncc || { echo "pawncc missing or not executable"; exit 1; }
-          test -f ./bin/libpawnc.so || { echo "libpawnc.so missing in ./bin"; exit 1; }
-          ldd ./bin/pawncc || true
-          ./bin/pawncc || true
+          set -e
+          [ -d bin ] || { echo "::error::missing bin/ directory"; exit 1; }
+          ls -la bin || true
+          # Existence
+          [ -f bin/pawncc ]      || { echo "::error file=bin/pawncc::missing bin/pawncc"; exit 1; }
+          [ -f bin/libpawnc.so ] || { echo "::error file=bin/libpawnc.so::missing bin/libpawnc.so"; exit 1; }
+          # Non-empty
+          [ -s bin/pawncc ]      || { echo "::error file=bin/pawncc::bin/pawncc is empty"; exit 1; }
+          [ -s bin/libpawnc.so ] || { echo "::error file=bin/libpawnc.so::bin/libpawnc.so is empty"; exit 1; }
+          # Make executable if needed
+          if [ ! -x bin/pawncc ]; then
+            echo "Setting execute bit on bin/pawncc"
+            chmod +x bin/pawncc
+          fi
+          echo "File types:"
+          file bin/pawncc || true
+          file bin/libpawnc.so || true
+          echo "Dependencies (ldd pawncc):"
+          ldd bin/pawncc || true
+
+      - name: Check include/layout sanity
+        shell: bash
+        run: |
+          set -e
+          for d in include qawno/include gamemodes/modules; do
+            [ -d "$d" ] || { echo "::error::missing directory: $d"; exit 1; }
+          done
+          [ -f gamemodes/main.pwn ] || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
+          echo "PWN files snapshot:"
+          find gamemodes -type f -name '*.pwn' -maxdepth 2 | sed 's/^/- /' || true
+          echo "INC dirs snapshot:"
+          for d in include qawno/include gamemodes/modules; do
+            echo "[$d]"; find "$d" -maxdepth 1 -type f -name '*.inc' | head -n 20
+          done
+
+      - name: Smoke-test compiler
+        shell: bash
+        run: |
+          set +e
+          echo "Invoking ./bin/pawncc with no args to print usage; non-zero exit is expected."
+          ./bin/pawncc
+          ec=$?
+          echo "pawncc exit code (usage): $ec"
+          # do not fail here
 
       - name: Compile gamemode (fail on warnings)
         shell: bash
         run: |
           set -o pipefail
+          echo "Compiling..."
           ./bin/pawncc gamemodes/main.pwn \
             -i include \
             -i qawno/include \
             -i gamemodes/modules \
             -d3 -E -o /dev/null 2>&1 | tee build.log
-          s=${PIPESTATUS[0]}
-          if [ $s -ne 0 ]; then exit $s; fi
-          if grep -Eiq 'warning[[:space:]]+[0-9]+:' build.log; then
-            echo "::error::Pawn warnings detected; failing build."
+          comp_ec=${PIPESTATUS[0]}
+          warn_count=$(grep -Eio 'warning[[:space:]]+[0-9]+:' build.log | wc -l || true)
+          err_count=$(grep -Eio 'error[[:space:]]+[0-9]+:' build.log | wc -l || true)
+          echo "Compile exit code: $comp_ec"
+          echo "Warnings found:    $warn_count"
+          echo "Errors found:      $err_count"
+          if [ $comp_ec -ne 0 ]; then
+            echo "::error::pawncc returned non-zero ($comp_ec). Showing last 200 lines:"
+            tail -n 200 build.log || true
+            exit $comp_ec
+          fi
+          if [ "$warn_count" -gt 0 ]; then
+            echo "::error::Pawn warnings detected ($warn_count). Treating as failure."
+            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 50 || true
             exit 1
           fi
+          echo "Build OK. No warnings. No artifact saved."
