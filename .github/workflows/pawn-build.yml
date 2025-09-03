@@ -1,0 +1,29 @@
+name: Pawn Build
+
+on:
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake git
+
+      - name: Build pawncc
+        run: |
+          git clone --depth=1 https://github.com/pawn-lang/compiler.git
+          cmake -S compiler -B compiler/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build compiler/build -j
+          echo "$(pwd)/compiler/build/bin" >> $GITHUB_PATH
+
+      - name: Compile gamemode
+        run: |
+          pawncc gamemodes/main.pwn \
+            -i include \
+            -i qawno/include \
+            -i gamemodes/modules \
+            -d3 -Z+ -E -o /dev/null
