@@ -21,13 +21,8 @@ jobs:
           Invoke-WebRequest $url -OutFile pawncc.zip
           New-Item -ItemType Directory -Path pawnc-bin | Out-Null
           Expand-Archive -Path pawncc.zip -DestinationPath pawnc-bin -Force
-          Get-ChildItem -Recurse pawnc-bin
-          $root = Join-Path $PWD 'pawnc-bin\pawnc-3.10.11-windows'
-          $env:Path = "$($root)\bin;$($root)\lib;$env:Path"
-          # Smoke test (non-zero ok)
-          'main(){}' | Out-File -Encoding ascii -FilePath $env:TEMP\_t.pwn
-          & "$root\bin\pawncc.exe" $env:TEMP\_t.pwn -oNUL; $global:rc=$LASTEXITCODE
-          Write-Host "smoke rc=$rc"
+          $global:PAWN_ROOT = Join-Path $PWD 'pawnc-bin\pawnc-3.10.11-windows'
+          Get-ChildItem -Recurse $env:PAWN_ROOT
 
       - name: Validate layout
         shell: pwsh
@@ -40,23 +35,14 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $root = Join-Path $PWD 'pawnc-bin\pawnc-3.10.11-windows'
-          $env:Path = "$($root)\bin;$($root)\lib;$env:Path"
-
-          $cmd = @(
-            "$root\bin\pawncc.exe"
-            "gamemodes\main.pwn"
-            "-iqawno\include"
-            "-igamemodes\modules"
-            "-d3","-Z+","-E","-oNUL"
-          )
-          Write-Host "Running: $($cmd -join ' ')"
-          & $cmd 2>&1 | Tee-Object -FilePath build.log
+          $root = $env:PAWN_ROOT
+          $exe  = Join-Path $root 'bin\pawncc.exe'
+          # Use PowerShell stop-parsing to pass special flags safely: -;+ and -(+
+          & "$exe" --% gamemodes\main.pwn -iqawno\include -igamemodes\modules -d3 -Z+ -E -;+ -(+ -oNUL 2>&1 | Tee-Object -FilePath build.log
           $rc = $LASTEXITCODE
 
-          $warns = (Select-String -Path build.log -Pattern 'warning\s+\d+:' -SimpleMatch:$false -AllMatches | Measure-Object).Count
+          $warns = (Select-String -Path build.log -Pattern 'warning\s+\d+:' -AllMatches | Measure-Object).Count
           Write-Host "pawncc exit=$rc warnings=$warns"
-
           if ($rc -ne 0) {
             Write-Host "::error::pawncc exit $rc"
             Get-Content build.log -Tail 200
