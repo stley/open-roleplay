@@ -8,8 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Let pawncc find any .so shipped in the archive
-      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin
+      # point loader to the release's lib/
+      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin/lib
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,15 +25,15 @@ jobs:
           curl -fsSL "$URL" -o pawncc.tar.gz
           mkdir -p pawnc-bin
           tar -xzf pawncc.tar.gz -C pawnc-bin
-          chmod +x pawnc-bin/pawncc || true
-          echo "pawnc-bin contents:"
-          ls -la pawnc-bin
-          file pawnc-bin/pawncc || true
-          ldd pawnc-bin/pawncc || true
+          ls -la pawnc-bin pawnc-bin/bin pawnc-bin/lib || true
+          chmod +x pawnc-bin/bin/pawncc
+          file pawnc-bin/bin/pawncc || true
+          ldd pawnc-bin/bin/pawncc || true
 
       - name: Validate layout
         shell: bash
         run: |
+          set -e
           test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
           test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
           test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
@@ -43,11 +43,12 @@ jobs:
         run: |
           set -o pipefail
           TARGET="gamemodes/main.pwn"
+
           INCLUDES=(-i qawno/include -i gamemodes -i gamemodes/modules)
           while IFS= read -r -d '' d; do INCLUDES+=(-i "$d"); done < <(find gamemodes/modules -type d -print0)
 
           echo "Include paths:" "${INCLUDES[@]}"
-          pawnc-bin/pawncc "$TARGET" "${INCLUDES[@]}" -d3 -Z+ -E -o /dev/null 2>&1 | tee build.log
+          pawnc-bin/bin/pawncc "$TARGET" "${INCLUDES[@]}" -d3 -Z+ -E -o /dev/null 2>&1 | tee build.log
           ec=${PIPESTATUS[0]}
           warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log || true)
           errs=$(grep -Eic 'error[[:space:]]+[0-9]+:' build.log || true)
