@@ -1,3 +1,4 @@
+
 # .github/workflows/pawn-build.yml
 name: Pawn Build
 on:
@@ -18,46 +19,86 @@ jobs:
       - name: Prepare compiler
         shell: bash
         run: |
-          ls -la bin
+          ls -la bin/
           chmod +x bin/pawncc
           file bin/pawncc
-          file bin/libpawnc.so
+          if [ -f bin/libpawnc.so ]; then
+            file bin/libpawnc.so
+          fi
+
+      - name: Clean up problematic files
+        shell: bash
+        run: |
+          # Remove any hidden or problematic files that might interfere
+          find qawno/include -name ".*" -type f -delete 2>/dev/null || true
+          find gamemodes -name ".*" -type f -delete 2>/dev/null || true
+          # List what's actually in the include directories
+          echo "=== qawno/include contents ==="
+          find qawno/include -type f -name "*.inc" | head -20
+          echo "=== gamemodes/modules contents ==="
+          find gamemodes/modules -type f -name "*.inc" | head -20
 
       - name: Sanity check layout
         shell: bash
         run: |
           test -f gamemodes/main.pwn || { echo "::error::missing gamemodes/main.pwn"; exit 1; }
-          test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
-          test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
+          test -d qawno/include || { echo "::error::missing qawno/include"; exit 1; }
+          test -d gamemodes/modules || { echo "::error::missing gamemodes/modules"; exit 1; }
 
       - name: Compile main.pwn (fail on warnings)
         shell: bash
         run: |
           set -o pipefail
-          # Build include args safely: each -i + dir in one array element
-          INCLUDES=(-i qawno/include/ -i gamemodes/ -i gamemodes/modules/)
-          while IFS= read -r -d '' d; do INCLUDES+=("-i" "$d"); done < <(find gamemodes/modules -type d -print0)
-
+          
+          # Build include paths more carefully
+          INCLUDES=()
+          
+          # Add base include directories
+          if [ -d "qawno/include" ]; then
+            INCLUDES+=("-i" "qawno/include")
+          fi
+          
+          if [ -d "gamemodes" ]; then
+            INCLUDES+=("-i" "gamemodes")
+          fi
+          
+          if [ -d "gamemodes/modules" ]; then
+            INCLUDES+=("-i" "gamemodes/modules")
+          fi
+          
+          # Add subdirectories of gamemodes/modules, but only ones with .inc files
+          while IFS= read -r -d '' dir; do
+            if [ -n "$(find "$dir" -maxdepth 1 -name "*.inc" -type f 2>/dev/null)" ]; then
+              INCLUDES+=("-i" "$dir")
+            fi
+          done < <(find gamemodes/modules -mindepth 1 -type d -print0 2>/dev/null || true)
+          
           echo "Include paths:"
           printf '  %s\n' "${INCLUDES[@]}"
-
+          
+          # Run the compiler
           ./bin/pawncc gamemodes/main.pwn "${INCLUDES[@]}" -d3 -E -o /dev/null 2>&1 | tee build.log
+          
           ec=${PIPESTATUS[0]}
-          warns=$(grep -Eio 'warning[[:space:]]+[0-9]+:' build.log | wc -l || true)
-          errs=$(grep -Eio 'error[[:space:]]+[0-9]+:' build.log | wc -l || true)
-
-          echo "pawncc exit: $ec"
-          echo "Warnings:    $warns"
-          echo "Errors:      $errs"
-
+          warns=$(grep -Eic 'warning[[:space:]]+[0-9]+:' build.log 2>/dev/null || echo "0")
+          errs=$(grep -Eic 'error[[:space:]]+[0-9]+:' build.log 2>/dev/null || echo "0")
+          
+          echo "pawncc exit code: $ec"
+          echo "Warnings found: $warns"
+          echo "Errors found: $errs"
+          
           if [ $ec -ne 0 ]; then
-            echo "::error::pawncc exit $ec"
-            tail -n 200 build.log || true
+            echo "::error::pawncc failed with exit code $ec"
+            echo "Build log (last 50 lines):"
+            tail -n 50 build.log || true
             exit $ec
           fi
+          
           if [ "$warns" -gt 0 ]; then
-            echo "::error::Warnings detected ($warns)"
-            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | tail -n 100 || true
+            echo "::error::Build failed due to $warns warning(s)"
+            echo "Warnings found:"
+            grep -Ein 'warning[[:space:]]+[0-9]+:' build.log | head -20 || true
             exit 1
           fi
-          echo "OK: no warnings"
+          
+          echo "? Build successful: no warnings or errors"
