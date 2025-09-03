@@ -7,29 +7,36 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      LD_LIBRARY_PATH: ${{ github.workspace }}/pawnc-bin
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
-      - name: Download pawncc release v3.10.11
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y jq unzip
+
+      - name: Download pawncc v3.10.11 (Linux x64)
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           TAG="v3.10.11"
-          BASE="https://github.com/openmultiplayer/compiler/releases/download/${TAG}"
-          ASSET="pawnc-linux-x64.tar.gz"
-          URL="${BASE}/${ASSET}"
-          echo "Fetching $URL"
-          curl -fsSL "$URL" -o pawncc.tar.gz
-          mkdir pawnc-bin
-          tar -xzf pawncc.tar.gz -C pawnc-bin
-          chmod +x pawnc-bin/pawncc
-          echo "pawncc version output:"
-          pawnc-bin/pawncc --help | head -n 5
+          API="https://api.github.com/repos/openmultiplayer/compiler/releases/tags/${TAG}"
+          url="$(curl -fsSL "$API" \
+            | jq -r '.assets[]
+              | select((.name|test("linux";"i")) and (.name|test("x64|x86_64";"i")) and (.name|test("\\.(zip|tar\\.gz)$";"i")))
+              | .browser_download_url' | head -n1)"
+          [ -n "$url" ] || { echo "::error::No matching Linux x64 asset found for ${TAG}"; exit 1; }
+          echo "Asset: $url"
+          curl -fsSL "$url" -o pawncc.asset
+          mkdir -p pawnc-bin
+          if file pawncc.asset | grep -qi 'Zip archive'; then
+            unzip -q pawncc.asset -d pawnc-bin
+          else
+            tar -xzf pawncc.asset -C pawnc-bin
+          fi
+          chmod +x pawnc-bin/pawncc || true
+          echo "pawncc present:" && ls -l pawnc-bin
 
       - name: Validate layout
         shell: bash
@@ -38,12 +45,11 @@ jobs:
           test -d qawno/include      || { echo "::error::missing qawno/include"; exit 1; }
           test -d gamemodes/modules  || { echo "::error::missing gamemodes/modules"; exit 1; }
 
-      - name: Compile main.pwn (fail on warnings)
+      - name: Compile main.pwn (warnings fail, no artifact)
         shell: bash
         run: |
           set -o pipefail
           TARGET="gamemodes/main.pwn"
-
           INCLUDES=(-i qawno/include -i gamemodes -i gamemodes/modules)
           while IFS= read -r -d '' d; do INCLUDES+=(-i "$d"); done < <(find gamemodes/modules -type d -print0)
 
