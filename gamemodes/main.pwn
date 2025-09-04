@@ -10,6 +10,7 @@
 #include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
+#include <PawnPlus>
 #pragma dynamic 8000
 //Módulos
 #include "modules/misc/misc_header.p" // Misceláneos
@@ -21,7 +22,7 @@
 #include "modules/admin/admin_header.p" // Objetos
 #include "modules/vehicle/vehicle_header.p"
 #include "modules/damage_system/damage_header.p"
-#include "modules/account-management/account_header"  //Management de los usuarios y sus personajes
+#include "modules/account-management/account_header.p"  //Management de los usuarios y sus personajes
 #include "modules/rptools/rptools.p"
 #include "modules/player/player_header.p"
 #include "modules/commands/commands_header.p" // Comandos (Pawn.CMD)
