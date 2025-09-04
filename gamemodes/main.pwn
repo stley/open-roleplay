@@ -27,13 +27,9 @@
 #include "modules/commands/commands_header.p" // Comandos (Pawn.CMD)
 #include "modules/anticheat/anticheat_header.p" // (Pawn.RakNet)
 //
-// Directivas
+
 main(){}
-//#pragma warning disable 239
-//#pragma warning disable 214
-#pragma unused CONSOLE_CHANNEL
-#pragma unused anuncioadmin
-#pragma unused playerspendMoney
-#pragma unused playeraddMoney
+
+// Directivas
 #pragma option -d3
 //

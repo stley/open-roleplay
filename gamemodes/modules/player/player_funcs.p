@@ -31,7 +31,7 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, WEAPON:weaponid, bod
     Wound_HandleDamage(playerid, issuerid, weaponid, bodypart, Float:amount);
 }
 
-playerspendMoney(playerid, quantity){
+stock playerspendMoney(playerid, quantity){
     if(!IsPlayerConnected(playerid)) return 1;
     if(quantity > Datos[playerid][jDinero]){
         if(ObjetoInfo[Datos[playerid][jMano][0]][ModeloObjeto] != 19792) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes suficiente dinero, ni una tarjeta de débito en tu mano derecha!");
@@ -46,7 +46,7 @@ playerspendMoney(playerid, quantity){
     return 1;
 }
 
-playeraddMoney(playerid, quantity){
+stock playeraddMoney(playerid, quantity){
     if(!IsPlayerConnected(playerid)) return 1;
     ResetPlayerMoney(playerid);
     GivePlayerMoney(playerid, (Datos[playerid][jDinero]+=quantity));
