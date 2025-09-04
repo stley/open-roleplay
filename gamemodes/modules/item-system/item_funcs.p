@@ -1,4 +1,4 @@
-#include "modules/account-management/account_vars"
+#include "modules/account-management/account_vars.p"
 
 forward update_manos(playerid);
 forward update_torso(playerid);
