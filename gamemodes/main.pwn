@@ -1,5 +1,5 @@
 #include <open.mp>
-//xd
+#include <crashdetect>
 #include <a_mysql>
 #include <sscanf2>
 #include <streamer>

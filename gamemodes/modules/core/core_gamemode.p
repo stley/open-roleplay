@@ -8,7 +8,7 @@ public OnGameModeInit()
 	CallLocalFunction("vehiclesOnGameModeInit");
 	CallLocalFunction("discordOnGameModeInit");
 	if(IsCrashDetectPresent()){
-		EnableCrashDetectLongCallTime();
+		EnableCrashDetectLongCall();
 		SetCrashDetectLongCallTime(10000);
 	}
     return 1;
