@@ -8,10 +8,7 @@ forward discordOnPlayerConnect(playerid);
 
 public discordOnGameModeInit(){
     LOG_CHANNEL = DCC_FindChannelById("1411111715348807701");
-    if(LOG_CHANNEL != DCC_INVALID_CHANNEL){
-        pawn_register_callback("OnGameModeExit", "discordOnGameModeExit");
-    }
-    else serverLogRegister("No se encontró el canal de Discord al cual enviar logs.");
+    if(LOG_CHANNEL == DCC_INVALID_CHANNEL) serverLogRegister("No se encontró el canal de Discord al cual enviar logs.");
     new buff[96];
     new logutf[128];
     format(buff, sizeof(buff), "Gamemode iniciada, el bot se conectó correctamente - (%s)", FechaActual());
@@ -19,7 +16,6 @@ public discordOnGameModeInit(){
     DCC_SendChannelMessage(LOG_CHANNEL, logutf);
     return 1;
 }
-public discordOnGameModeExit(){}
 
 public DCC_OnMessageCreate(DCC_Message:message){
     new DCC_Channel:curr_channel;

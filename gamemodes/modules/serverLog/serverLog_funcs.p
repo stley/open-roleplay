@@ -1,5 +1,4 @@
-forward serverLogInit();
-forward serverLogExit();
+
 
 stock serverLogRegister(const info[])
 {
@@ -8,11 +7,11 @@ stock serverLogRegister(const info[])
 
     new line[512];
     Cp1252ToUtf8(line, sizeof line, info);
-    new hour, minute, second;
-    new day, month, year;
+
     // bytes needed if we append now (newline only when buffer not empty)
     new need = (serverLogBufferLines > 0 ? 1 : 0) + strlen(line);
-    
+    new hour, minute, second;
+    new day, month, year;
     getdate(year, month, day);
     gettime(hour, minute, second);
 
@@ -31,23 +30,4 @@ stock serverLogRegister(const info[])
     serverLogBufferLines++;
     print(info);
     return 1;
-}
-public serverLogInit(){
-    pawn_register_callback("OnGameModeExit", "serverLogExit");
-    new buff[150];
-    new logutf[160];
-    format(buff, sizeof(buff), "serverLog iniciado - (%s)", FechaActual());
-    Cp1252ToUtf8(logutf, sizeof(logutf), buff);
-    DCC_SendChannelMessage(LOG_CHANNEL, logutf);
-}
-public serverLogExit(){
-    if(strlen(serverLogBuffer) || serverLogBufferLines){
-        new buff[128];
-        DCC_SendChannelMessage(LOG_CHANNEL, serverLogBuffer);
-        new today[96];
-        new hour, minute, second;
-        new day, month, year;
-        formatt(today, "[%d/%d/%d %d:%d:%d] Stopping serverLog... - (%s)", day, month, year, hour, minute, second, FechaActual());
-        DCC_SendChannelMessage(LOG_CHANNEL, buff);
-    }
 }
