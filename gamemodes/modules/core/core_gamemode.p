@@ -7,6 +7,10 @@ public OnGameModeInit()
     CallLocalFunction("Models_OnGameModeInit");
 	CallLocalFunction("vehiclesOnGameModeInit");
 	CallLocalFunction("discordOnGameModeInit");
+	if(IsCrashDetectPresent()){
+		EnableCrashDetectLongCall();
+		SetCrashDetectLongCallTime(10000);
+	}
     return 1;
 }
 public OnGameModeExit()
