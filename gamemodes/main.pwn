@@ -10,6 +10,7 @@
 #include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
+#include <PawnPlus>
 #pragma dynamic 8000
 //Módulos
 #include "modules/misc/misc_header.p" // Misceláneos
