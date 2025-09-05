@@ -11,6 +11,8 @@
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
 #pragma dynamic 8000
+#undef MAX_PLAYERS
+#define MAX_PLAYERS (500)
 //Módulos
 #include "modules/misc/misc_header.p" // Misceláneos
 #include "modules/discord-bot/discord-bot_header.p" // Conexión con bot de discord!
