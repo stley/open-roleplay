@@ -41,11 +41,13 @@ public serverLogInit(){
     DCC_SendChannelMessage(LOG_CHANNEL, logutf);
 }
 public serverLogExit(){
-    if(strlen(serverLogBuffer) || serverLogBufferLines) DCC_SendChannelMessage(LOG_CHANNEL, serverLogBuffer);
-    new today[128];
-    new hour, minute, second;
-    new day, month, year;
-    formatt(today, "[%d/%d/%d %d:%d:%d] Stopping serverLog... - (%s)", day, month, year, hour, minute, second, FechaActual());
-    DCC_SendChannelMessage(LOG_CHANNEL, today);
-    return 1;
+    if(strlen(serverLogBuffer) || serverLogBufferLines){
+        new buff[128];
+        DCC_SendChannelMessage(LOG_CHANNEL, serverLogBuffer);
+        new today[96];
+        new hour, minute, second;
+        new day, month, year;
+        formatt(today, "[%d/%d/%d %d:%d:%d] Stopping serverLog... - (%s)", day, month, year, hour, minute, second, FechaActual());
+        DCC_SendChannelMessage(LOG_CHANNEL, buff);
+    }
 }
