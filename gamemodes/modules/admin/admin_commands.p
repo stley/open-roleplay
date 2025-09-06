@@ -485,7 +485,7 @@ CMD:test_wound(playerid){
 flags:test_custom(CMD_OWNER)
 CMD:test_custom(playerid, params[]){
     if(sscanf(params, "d", params[0])) return 1;
-    if(params[0] > sizeof(custom_vehicles)){
+    if(params[0] > sizeof(custom_vehicles) || params[0] < 0){
         return 1;
     }
     new
