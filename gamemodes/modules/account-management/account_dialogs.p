@@ -12,13 +12,13 @@ Dialog:D_REGISTRO(playerid, response, listitem, inputtext[])
 	if(isnull(inputtext)) return Dialog_Show(playerid, D_REGISTRO, DIALOG_STYLE_PASSWORD, "Registro", "\tIngresaste una contraseña nula.\n\tIntenta de nuevo.", "Continuar", "Salir");
 	if(strlen(inputtext) < 4 || strlen(inputtext) > 32) return Dialog_Show(playerid, D_REGISTRO, DIALOG_STYLE_INPUT, "Registro", "\tIngresaste una contraseña muy corta/larga.\n\tIntenta que la contraseña tenga entre 4 - 32 carácteres.\n\tIntenta de nuevo.", "Continuar", "Salir");
 	
-	bcrypt_hash(playerid, "accountPassHash", inputtext, BCRYPT_COST, "sb", inputtext, true);
+	bcrypt_hash(playerid, "accountPassHash", inputtext, BCRYPT_COST, "sd", inputtext, 1);
 	return 1;
 }
-forward accountPassHash(playerid, const password[], bool:is_register);
+forward accountPassHash(playerid, const password[], is_register);
 forward accountPassCheck(playerid, bool:success);
 
-public accountPassHash(playerid, const password[], bool:is_register){
+public accountPassHash(playerid, const password[], is_register){
 	if(is_register) Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "¡Perfecto! Ingresa tu correo electrónico.", "Continuar", "Salir");
 	else bcrypt_verify(playerid, "accountPassCheck", password, Datos[playerid][jClave]);
 	return 1;
@@ -28,7 +28,7 @@ Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 {
 	if(!response) return Kick(playerid);
 	if(isnull(inputtext)) return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "Ingresaste una contraseña nula. Intenta de nuevo.", "Ingresar", "Salir");
-	bcrypt_hash(playerid, "accountPassHash", inputtext, BCRYPT_COST, "sb", inputtext, false);
+	bcrypt_hash(playerid, "accountPassHash", inputtext, BCRYPT_COST, "sd", inputtext, 0);
 	return 1;
 }
 

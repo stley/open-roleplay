@@ -95,7 +95,7 @@
             "Whirlpool",
             "streamer",
             "PawnPlus",
-            "samp-bcrypt"
+            "samp_bcrypt"
         ],
         "main_scripts": [
             "main"
