@@ -40,7 +40,7 @@ public Models_OnGameModeInit()
     return 1;
 }
 
-enum customVehInfo
+/*enum customVehInfo
 {
     modelName[32],
     modelBackEnd,
@@ -49,8 +49,8 @@ enum customVehInfo
 };
 new custom_vehicles[][customVehInfo] =
 {
-    {"charger08", 560, "Dodge Charger", 12500},
-    {"crownvic", 426, "Ford Crown Victoria", 12501}
+    {"charger08", 560, "Dodge Charger", 612},
+    {"crownvic", 426, "Ford Crown Victoria", 613}
 };
 
 enum custom_list
@@ -60,4 +60,4 @@ enum custom_list
     CurrentID,
     BackendID,
 };
-new current_models_list[10][custom_list];
+new current_models_list[10][custom_list];*/

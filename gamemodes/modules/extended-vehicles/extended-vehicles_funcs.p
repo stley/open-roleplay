@@ -1,7 +1,7 @@
 //native CreateVehicle(modelid, Float:spawnX, Float:spawnY, Float:spawnZ, Float:angle, colour1, colour2, respawnDelay, bool:addSiren = false);
 
 
-spawnCustomVehicle(modelocustom, Float:spawnX, Float:spawnY, Float:spawnZ, Float:angle, colour1, colour2, respawnDelay, bool:addSiren = false){
+/*spawnCustomVehicle(modelocustom, Float:spawnX, Float:spawnY, Float:spawnZ, Float:angle, colour1, colour2, respawnDelay, bool:addSiren = false){
     for(new x; x < sizeof(custom_vehicles); x++){
         if(modelocustom == custom_vehicles[x][modelID]){
             for(new i; i < 10; i++){
@@ -14,7 +14,7 @@ spawnCustomVehicle(modelocustom, Float:spawnX, Float:spawnY, Float:spawnZ, Float
         }
     }
     return 1;
-}
+}*/
 /*WorldVehicleAdd - ID: 164
 Parameters: UINT16 wVehicleID, UINT32 ModelID, 
 float X, 
@@ -48,7 +48,7 @@ UINT8 PaintJob,
 UINT32 BodyColor1, 
 UINT32 BodyColor2
 */
-const RPC_WVA = 164;
+/*const RPC_WVA = 164;
 const RPC_InitGame = 139;
 public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
     if(rpcid == RPC_WVA){
@@ -78,4 +78,4 @@ public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
         new BitStream:bs_cpy = BS_NewCopy(bs);
     }
     return 1;
-}
+}*/

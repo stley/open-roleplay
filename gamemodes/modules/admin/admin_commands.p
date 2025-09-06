@@ -485,14 +485,12 @@ CMD:test_wound(playerid){
 flags:test_custom(CMD_OWNER)
 CMD:test_custom(playerid, params[]){
     if(sscanf(params, "d", params[0])) return 1;
-    if(params[0] > sizeof(custom_vehicles) || params[0] < 0){
-        return 1;
-    }
+    if(params[0] >=  2 || params[0] < 0) return 1;
     new
     Float:posX,
     Float:posY,
     Float:posZ;
     GetPlayerPos(playerid, posX, posY, posZ);
-    spawnCustomVehicle(custom_vehicles[params[0]][modelID], posX+5.0, posY, posZ, 0.0, random(2), random(2), -1, false);
+    CreateVehicle((!params[0]) ? 612 : 613, posX+5.0, posY, posZ, 0.0, random(2), random(2), -1, false);
     return 1;
 }
