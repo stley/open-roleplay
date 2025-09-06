@@ -49,6 +49,7 @@ UINT32 BodyColor1,
 UINT32 BodyColor2
 */
 const RPC_WVA = 164;
+const RPC_InitGame = 139;
 public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
     if(rpcid == RPC_WVA){
         new BitStream:bs_cpy = BS_NewCopy(bs);
@@ -67,9 +68,14 @@ public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
                 BS_SetWriteOffset(bs_cpy, 16);
                 BS_WriteUint32(bs_cpy, current_models_list[i][ModelID]);
                 PR_SendRPC(bs_cpy, playerid, RPC_WVA);
+                BS_Delete(bs_cpy);
+                BS_Delete(bs);
                 return 0;
             }
         }
+    }
+    if(rpcid == RPC_InitGame){
+        new BitStream:bs_cpy = BS_NewCopy(bs);
     }
     return 1;
 }
