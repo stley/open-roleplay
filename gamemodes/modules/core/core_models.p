@@ -39,3 +39,25 @@ public Models_OnGameModeInit()
     AddSimpleModel(-1, 19995, -1024, "gun/magazine.dff", "gun/m4a1.txd"); //cargadores de arma larga
     return 1;
 }
+
+/*enum customVehInfo
+{
+    modelName[32],
+    modelBackEnd,
+    Nombre[24],
+    modelID
+};
+new custom_vehicles[][customVehInfo] =
+{
+    {"charger08", 560, "Dodge Charger", 612},
+    {"crownvic", 426, "Ford Crown Victoria", 613}
+};
+
+enum custom_list
+{
+    ModelName[32],
+    ModelID,
+    CurrentID,
+    BackendID,
+};
+new current_models_list[10][custom_list];*/

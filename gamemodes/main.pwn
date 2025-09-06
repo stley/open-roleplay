@@ -18,6 +18,7 @@
 #include "modules/discord-bot/discord-bot_header.p" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header.p"
 #include "modules/core/core_header.p" //Funciones core del servidor.
+#include "modules/extended-vehicles/extended-vehicles_header.p"
 #include "modules/database/database_header.p" // conexión a la base de datos en OnGameModeInit y OnGameModeExit
 #include "modules/item-system/item_header.p" // Objetos
 #include "modules/admin/admin_header.p" // Objetos
