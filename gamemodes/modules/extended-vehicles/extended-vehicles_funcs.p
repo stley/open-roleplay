@@ -7,6 +7,7 @@ spawnCustomVehicle(modelocustom, Float:spawnX, Float:spawnY, Float:spawnZ, Float
             for(new i; i < 10; i++){
                 current_models_list[i][CurrentID] = CreateVehicle(custom_vehicles[x][modelBackEnd], spawnX, spawnY, spawnZ, angle, colour1, colour2, respawnDelay, addSiren);
                 alm(current_models_list[i][ModelName], custom_vehicles[x][modelName]);
+                current_models_list[i][ModelID] = custom_vehicles[x][modelID];
             }
             return 1;
         }
