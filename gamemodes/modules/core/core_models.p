@@ -47,7 +47,7 @@ enum customVehInfo
     Nombre[24],
     modelID
 };
-static const custom_vehicles[][customVehInfo][] =
+new custom_vehicles[][customVehInfo] =
 {
     {"charger08", 560, "Dodge Charger", 12500},
     {"crownvic", 426, "Ford Crown Victoria", 12501}

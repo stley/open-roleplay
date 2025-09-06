@@ -1,11 +1,11 @@
 //native CreateVehicle(modelid, Float:spawnX, Float:spawnY, Float:spawnZ, Float:angle, colour1, colour2, respawnDelay, bool:addSiren = false);
 
 
-spawnCustomVehicle(modelid, Float:spawnX, Float:spawnY, Float:spawnZ, Float:angle, colour1, colour2, respawnDelay, bool:addSiren = false){
+spawnCustomVehicle(modelocustom, Float:spawnX, Float:spawnY, Float:spawnZ, Float:angle, colour1, colour2, respawnDelay, bool:addSiren = false){
     for(new x; x < sizeof(custom_vehicles); x++){
-        if(modelid == custom_vehicles[x][modelID]){
+        if(modelocustom == custom_vehicles[x][modelID]){
             for(new i; i < 10; i++){
-                current_models_list[i][vehicleId] = CreateVehicle(custom_vehicles[x][modelBackEnd], spawnX, spawnY, spawnZ, angle, colour1, colour2, respawnDelay, addSiren);
+                current_models_list[i][CurrentID] = CreateVehicle(custom_vehicles[x][modelBackEnd], spawnX, spawnY, spawnZ, angle, colour1, colour2, respawnDelay, addSiren);
                 alm(current_models_list[i][ModelName], custom_vehicles[x][modelName]);
             }
             return 1;
@@ -26,10 +26,10 @@ public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
         PR_UINT16, vehId,
         PR_UINT32, modelo);
 
-        printf("WorldVehicleAdd: Modelo %d, ID %d." modelo, vehId);
+        printf("WorldVehicleAdd: Modelo %d, ID %d.", modelo, vehId);
 
         for(new i; i < 10; i++){
-            if(current_models_list[i][vehicleId] == vehId){
+            if(current_models_list[i][CurrentID] == vehId){
                 printf("Vehiculo ID %d es un vehículo custom \"%s\".", vehId, current_models_list[i][ModelName]);
                 printf("Reescribiendo paquete...");
                 BS_SetWriteOffset(bs, 8);
@@ -37,7 +37,6 @@ public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
                 PR_UINT32, current_models_list[i][ModelID]);
                 PR_SendPacket(bs, playerid);
                 return 0;
-                break;
             }
         }
     }
