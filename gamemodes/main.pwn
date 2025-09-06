@@ -3,13 +3,15 @@
 #include <a_mysql>
 #include <sscanf2>
 #include <streamer>
-#include <whirlpool>
+//#include <whirlpool>
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
 #include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
+#include <PawnPlus>
+#include <samp_bcrypt>
 #pragma dynamic 8000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)

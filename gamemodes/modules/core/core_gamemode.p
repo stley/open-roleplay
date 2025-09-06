@@ -1,4 +1,6 @@
 //gamemode
+native CallLocalFunctionStr(const function[], const format[], {AmxString,Float,_}:...) = CallLocalFunction;
+
 public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();

@@ -1,6 +1,5 @@
 
-
-stock serverLogRegister(const info[])
+serverLogRegister(const info[])
 {
     const MAX_LINES = 10;
     const MAX_BYTES = sizeof(serverLogBuffer) - 1; // keep room for '\0'

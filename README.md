@@ -18,4 +18,6 @@ Tambien se incluye el compilador utilizado en Windows, y sus includes.
 [Pawn.RakNet (versión 1.6.0-omp)](https://github.com/katursis/Pawn.RakNet)\
 [easyDialog (tag 2.0)](https://github.com/Awsomedude/easyDialog)\
 [discord-connector (0.3.6)](https://github.com/maddinat0r/samp-discord-connector)\
-[YSI-Includes (v5.10.0006)](https://github.com/pawn-lang/YSI-Includes)
+[YSI-Includes (v5.10.0006)](https://github.com/pawn-lang/YSI-Includes)\
+[PawnPlus (v 1.5.1)](https://github.com/IS4Code/PawnPlus)\
+[samp-bcrypt (v 0.4.1)](https://github.com/Sreyas-Sreelal/samp-bcrypt)
