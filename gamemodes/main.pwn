@@ -28,10 +28,8 @@
 #include "modules/player/player_header.p"
 #include "modules/commands/commands_header.p" // Comandos (Pawn.CMD)
 #include "modules/anticheat/anticheat_header.p" // (Pawn.RakNet)
-//
 
 main(){}
 
 // Directivas
 #pragma option -d3
-//
