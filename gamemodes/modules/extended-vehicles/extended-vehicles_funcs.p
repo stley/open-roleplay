@@ -48,11 +48,10 @@ UINT8 PaintJob,
 UINT32 BodyColor1, 
 UINT32 BodyColor2
 */
-/*const RPC_WVA = 164;
+const RPC_WVA = 164;
 const RPC_InitGame = 139;
 public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
     if(rpcid == RPC_WVA){
-        new BitStream:bs_cpy = BS_NewCopy(bs);
         new rpc_model, rpc_vID;
         
         BS_ReadValue(bs,
@@ -60,22 +59,6 @@ public OnOutgoingRPC(playerid, rpcid, BitStream:bs){
         PR_UINT32, rpc_model);
 
         printf("WorldVehicleAdd: Modelo %d, ID %d.", rpc_model, rpc_vID);
-
-        for(new i; i < 10; i++){
-            if(current_models_list[i][CurrentID] == rpc_vID){
-                printf("Vehiculo ID %d es un vehículo custom \"%s\".", rpc_vID, current_models_list[i][ModelName]);
-                printf("Reescribiendo paquete...");
-                BS_SetWriteOffset(bs_cpy, 16);
-                BS_WriteUint32(bs_cpy, current_models_list[i][ModelID]);
-                PR_SendRPC(bs_cpy, playerid, RPC_WVA);
-                BS_Delete(bs_cpy);
-                BS_Delete(bs);
-                return 0;
-            }
-        }
-    }
-    if(rpcid == RPC_InitGame){
-        new BitStream:bs_cpy = BS_NewCopy(bs);
     }
     return 1;
-}*/
+}
