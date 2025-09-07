@@ -15,14 +15,9 @@ Dialog:D_REGISTRO(playerid, response, listitem, inputtext[])
 	bcrypt_hash(playerid, "accountPassHash", inputtext, BCRYPT_COST, "sd", inputtext, 1);
 	return 1;
 }
-forward accountPassHash(playerid, const password[], is_register);
-forward accountPassCheck(playerid, bool:success);
 
-public accountPassHash(playerid, const password[], is_register){
-	if(is_register) Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "¡Perfecto! Ingresa tu correo electrónico.", "Continuar", "Salir");
-	else bcrypt_verify(playerid, "accountPassCheck", password, Datos[playerid][jClave]);
-	return 1;
-}
+
+
 
 Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 {
@@ -32,38 +27,7 @@ Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-public accountPassCheck(playerid, bool:success){
-	new String:dyn_str = str_new("\0");
-	str_acquire(dyn_str);
-	if(success){
-		Datos[playerid][LoggedIn] = true;
-		dialog_personajes(playerid);
-		alm(Datos[playerid][jIP], GetPIP(playerid));
-		str_set_format(dyn_str, "UPDATE `accounts` SET `online` = 1 WHERE `SQLID` = %d", Datos[playerid][jSQLID]);
-		mysql_tquery_plus(SQLDB, str_addr(dyn_str));
-		str_set_format(dyn_str, "%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]);
-		CallLocalFunctionStr("serverLogRegister", "s", str_addr(dyn_str));
-	}
-	else
-	{
-		if(IntentosLogin[playerid] < 3)
-		{
-			str_set_format(dyn_str, "%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
-			CallLocalFunctionStr("serverLogRegister", "s", str_addr(dyn_str));
-			IntentosLogin[playerid]++;
-			return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "\tIngresaste una contraseña incorrecta.\n\tIntenta de nuevo.", "Ingresar", "Salir");
-		}
-		else
-		{
-			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
-			str_set_format(dyn_str, "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
-			CallLocalFunctionStr("serverLogRegister", "s", str_addr(dyn_str));
-			SetTimerEx("Kick", 2000, false, "d", playerid);
-		}
-	}
-	str_release(dyn_str);
-	return 1;
-}
+
 Dialog:D_EMAIL(playerid, response, listitem, inputtext[])
 {
 	if(!response) return Kick(playerid);
