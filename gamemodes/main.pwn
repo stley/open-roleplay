@@ -3,13 +3,15 @@
 #include <a_mysql>
 #include <sscanf2>
 #include <streamer>
-#include <whirlpool>
+//#include <whirlpool>
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
 #include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
+//#include <PawnPlus>
+#include <samp_bcrypt>
 #pragma dynamic 8000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
@@ -20,7 +22,7 @@
 #include "modules/core/core_header.p" //Funciones core del servidor.
 #include "modules/database/database_header.p" // conexión a la base de datos en OnGameModeInit y OnGameModeExit
 #include "modules/item-system/item_header.p" // Objetos
-#include "modules/admin/admin_header.p" // Objetos
+#include "modules/admin/admin_header.p" // Admin
 #include "modules/vehicle/vehicle_header.p"
 #include "modules/damage_system/damage_header.p"
 #include "modules/account-management/account_header.p"  //Management de los usuarios y sus personajes

@@ -93,7 +93,8 @@
             "crashdetect",
             "mysql",
             "Whirlpool",
-            "streamer"
+            "streamer",
+            "samp_bcrypt"
         ],
         "main_scripts": [
             "main"

@@ -1,4 +1,4 @@
-//gamemode
+
 public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
@@ -18,7 +18,6 @@ public OnGameModeExit()
     CallLocalFunction("databaseOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
-	CallLocalFunction("discordOnGameModeExit");
 	return 1;
 }
 //player
