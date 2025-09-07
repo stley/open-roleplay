@@ -92,7 +92,6 @@
         "legacy_plugins": [
             "crashdetect",
             "mysql",
-            "Whirlpool",
             "streamer",
             "samp_bcrypt"
         ],
