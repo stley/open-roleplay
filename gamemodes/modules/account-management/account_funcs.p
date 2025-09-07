@@ -36,42 +36,37 @@ public accountPassHash(playerid, const password[], is_register){
 		bcrypt_get_hash(Datos[playerid][jClave]);
 		return 1;
 	}
-	else if(Datos[playerid][jSQLID] == 1) {
-		bcrypt_get_hash(Datos[playerid][jClave]);
-	}
 	else bcrypt_verify(playerid, "accountPassCheck", password, Datos[playerid][jClave]);
 	return 1;
 }
 public accountPassCheck(playerid, bool:success){
-	new String:dyn_str = str_new("\0");
-	str_acquire(dyn_str);
+	new query_str[256];
 	if(success){
 		Datos[playerid][LoggedIn] = true;
 		dialog_personajes(playerid);
 		alm(Datos[playerid][jIP], GetPIP(playerid));
-		str_set_format(dyn_str, "UPDATE `accounts` SET `online` = 1 WHERE `SQLID` = %d", Datos[playerid][jSQLID]);
-		mysql_tquery_plus(SQLDB, str_addr(dyn_str));
-		str_set_format(dyn_str, "%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]);
-		CallLocalFunctionStr("serverLogRegister", "s", str_addr(dyn_str));
+		mysql_format(SQLDB, query_str, sizeof(query_str), "UPDATE `accounts` SET `online` = 1 WHERE `SQLID` = %d", Datos[playerid][jSQLID]);
+		mysql_tquery(SQLDB, query_str);
+		formatt(query_str, "%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(query_str);
 	}
 	else
 	{
 		if(IntentosLogin[playerid] < 3)
 		{
-			str_set_format(dyn_str, "%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
-			CallLocalFunctionStr("serverLogRegister", "s", str_addr(dyn_str));
+			formatt(query_str, "%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
+			serverLogRegister(query_str);
 			IntentosLogin[playerid]++;
 			return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "\tIngresaste una contraseña incorrecta.\n\tIntenta de nuevo.", "Ingresar", "Salir");
 		}
 		else
 		{
 			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
-			str_set_format(dyn_str, "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
-			CallLocalFunctionStr("serverLogRegister", "s", str_addr(dyn_str));
+			formatt(query_str, "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
+			serverLogRegister(query_str);
 			SetTimerEx("Kick", 2000, false, "d", playerid);
 		}
 	}
-	str_release(dyn_str);
 	return 1;
 }
 
@@ -92,7 +87,7 @@ public accountOnUserCharacterList(playerid){
 	if(cache_num_rows() && cache_num_rows() < Datos[playerid][CharacterLimit]){
 		strcat(dlg, "\n{C0C0C0}Crear otro personaje");
 	}
-	else{
+	else if (!cache_num_rows()){
 		strcat(dlg, "\n{C0C0C0}Crear un personaje");
 	}
 	return Dialog_Show(playerid, D_PERSONAJES, DIALOG_STYLE_LIST, "Personajes disponibles", dlg, "Ingresar", "Salir");

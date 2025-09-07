@@ -1,7 +1,7 @@
 
 serverLogRegister(const info[])
 {
-    const MAX_LINES = 10;
+    const MAX_LINES = 20;
     const MAX_BYTES = sizeof(serverLogBuffer) - 1; // keep room for '\0'
 
     new line[512];
@@ -23,7 +23,7 @@ serverLogRegister(const info[])
     }
     if (serverLogBufferLines > 0) strcat(serverLogBuffer, "\n");
     new today[32];
-    formatt(today, "[%d/%d/%d %d:%d:%d] ", day, month, year, hour, minute, second);
+    formatt(today, "**[%d/%d/%d %d:%d:%d]** - ", day, month, year, hour, minute, second);
     strcat(serverLogBuffer, today);
     strcat(serverLogBuffer, line);
     serverLogBufferLines++;

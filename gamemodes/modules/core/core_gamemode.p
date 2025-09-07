@@ -1,5 +1,3 @@
-//gamemode
-native CallLocalFunctionStr(const function[], const format[], {AmxString,Float,_}:...) = CallLocalFunction;
 
 public OnGameModeInit()
 {
@@ -20,7 +18,6 @@ public OnGameModeExit()
     CallLocalFunction("databaseOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
-	CallLocalFunction("discordOnGameModeExit");
 	return 1;
 }
 //player

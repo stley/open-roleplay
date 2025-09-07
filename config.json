@@ -94,7 +94,6 @@
             "mysql",
             "Whirlpool",
             "streamer",
-            "PawnPlus",
             "samp_bcrypt"
         ],
         "main_scripts": [
