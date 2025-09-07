@@ -18,7 +18,6 @@ Dialog:D_REGISTRO(playerid, response, listitem, inputtext[])
 
 
 
-
 Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 {
 	if(!response) return Kick(playerid);

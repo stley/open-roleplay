@@ -31,7 +31,14 @@ public accountOnPlayerConnect(playerid)
 }
 
 public accountPassHash(playerid, const password[], is_register){
-	if(is_register) Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "¡Perfecto! Ingresa tu correo electrónico.", "Continuar", "Salir");
+	if(is_register){
+		Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "¡Perfecto! Ingresa tu correo electrónico.", "Continuar", "Salir");
+		bcrypt_get_hash(Datos[playerid][jClave]);
+		return 1;
+	}
+	else if(Datos[playerid][jSQLID] == 1) {
+		bcrypt_get_hash(Datos[playerid][jClave]);
+	}
 	else bcrypt_verify(playerid, "accountPassCheck", password, Datos[playerid][jClave]);
 	return 1;
 }
