@@ -3,7 +3,6 @@
 #include <a_mysql>
 #include <sscanf2>
 #include <streamer>
-//#include <whirlpool>
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
