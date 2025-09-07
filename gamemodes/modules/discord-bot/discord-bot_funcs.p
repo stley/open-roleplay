@@ -2,7 +2,6 @@ new serverLogBufferLines;
 new serverLogBuffer[1900];
 
 forward discordOnGameModeInit();
-forward discordOnGameModeExit();
 forward discordOnMessageSent(channel);
 forward discordOnPlayerConnect(playerid);
 

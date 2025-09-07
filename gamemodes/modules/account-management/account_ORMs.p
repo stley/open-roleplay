@@ -8,7 +8,7 @@ orm_user(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jStaffMan], "StaffMan");
 	orm_addvar_int(ormid, Datos[playerid][jPropMan], "PropMan");
 	orm_addvar_int(ormid, Datos[playerid][jCreditos], "Creditos");
-	orm_addvar_string(ormid, Datos[playerid][jClave], 129, "Clave");
+	orm_addvar_string(ormid, Datos[playerid][jClave], BCRYPT_HASH_LENGTH, "Clave");
 	orm_addvar_string(ormid, Datos[playerid][jEmail], 101, "Email");
 	orm_addvar_string(ormid, Datos[playerid][jIP], 17, "IP");
 

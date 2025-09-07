@@ -1,4 +1,5 @@
-
+forward accountPassHash(playerid, const password[], is_register);
+forward accountPassCheck(playerid, bool:success);
 forward accountOnCharFirstLoad(playerid);
 forward accountOnPlayerDisconnect(playerid, reason);
 forward accountOnUserDataSaved(playerid);
@@ -29,6 +30,46 @@ public accountOnPlayerConnect(playerid)
 	return 1;
 }
 
+public accountPassHash(playerid, const password[], is_register){
+	if(is_register){
+		Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "¡Perfecto! Ingresa tu correo electrónico.", "Continuar", "Salir");
+		bcrypt_get_hash(Datos[playerid][jClave]);
+		return 1;
+	}
+	else bcrypt_verify(playerid, "accountPassCheck", password, Datos[playerid][jClave]);
+	return 1;
+}
+public accountPassCheck(playerid, bool:success){
+	new query_str[256];
+	if(success){
+		Datos[playerid][LoggedIn] = true;
+		dialog_personajes(playerid);
+		alm(Datos[playerid][jIP], GetPIP(playerid));
+		mysql_format(SQLDB, query_str, sizeof(query_str), "UPDATE `accounts` SET `online` = 1 WHERE `SQLID` = %d", Datos[playerid][jSQLID]);
+		mysql_tquery(SQLDB, query_str);
+		formatt(query_str, "%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(query_str);
+	}
+	else
+	{
+		if(IntentosLogin[playerid] < 3)
+		{
+			formatt(query_str, "%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]);
+			serverLogRegister(query_str);
+			IntentosLogin[playerid]++;
+			return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "\tIngresaste una contraseña incorrecta.\n\tIntenta de nuevo.", "Ingresar", "Salir");
+		}
+		else
+		{
+			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
+			formatt(query_str, "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
+			serverLogRegister(query_str);
+			SetTimerEx("Kick", 2000, false, "d", playerid);
+		}
+	}
+	return 1;
+}
+
 public accountOnUserCharacterList(playerid){
 	new dlg[2000], dlg_buff[96];
 	new charname[MAX_PLAYER_NAME];
@@ -46,7 +87,7 @@ public accountOnUserCharacterList(playerid){
 	if(cache_num_rows() && cache_num_rows() < Datos[playerid][CharacterLimit]){
 		strcat(dlg, "\n{C0C0C0}Crear otro personaje");
 	}
-	else{
+	else if (!cache_num_rows()){
 		strcat(dlg, "\n{C0C0C0}Crear un personaje");
 	}
 	return Dialog_Show(playerid, D_PERSONAJES, DIALOG_STYLE_LIST, "Personajes disponibles", dlg, "Ingresar", "Salir");

@@ -14,7 +14,7 @@ enum jInfo
 	ORM:ORMID,
 	jSQLID,
 	jNombre[33],
-	jClave[129],
+	jClave[BCRYPT_HASH_LENGTH],
 	jEmail[101],
 	jAdmin,
 	jFacMan,

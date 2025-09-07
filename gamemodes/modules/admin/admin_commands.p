@@ -157,7 +157,7 @@ Dialog:D_LISTAOBJETO(playerid, response, listitem, inputtext[]){
         }
     }
     Dialog_Show(playerid, D_PLACEHOLDER, DIALOG_STYLE_MSGBOX, "Objetos disponibles", dlg, "Aceptar", "");
-    return;  
+    return;
 }
 flags:editattached(CMD_OWNER | CMD_ADMIN)
 CMD:editattached(playerid, params[]){
@@ -198,9 +198,7 @@ CMD:limpiarmanos(playerid, params[])
     new objetivo;
     if(sscanf(params, "r", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
     new dslog[512];
-    format(dslog, sizeof(dslog), "AdmCmd: %s (%s) limpió las manos de %s (%s).", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
-    serverLogRegister(dslog);
-    format(dslog, sizeof(dslog), "Tenía en sus manos:");
+    format(dslog, sizeof(dslog), "AdmCmd: %s (%s) limpió las manos de %s (%s).\nTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
     serverLogRegister(dslog);
     if(Datos[objetivo][jMano][0]){
         format(dslog, sizeof(dslog), "Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]);
@@ -210,6 +208,7 @@ CMD:limpiarmanos(playerid, params[])
         format(dslog, sizeof(dslog), "Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]);
         serverLogRegister(dslog);
     }
+    if(Datos[objetivo][jMano])
     Datos[objetivo][jMano][0] = 0;
     Datos[objetivo][jManoCant][0] = 0;
     Datos[objetivo][jManoData][0] = 0;
