@@ -11,11 +11,6 @@ orm_user(playerid)
 	orm_addvar_string(ormid, Datos[playerid][jClave], BCRYPT_HASH_LENGTH, "Clave");
 	orm_addvar_string(ormid, Datos[playerid][jEmail], 101, "Email");
 	orm_addvar_string(ormid, Datos[playerid][jIP], 17, "IP");
-
-	/*orm_addvar_string(ormid, jPJE[playerid][0], MAX_PLAYER_NAME, "Personaje_1");
-	orm_addvar_string(ormid, jPJE[playerid][1], MAX_PLAYER_NAME, "Personaje_2");
-	orm_addvar_string(ormid, jPJE[playerid][2], MAX_PLAYER_NAME, "Personaje_3");*/
-
 	orm_addvar_string(ormid, Datos[playerid][FechaReg], 101, "Fecha_Reg");
 	orm_addvar_string(ormid, Datos[playerid][UltimaConexion], 101, "Ultima_Conexion");
 
