@@ -10,7 +10,6 @@
 #include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
-//#include <PawnPlus>
 #include <samp_bcrypt>
 #pragma dynamic 8000
 #undef MAX_PLAYERS
