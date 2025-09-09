@@ -1,13 +1,7 @@
 new IntentosLogin[MAX_PLAYERS];
 //new jPJE[MAX_PLAYERS][3][MAX_PLAYER_NAME];
 #define DEFAULT_MAX_CHARACTERS	3
-#define MAX_CHARACTERS	20
-enum characterCache
-{
-	charID,
-	userID
-};
-new cachePersonajes[MAX_PLAYERS][characterCache][MAX_CHARACTERS];
+
 enum jInfo
 {
 	//Usuario
@@ -30,6 +24,7 @@ enum jInfo
 	FechaReg[101],
 	UltimaConexion[101],
 	CharacterLimit,
+	Cache:characterCache,
 	
 	//Personaje
 	ORM:ORMPJ,
@@ -154,6 +149,5 @@ new
 	/*userData[MAX_PLAYERS][uInfo],
 	characterData[MAX_PLAYERS][charInfo],
 	characterInventory[MAX_PLAYERS][jInventory]*/
-	Datos[MAX_PLAYERS][jInfo],
-	ChosenPJ[MAX_PLAYERS]
+	Datos[MAX_PLAYERS][jInfo]
 ;

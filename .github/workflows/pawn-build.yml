@@ -68,9 +68,22 @@ jobs:
           "ARTIFACT_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Host "Artifact: $name"
 
-      - name: Upload AMX artifact
+      - name: Upload build bundle
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: dist/main.amx
+          path: |
+            dist/main.amx
+            components/**/*.dll
+            components/**/*.so
+            components/**/*.cfg
+            plugins/**/*.dll
+            plugins/**/*.so
+            plugins/**/*.cfg
+            libs/**/*.dll
+            libs/**/*.so
+            misc/run-offline.sh
+            misc/run-offline.ps1
+            misc/run-offline.bat
+          if-no-files-found: ignore
           retention-days: 7

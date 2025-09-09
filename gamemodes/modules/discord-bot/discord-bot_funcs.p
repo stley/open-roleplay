@@ -8,9 +8,9 @@ forward discordOnPlayerConnect(playerid);
 public discordOnGameModeInit(){
     LOG_CHANNEL = DCC_FindChannelById("1411111715348807701");
     if(LOG_CHANNEL == DCC_INVALID_CHANNEL) serverLogRegister("No se encontró el canal de Discord al cual enviar logs.");
-    new buff[96];
+    new buff[100];
     new logutf[128];
-    format(buff, sizeof(buff), "Gamemode iniciada, el bot se conectó correctamente - (%s)", FechaActual());
+    format(buff, sizeof(buff), "Gamemode iniciada, el bot se conectó correctamente - %s", FechaActual());
     Cp1252ToUtf8(logutf, sizeof(logutf), buff);
     DCC_SendChannelMessage(LOG_CHANNEL, logutf);
     return 1;

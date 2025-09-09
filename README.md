@@ -13,11 +13,9 @@ Tambien se incluye el compilador utilizado en Windows, y sus includes.
 [SAMP-MySQL (versión R41-4)](https://github.com/pBlueG/SA-MP-MySQL)\
 [SAMP sscanf (versión 2.13.8)](https://github.com/Y-Less/sscanf)\
 [SAMP Streamer Plugin (versión 2.9.6)](https://github.com/samp-incognito/samp-streamer-plugin)\
-[SAMP Whirlpool](https://github.com/Southclaws/samp-whirlpool)\
 [Pawn.CMD (versión 3.4.0-omp)](https://github.com/katursis/Pawn.CMD)\
 [Pawn.RakNet (versión 1.6.0-omp)](https://github.com/katursis/Pawn.RakNet)\
 [easyDialog (tag 2.0)](https://github.com/Awsomedude/easyDialog)\
 [discord-connector (0.3.6)](https://github.com/maddinat0r/samp-discord-connector)\
 [YSI-Includes (v5.10.0006)](https://github.com/pawn-lang/YSI-Includes)\
-[PawnPlus (v 1.5.1)](https://github.com/IS4Code/PawnPlus)\
 [samp-bcrypt (v 0.4.1)](https://github.com/Sreyas-Sreelal/samp-bcrypt)

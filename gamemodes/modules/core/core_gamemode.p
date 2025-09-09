@@ -8,6 +8,7 @@ public OnGameModeInit()
 	CallLocalFunction("vehiclesOnGameModeInit");
 	CallLocalFunction("discordOnGameModeInit");
 	if(IsCrashDetectPresent()){
+		printf("CrashDetect encontrado en la lista de plugins.");
 		EnableCrashDetectLongCall();
 		SetCrashDetectLongCallTime(10000);
 	}
