@@ -192,7 +192,7 @@ CMD:listaobjetos(playerid)
         Contenedores (pueden almacenar objetos dentro)");
     Dialog_Show(playerid, D_LISTAOBJETO, DIALOG_STYLE_LIST, "Selecciona la categoría", dlg, "Seleccionar", "");
 }
-flags:limpiarmanos(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD)
+flags:limpiarmanos(CMD_JR_OPERATOR | CMD_MOD)
 CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
@@ -220,7 +220,7 @@ CMD:limpiarmanos(playerid, params[])
     SendClientMessage(objetivo, COLOR_LIGHTRED, "AdmCmd: El staff %s (%s) borró los objetos de tus manos.", Datos[playerid][jNombrePJ], username[playerid]);
     return 1;
 }
-flags:darskin(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:darskin(CMD_JR_MOD)
 CMD:darskin(playerid, params[]){
     if(sscanf(params, "rd", params[0], params[1])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /darskin [ID/Nombre] [ID Skin]");
     if(!IsPlayerConnected(params[0])) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario seleccionado no esta conectado.");
@@ -234,7 +234,7 @@ CMD:darskin(playerid, params[]){
     return 1;
 }
 
-flags:verstats(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:verstats(CMD_JR_MOD)
 CMD:verstats(playerid, params[]){
     if(isnull(params)) return SendClientMessage(playerid, COLOR_INDIGO, "USO: /verstats [ID/Nombre]");
     new target;
@@ -360,7 +360,7 @@ CMD:fixveh(playerid){
     }
     return 1;
 }
-flags:traerveh(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:traerveh(CMD_JR_MOD)
 CMD:traerveh(playerid, params[]){
     new vid;
     if(sscanf(params, "d", vid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /traerveh [id del vehiculo]");
@@ -375,7 +375,7 @@ CMD:traerveh(playerid, params[]){
     SendClientMessage(playerid, COLOR_GREEN, "Trajiste el vehículo %s ID %d.", modelGetName(GetVehicleModel(vid)), vid);
     return 1;
 }
-flags:irveh(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:irveh(CMD_JR_MOD)
 CMD:irveh(playerid, params[]){
     new vid;
     if(sscanf(params, "d", vid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /irveh [ID del vehículo]");
@@ -387,7 +387,7 @@ CMD:irveh(playerid, params[]){
     SetPlayerFacingAngle(playerid, veh_pos[3]);
     return 1;
 }
-flags:crearv(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:crearv(CMD_JR_OPERATOR)
 CMD:crearv(playerid, params[]){
     new vid;
     if(sscanf(params, "d", vid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /crearv [ModelID]");
@@ -397,7 +397,7 @@ CMD:crearv(playerid, params[]){
     CreateVehicle(vid, player_pos[0], player_pos[1], player_pos[2], player_pos[3], 1, 0, -1, false); 
     return 1;
 }
-flags:darvida(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:darvida(CMD_JR_MOD)
 CMD:darvida(playerid, params[]){
     new target;
     if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
@@ -408,7 +408,7 @@ CMD:darvida(playerid, params[]){
     SendClientMessage(target, COLOR_LIGHTBLUE, "%s (%s) te curó con un comando de moderación.", Name_sin(GetRPName(playerid)), username[playerid]);
     return 1;
 }
-flags:darchaleco(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR )
+flags:darchaleco(CMD_JR_OPERATOR)
 CMD:darchaleco(playerid, params[]){
     new target;
     if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /darvida [Nombre/ID]");
@@ -418,7 +418,7 @@ CMD:darchaleco(playerid, params[]){
     SendClientMessage(target, COLOR_LIGHTBLUE, "%s (%s) te dió un chaleco con un comando de moderación.", Name_sin(GetRPName(playerid)), username[playerid]);
     return 1;
 }
-flags:revivir(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR | CMD_JR_OPERATOR | CMD_MOD | CMD_JR_MOD)
+flags:revivir(CMD_JR_MOD)
 CMD:revivir(playerid, params[]){
     new target;
     if(sscanf(params, "r", target)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /revivir [Nombre/ID]");
@@ -457,25 +457,7 @@ CMD:darmod(playerid, params[]){
     mysql_tquery(SQLDB, query, "adminUpdate", "d", playerid);
     return 1;
 }
-forward adminUpdate(playerid, account[], rank);
-public adminUpdate(playerid, account[], rank){
-    if(cache_num_rows()){
-        new curr_rank, sqlid, retrieved_acc[35];
-        cache_get_value_name_int(0, "SQLID", sqlid);
-        cache_get_value_name(0, "Nombre", retrieved_acc, sizeof(retrieved_acc));
-        cache_get_value_name_int(0, "Admin", curr_rank);
-        if(curr_rank == rank) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario ya tiene ese rango administrativo.");
-        SendClientMessage(playerid, COLOR_LIGHTBLUE, "Le cediste el rango administrativo nivel %d a %s. (%d > %d)", rank, retrieved_acc, curr_rank, rank);
-        new query[96];
-        formatt(query, "%s (%s) le cedió rango administrativo nivel %d a %s. (%d > %d)", username[playerid], Name_sin(GetName(playerid)), curr_rank, rank);
-        serverLogRegister(query);
-        mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `Admin` = %d WHERE `SQLID` = %d", rank, sqlid);
-        mysql_tquery(SQLDB, query);
-        return 1;
-    }
-    else SendClientMessage(playerid, COLOR_DARKRED, "¡La cuenta %s no existe!", account);
-    return 1;
-}
+
 flags:test_wound(CMD_OWNER)
 CMD:test_wound(playerid){
     Wound_HandleDamage(playerid, playerid, ObjetoInfo[Datos[playerid][jMano][0]][IDArma], 3, 40.0);
