@@ -55,45 +55,26 @@ jobs:
           if not "%WARNSOTHER%"=="0" (echo "::error::Warnings (%WARNSOTHER%)" & type warns_other.txt & exit /b 1)
           echo OK
 
-      # Create a runtime bundle with main.amx + plugins + components
-      # Bundle runtime files on Windows
-      - name: Bundle runtime files
+      - name: Set artifact name (dev vs nightly)
         shell: pwsh
         run: |
-          $ErrorActionPreference='Stop'
-          Remove-Item -Recurse -Force 'dist\gamemodes','dist\plugins','dist\components' -ErrorAction Ignore
-          New-Item -ItemType Directory -Force -Path 'dist\gamemodes','dist\plugins','dist\components' | Out-Null
-      
-          if (Test-Path 'dist\main.amx') {
-            Move-Item 'dist\main.amx' 'dist\gamemodes\main.amx' -Force
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:PR_NUMBER) {
+            $name = "dev-pr-$($env:PR_NUMBER)"
+          } elseif ($env:GITHUB_REF_NAME -eq 'main') {
+            $name = "nightly-main"
+          } else {
+            $name = "build-$($env:GITHUB_REF_NAME)"
           }
-      
-          $rc=0
-          if (Test-Path 'plugins') {
-            robocopy plugins dist\plugins *.dll *.so /S /NFL /NDL /NJH /NJS /NP | Out-Null
-            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE } else { $rc = [Math]::Max($rc, $LASTEXITCODE) }
-          }
-          if (Test-Path 'components') {
-            robocopy components dist\components *.dll *.so /S /NFL /NDL /NJH /NJS /NP | Out-Null
-            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE } else { $rc = [Math]::Max($rc, $LASTEXITCODE) }
-          }
-      
-          # normalize non-error robocopy codes (0,1,2,3,5,6,7) to success
-          if ($rc -lt 8) { $global:LASTEXITCODE = 0 }
-          Write-Host "Bundle complete. robocopy code=$rc"
-      
-      - name: Upload runtime artifact (PR)
-        if: ${{ github.event_name == 'pull_request' }}
+          "ARTIFACT_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Artifact: $name"
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: runtime-pr-${{ github.event.pull_request.number }}
-          path: dist
-          if-no-files-found: error
-      
-      - name: Upload runtime artifact (nightly main)
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: runtime-nightly
-          path: dist
-          if-no-files-found: error
+          name: ${{ env.ARTIFACT_NAME }}
+          path: |
+            dist/main.amx
+            components/**/*
+            plugins/**/*
+          if-no-files-found: ignore
+          retention-days: 7
