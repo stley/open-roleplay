@@ -67,6 +67,26 @@ rm -f "${WORKDIR}/gamemodes/"*.amx
 cp -f "$AMX_SRC" "${WORKDIR}/gamemodes/main.amx"
 echo "Installed gamemodes/main.amx from '${ARTIFACT}'."
 
+# Deploy components/, plugins/, libs/ if present
+for d in components plugins libs; do
+  src="$UNZIP_DIR/$d"
+  if [[ -d "$src" ]]; then
+    dst="$WORKDIR/$d"
+    mkdir -p "$dst"
+    # Copy everything
+    cp -r -f "$src/"* "$dst/" 2>/dev/null || true
+    # On Linux we don't need .dll, drop them
+    find "$dst" -type f -name '*.dll' -delete
+    echo "Copied $d/"
+  fi
+done
+
+# Move run-offline.sh from misc/ if present
+if [[ -f "$UNZIP_DIR/misc/run-offline.sh" ]]; then
+  cp -f "$UNZIP_DIR/misc/run-offline.sh" "$WORKDIR/run-offline.sh"
+  echo "Placed run-offline.sh at root"
+fi
+
 # ---- Run server (wrapper) ----
 #!/bin/sh
 set -eu
