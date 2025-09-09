@@ -61,11 +61,11 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference='Stop'
-          Remove-Item -Recurse -Force dist -ErrorAction Ignore
-          New-Item -ItemType Directory -Force -Path 'dist','dist\gamemodes','dist\plugins','dist\components' | Out-Null
-      
-          if (Test-Path 'gamemodes\main.amx') {
-            Copy-Item 'gamemodes\main.amx' 'dist\gamemodes\' -Force
+          Remove-Item -Recurse -Force 'dist\gamemodes','dist\plugins','dist\components' -ErrorAction Ignore
+          New-Item -ItemType Directory -Force -Path 'dist\gamemodes','dist\plugins','dist\components' | Out-Null
+
+          if (Test-Path 'dist\main.amx') {
+            Move-Item 'dist\main.amx' 'dist\gamemodes\main.amx' -Force
           }
       
           if (Test-Path 'plugins') {
