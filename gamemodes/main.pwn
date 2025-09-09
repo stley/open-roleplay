@@ -10,6 +10,7 @@
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
 #include <samp_bcrypt>
+#include <ndialog-pages>
 #pragma dynamic 8000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
