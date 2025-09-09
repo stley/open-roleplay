@@ -1,6 +1,7 @@
 
 CMD:stats(playerid)
 {
+    if(!Datos[playerid][EnChar]) return 1;
     new msg[512];
     SendClientMessage(playerid, COLOR_GREEN,"Estadísticas de %s (%s):", Datos[playerid][jNombrePJ], username[playerid]);
     SendClientMessage(playerid, COLOR_GREEN, "Estadísticas IC:");
@@ -24,5 +25,10 @@ CMD:stats(playerid)
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos: %d — %d | Vehículo prestado: %d", Datos[playerid][jCoche][0], Datos[playerid][jCoche][1], Datos[playerid][jCocheLlaves]);
     SendClientMessage(playerid, COLOR_GREEN, "Interiores:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casa: %d — Negocio: %d | Interior: %d — VirtualWorld: %d", DentroCasa[playerid], DentroNegocio[playerid], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid));
-    return;
+    return 1;
+}
+
+CMD:panel(playerid){
+
+    return 1;
 }
