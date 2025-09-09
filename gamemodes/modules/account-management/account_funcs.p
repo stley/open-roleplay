@@ -71,27 +71,29 @@ public accountPassCheck(playerid, bool:success){
 }
 
 public accountOnUserCharacterList(playerid){
-	new dlg[2000], dlg_buff[96];
+	new dlg_buff[96];
 	new charname[MAX_PLAYER_NAME];
+	new charid;
+	Datos[playerid][characterCache] = cache_save();
 	if(cache_num_rows()){
 		for(new i; i < cache_num_rows(); i++){
-			cache_get_value_name_int(i, "Usuario", cachePersonajes[playerid][userID][i]);
-			cache_get_value_name_int(i, "SQLIDPJ", cachePersonajes[playerid][charID][i]);
+			cache_get_value_name_int(i, "SQLIDPJ", charid);
 			cache_get_value_name(i, "NombrePJ", charname);
-			if(i == 0) formatt(dlg_buff, "%s [%d]\n", charname, cachePersonajes[playerid][charID][i]);
-			else if(i == cache_num_rows()-1) formatt(dlg_buff, "%s [%d]", charname, cachePersonajes[playerid][charID][i]);
-			else formatt(dlg_buff, "%s [%d]\n", charname, cachePersonajes[playerid][charID][i]);
-			strcat(dlg, dlg_buff);
+			formatt(dlg_buff, "%s [%d]", charname, charid);
+			AddDialogListitem(playerid, dlg_buff);
 		}
-	}	
+	}
+
 	if(cache_num_rows() && cache_num_rows() < Datos[playerid][CharacterLimit]){
-		strcat(dlg, "\n{C0C0C0}Crear otro personaje");
+		AddDialogListitem(playerid, "{C0C0C0}Crear otro personaje");
 	}
 	else if (!cache_num_rows()){
-		strcat(dlg, "\n{C0C0C0}Crear un personaje");
+		AddDialogListitem(playerid, "\n{C0C0C0}Crear un personaje");
 	}
-	return Dialog_Show(playerid, D_PERSONAJES, DIALOG_STYLE_LIST, "Personajes disponibles", dlg, "Ingresar", "Salir");
+	return ShowPlayerDialogPages(playerid, "character_dialog", DIALOG_STYLE_LIST, "Personajes disponibles", "Ingresar", "Salir", 12);
 }
+
+
 
 public accountOnCharFirstLoad(playerid)
 {
@@ -108,15 +110,7 @@ public accountOnCharFirstLoad(playerid)
 }
 public accountOnCharInserted(playerid){
 	new dslog[512];
-	new slot;
-	for(new i; i < Datos[playerid][CharacterLimit]; i++){
-		if(cachePersonajes[playerid][charID][i] == Datos[playerid][jSQLIDP]){
-			slot = i;
-			break;
-		}
-		else continue;
-	}
-	format(dslog, sizeof(dslog), "La cuenta %s (SQLID %d) creó el personaje %s en su slot %d/%d", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ], slot+1, Datos[playerid][CharacterLimit]);
+	format(dslog, sizeof(dslog), "La cuenta %s (SQLID %d) creó el personaje %s.", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
 	serverLogRegister(dslog);
 	mysql_format(SQLDB, dslog, sizeof(dslog), "INSERT INTO `char_toys` (`character_id`) VALUES (%d)", Datos[playerid][jSQLIDP]);
 	mysql_tquery(SQLDB, dslog);
@@ -389,10 +383,9 @@ clear_account_data(playerid)
 	Datos[playerid][jCreditos] = 0;
 	Datos[playerid][CharacterLimit] = DEFAULT_MAX_CHARACTERS;
 	Datos[playerid][LoggedIn] = false;
-	for(new i; i < MAX_CHARACTERS; i++){
-		cachePersonajes[playerid][charID][i] = 0;
-		cachePersonajes[playerid][userID][i] = 0;
-		//cachePersonajes[playerid][slotOrder][i] = 0;
+	if(Datos[playerid][characterCache]){
+		cache_delete(Datos[playerid][characterCache]);
+		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
 	}
 }
 ClearPlayerVars(playerid)

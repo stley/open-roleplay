@@ -10,7 +10,8 @@
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
 #include <samp_bcrypt>
-#pragma dynamic 8000
+#include <ndialog-pages>
+#pragma dynamic 7000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
 //Módulos
@@ -18,7 +19,7 @@
 #include "modules/discord-bot/discord-bot_header.p" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header.p"
 #include "modules/core/core_header.p" //Funciones core del servidor.
-#include "modules/database/database_header.p" // conexión a la base de datos en OnGameModeInit y OnGameModeExit
+#include "modules/database/database_header.p" // Conexión a la base de datos
 #include "modules/item-system/item_header.p" // Objetos
 #include "modules/admin/admin_header.p" // Admin
 #include "modules/vehicle/vehicle_header.p"
