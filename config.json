@@ -93,7 +93,8 @@
             "crashdetect",
             "mysql",
             "streamer",
-            "samp_bcrypt"
+            "samp_bcrypt",
+            "pawn-memory"
         ],
         "main_scripts": [
             "main"
