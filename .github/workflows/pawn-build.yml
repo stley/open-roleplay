@@ -63,19 +63,24 @@ jobs:
           $ErrorActionPreference='Stop'
           Remove-Item -Recurse -Force 'dist\gamemodes','dist\plugins','dist\components' -ErrorAction Ignore
           New-Item -ItemType Directory -Force -Path 'dist\gamemodes','dist\plugins','dist\components' | Out-Null
-
+      
           if (Test-Path 'dist\main.amx') {
             Move-Item 'dist\main.amx' 'dist\gamemodes\main.amx' -Force
           }
       
+          $rc=0
           if (Test-Path 'plugins') {
-            robocopy plugins dist\plugins *.dll *.so /S > $null
-            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+            robocopy plugins dist\plugins *.dll *.so /S /NFL /NDL /NJH /NJS /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE } else { $rc = [Math]::Max($rc, $LASTEXITCODE) }
           }
           if (Test-Path 'components') {
-            robocopy components dist\components *.dll *.so /S > $null
-            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+            robocopy components dist\components *.dll *.so /S /NFL /NDL /NJH /NJS /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE } else { $rc = [Math]::Max($rc, $LASTEXITCODE) }
           }
+      
+          # normalize non-error robocopy codes (0,1,2,3,5,6,7) to success
+          if ($rc -lt 8) { $global:LASTEXITCODE = 0 }
+          Write-Host "Bundle complete. robocopy code=$rc"
       
       - name: Upload runtime artifact (PR)
         if: ${{ github.event_name == 'pull_request' }}
