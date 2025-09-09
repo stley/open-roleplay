@@ -64,6 +64,25 @@ Get-ChildItem $Gm -Filter *.amx -File | Remove-Item -Force -ErrorAction Silently
 Copy-Item $Amx.FullName (Join-Path $Gm "main.amx") -Force
 Write-Host "Instalado gamemodes\main.amx desde '$NombreArtefacto'."
 
+# Desplegar components/, plugins/ y libs/ si existen en el artefacto
+foreach ($d in 'components','plugins','libs') {
+  $src = Join-Path $Unz $d
+  if (Test-Path $src) {
+    $dst = Join-Path $Raiz $d
+    New-Item -ItemType Directory -Force -Path $dst | Out-Null
+
+    # Copiar todo
+    Copy-Item -Path (Join-Path $src '*') -Destination $dst -Recurse -Force
+
+    # Borrar .so si existen
+    Get-ChildItem -Path $dst -Recurse -Filter *.so -File | Remove-Item -Force
+
+    Write-Host "Copiado '$d/' (se eliminaron .so)"
+  } else {
+    Write-Host "No se encontró '$d/' en el artefacto. Omitido."
+  }
+}
+
 # Lanzar servidor tras breve pausa
 $Exe = Join-Path $Raiz "omp-server.exe"
 if (Test-Path $Exe) {
