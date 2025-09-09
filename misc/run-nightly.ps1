@@ -62,6 +62,19 @@ foreach ($d in 'components','plugins','libs') {
     Write-Host "No se encontró '$d/' en el artefacto. Omitido."
   }
 }
+# Mover run-offline.ps1 y run-offline.bat desde misc/ a la raíz ($Raiz)
+$misc = Join-Path $Unz 'misc'
+if (Test-Path $misc) {
+  foreach ($f in 'run-offline.ps1','run-offline.bat') {
+    $src = Join-Path $misc $f
+    if (Test-Path $src) {
+      Move-Item -Path $src -Destination (Join-Path $Raiz $f) -Force
+      Write-Host "Movido '$f' a $Raiz"
+    } else {
+      Write-Host "'$f' no encontrado en misc/. Omitido."
+    }
+  }
+}
 
 # Lanzar servidor tras breve pausa
 $Exe = Join-Path $Raiz "omp-server.exe"
