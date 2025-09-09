@@ -48,11 +48,6 @@ rm -f "${WORKDIR}/gamemodes/"*.amx
 cp -f "$AMX_SRC" "${WORKDIR}/gamemodes/main.amx"
 echo "Installed gamemodes/main.amx from '${ARTIFACT}'."
 
-# After unzip and AMX copy
-[ -d "$UNZIP_DIR/dist/plugins" ]    && rsync -a "$UNZIP_DIR/dist/plugins/"    "$WORKDIR/plugins/"
-[ -d "$UNZIP_DIR/dist/components" ] && rsync -a "$UNZIP_DIR/dist/components/" "$WORKDIR/components/"
-echo "Installed plugins/ and components/ from artifact if present."
-
 # ---- Run server (wrapper) ----
 #!/bin/sh
 set -eu
