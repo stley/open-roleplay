@@ -55,22 +55,40 @@ jobs:
           if not "%WARNSOTHER%"=="0" (echo "::error::Warnings (%WARNSOTHER%)" & type warns_other.txt & exit /b 1)
           echo OK
 
-      - name: Set artifact name (dev vs nightly)
+      # Create a runtime bundle with main.amx + plugins + components
+      # Bundle runtime files on Windows
+      - name: Bundle runtime files
         shell: pwsh
         run: |
-          if ($env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:PR_NUMBER) {
-            $name = "dev-pr-$($env:PR_NUMBER)"
-          } elseif ($env:GITHUB_REF_NAME -eq 'main') {
-            $name = "nightly-main"
-          } else {
-            $name = "build-$($env:GITHUB_REF_NAME)"
+          $ErrorActionPreference='Stop'
+          Remove-Item -Recurse -Force dist -ErrorAction Ignore
+          New-Item -ItemType Directory -Force -Path 'dist','dist\gamemodes','dist\plugins','dist\components' | Out-Null
+      
+          if (Test-Path 'gamemodes\main.amx') {
+            Copy-Item 'gamemodes\main.amx' 'dist\gamemodes\' -Force
           }
-          "ARTIFACT_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host "Artifact: $name"
-
-      - name: Upload AMX artifact
+      
+          if (Test-Path 'plugins') {
+            robocopy plugins dist\plugins *.dll *.so /S > $null
+            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+          }
+          if (Test-Path 'components') {
+            robocopy components dist\components *.dll *.so /S > $null
+            if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+          }
+      
+      - name: Upload runtime artifact (PR)
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: dist/main.amx
-          retention-days: 7
+          name: runtime-pr-${{ github.event.pull_request.number }}
+          path: dist
+          if-no-files-found: error
+      
+      - name: Upload runtime artifact (nightly main)
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-nightly
+          path: dist
+          if-no-files-found: error

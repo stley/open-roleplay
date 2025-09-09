@@ -64,6 +64,15 @@ Get-ChildItem $Gm -Filter *.amx -File | Remove-Item -Force -ErrorAction Silently
 Copy-Item $Amx.FullName (Join-Path $Gm "main.amx") -Force
 Write-Host "Instalado gamemodes\main.amx desde '$NombreArtefacto'."
 
+# $unz = path raíz del unzip; $Raiz = carpeta del server
+if (Test-Path "$unz\dist\plugins") {
+  robocopy "$unz\dist\plugins" "$Raiz\plugins" *.* /S > $null
+}
+if (Test-Path "$unz\dist\components") {
+  robocopy "$unz\dist\components" "$Raiz\components" *.* /S > $null
+}
+Write-Host "Plugins y components instalados desde el artefacto (si existían)."
+
 # Lanzar servidor tras breve pausa
 $Exe = Join-Path $Raiz "omp-server.exe"
 if (Test-Path $Exe) {
