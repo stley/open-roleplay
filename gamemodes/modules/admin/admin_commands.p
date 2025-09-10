@@ -335,17 +335,18 @@ GetBootSize(modelid){
 
     new cat = Model_GetCategory(modelid);
 
-    if (cat & Model_GetCategory(482)) return 15; // Burrito ? vans
-    if (cat & Model_GetCategory(466)) return 6;  // Glendale ? cars
-    if (cat & Model_GetCategory(431)) return 20;  // Bus
-    if (cat & Model_GetCategory(461)) return 0;  // PCJ-600 ? bikes
-    if (cat & Model_GetCategory(487)) return 16;  // Maverick ? helis
-    if (cat & Model_GetCategory(476)) return 0;  // Rustler ? planes
-    if (cat & Model_GetCategory(473)) return 0;  // Dinghy ? boats
-    if (cat & Model_GetCategory(435)) return 0;  // Trailer
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(482)) return 15; // Burrito ? vans
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(466)) return 6;  // Glendale ? cars
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(431)) return 20;  // Bus
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(461)) return 0;  // PCJ-600 ? bikes
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(487)) return 16;  // Maverick ? helis
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(476)) return 0;  // Rustler ? planes
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(473)) return 0;  // Dinghy ? boats
+    if (e_VEHICLE_FLAGS:cat & Model_GetCategory(435)) return 0;  // Trailer
 
     return 0;
 }
+
 flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
 CMD:ircoord(playerid, params[]){
     if(sscanf(params, "fff", params[0], params[1], params[2])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ircoord [X] [Y] [Z]");
@@ -407,12 +408,47 @@ CMD:irveh(playerid, params[]){
 }
 flags:crearv(CMD_JR_OPERATOR)
 CMD:crearv(playerid, params[]){
-    new vid;
-    if(sscanf(params, "d", vid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /crearv [ModelID]");
+    new modelid;
+    if(sscanf(params, "d", modelid)) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /crearv [ModelID]");
+    CallLocalFunction("createTempVehicle", "dd", playerid, modelid);
+    return 1;
+}
+forward createTempVehicle(playerid, modelid);
+public createTempVehicle(playerid, modelid){
     new Float:player_pos[4];
     GetPlayerPos(playerid, player_pos[0], player_pos[1], player_pos[2]);
     GetPlayerFacingAngle(playerid, player_pos[3]);
-    CreateVehicle(vid, player_pos[0], player_pos[1], player_pos[2], player_pos[3], 1, 0, -1, false); 
+    if(modelid > 611){
+        for(new i; i < MAX_CURRENT_MODELS; i++){
+            if(!allocated_models[i][alloc_vID]){
+                for(new x; x < MAX_CUSTOM_MODELS; x++){
+                    if(custom[x][realModel] == modelid){
+                        allocated_models[i][alloc_vID] = CreateVehicle(custom[x][backendModel], player_pos[0], player_pos[1], player_pos[2], player_pos[3], 1, 0, -1, false);
+                        allocated_models[i][realModel] = custom[x][realModel];
+                        allocated_models[i][backendModel] = custom[x][backendModel];
+                        alm(allocated_models[i][fxtname], custom[x][fxtname]);
+                        SendClientMessage(playerid, COLOR_DARKRED, "Creando el vehículo temporal \"%s\", (ID %D | BACKEND %d)", custom[x][fxtname], modelid, custom[x][backendModel]);
+                        return 1;
+                    }
+                }
+            }
+            else continue;
+        }
+        for(new y; y < MAX_CUSTOM_MODELS; y++){
+            if(custom[y][realModel] == modelid){
+                new created_id = CreateVehicle(custom[y][backendModel], player_pos[0], player_pos[1], player_pos[2], player_pos[3], 1, 0, -1, false);
+                SendClientMessage(playerid, COLOR_BRIGHTRED, "NO HAY más espacio para vehiculos custom, fallback a backend model!");
+                SendClientMessage(playerid, COLOR_DARKRED, "Creando el vehículo temporal \"%s\", (ID MODELO: %d) (ID del VEHICULO: %d)", modelGetName(modelid), modelid, created_id);
+                return 1;
+            }
+            return SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error, no se creó ningun vehículo.");
+        }
+    }
+    else{
+        new created_id = CreateVehicle(modelid, player_pos[0], player_pos[1], player_pos[2], player_pos[3], 1, 0, -1, false);
+        SendClientMessage(playerid, COLOR_DARKRED, "Creando el vehículo temporal \"%s\", (ID MODELO: %d) (ID del VEHICULO: %d)", modelGetName(modelid), modelid, created_id);
+        return 1;
+    }
     return 1;
 }
 flags:darvida(CMD_JR_MOD)

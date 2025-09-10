@@ -2,14 +2,18 @@ forward Models_OnGameModeInit();
 public Models_OnGameModeInit()
 {
     //SKINS
-    print("Adding character models");
-    AddCharModel(280, 20001, "skins/police/lapd1.dff", "skins/police/lapd1.txd");
-    AddCharModel(267, 20002, "skins/police/hern.dff", "skins/police/hern.txd");
-    AddCharModel(284, 20003, "skins/police/lapdm1.dff", "skins/police/lapdm1.txd");
-    AddCharModel(266, 20004, "skins/police/pulaski.dff", "skins/police/pulaski.txd");
-    AddCharModel(281, 20005, "skins/police/sfpd1.dff", "skins/police/sfpd1.txd");
-    AddCharModel(265, 20006, "skins/police/tenpen.dff", "skins/police/tenpen.txd");
-    AddCharModel(306, 20007, "skins/police/wfyclpd.dff", "skins/police/wfyclpd.txd");
+    #if defined UGMP_ON
+        print("Skipping character models (UGMP compatible)");
+    #else
+        print("Adding character models");
+        AddCharModel(280, 20001, "skins/police/lapd1.dff", "skins/police/lapd1.txd");
+        AddCharModel(267, 20002, "skins/police/hern.dff", "skins/police/hern.txd");
+        AddCharModel(284, 20003, "skins/police/lapdm1.dff", "skins/police/lapdm1.txd");
+        AddCharModel(266, 20004, "skins/police/pulaski.dff", "skins/police/pulaski.txd");
+        AddCharModel(281, 20005, "skins/police/sfpd1.dff", "skins/police/sfpd1.txd");
+        AddCharModel(265, 20006, "skins/police/tenpen.dff", "skins/police/tenpen.txd");
+        AddCharModel(306, 20007, "skins/police/wfyclpd.dff", "skins/police/wfyclpd.txd");
+    #endif
     //GUNS
     print("Adding object models");
     AddSimpleModel(-1, 11747, -1000, "gun/taser.dff", "gun/taser.txd"); // TASER

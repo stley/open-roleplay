@@ -73,9 +73,8 @@ public OnCharacterVehicleLoad(playerid){
 				orm_apply_cache(vehData[i][vehORM], 0);
                 Model_GetName(vehData[i][veh_Modelo], vehData[i][veh_Name]);
 				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", vehData[i][veh_Name], vehData[i][veh_SQLID]);
-                new query[128];
-                mysql_format(query, sizeof(query), "SELECT * FROM `vehicle_inventory` WHERE `vehicle_id` = %d", vehData[i][veh_SQLID]);
-                mysql_tquery(SQLDB, "CharacterVehicleInventoryLoad", )
+                /*new query[128];
+                mysql_format(query, sizeof(query), "SELECT * FROM `vehicle_inventory` WHERE `vehicle_id` = %d", vehData[i][veh_SQLID]);*/
 				return 1;
 			}
 			else if(current == vehData[i][veh_SQLID]){

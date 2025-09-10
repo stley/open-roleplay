@@ -5,6 +5,7 @@ enum vehInfo
     //Almacenables
     veh_SQLID,
     veh_Dueno[25],
+    veh_Name[32],
     Float:veh_Vida,
     Float:veh_PosX,
     Float:veh_PosY,
