@@ -1,3 +1,4 @@
+#define VIM_IsPoliceCar(%0) (VIM_IsCar(%0) && VIM_IsPolice(%0))
 forward vehiclesOnGameModeInit();
 forward vehiclesOnGameModeExit();
 forward OnVehicleUpdate();
@@ -70,11 +71,15 @@ public OnCharacterVehicleLoad(playerid){
 			if(!vehData[i][veh_Tipo] || !vehData[i][veh_Modelo]){
 				orm_vehicle(i);
 				orm_apply_cache(vehData[i][vehORM], 0);
-				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
+                Model_GetName(vehData[i][veh_Modelo], vehData[i][veh_Name]);
+				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", vehData[i][veh_Name], vehData[i][veh_SQLID]);
+                new query[128];
+                mysql_format(query, sizeof(query), "SELECT * FROM `vehicle_inventory` WHERE `vehicle_id` = %d", vehData[i][veh_SQLID]);
+                mysql_tquery(SQLDB, "CharacterVehicleInventoryLoad", )
 				return 1;
 			}
 			else if(current == vehData[i][veh_SQLID]){
-				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ya fue cargado anteriormente, salteando...", modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID] );
+				SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ya fue cargado anteriormente, salteando...", vehData[i][veh_Name], vehData[i][veh_SQLID] );
 				return 1;
 			}
 		}
@@ -82,9 +87,9 @@ public OnCharacterVehicleLoad(playerid){
 	return 1;
 }
 
+
 stock modelGetName(modelid){
     new string[32];
-    //formatt(string, "%s", VehiclesName[modelid-400]);
     Model_GetName(modelid, string);
     return string;
 }

@@ -329,11 +329,23 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
     }
     return;
 }
-GetBootSize(modelo){
-    //extender con extended-vehicle-information
-    return 6;
-}
+GetBootSize(modelid){
+    if (modelid == 498) return 16; // Boxville
+    if (modelid == 499) return 14; // Benson
 
+    new cat = Model_GetCategory(modelid);
+
+    if (cat & Model_GetCategory(482)) return 15; // Burrito ? vans
+    if (cat & Model_GetCategory(466)) return 6;  // Glendale ? cars
+    if (cat & Model_GetCategory(431)) return 20;  // Bus
+    if (cat & Model_GetCategory(461)) return 0;  // PCJ-600 ? bikes
+    if (cat & Model_GetCategory(487)) return 16;  // Maverick ? helis
+    if (cat & Model_GetCategory(476)) return 0;  // Rustler ? planes
+    if (cat & Model_GetCategory(473)) return 0;  // Dinghy ? boats
+    if (cat & Model_GetCategory(435)) return 0;  // Trailer
+
+    return 0;
+}
 flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
 CMD:ircoord(playerid, params[]){
     if(sscanf(params, "fff", params[0], params[1], params[2])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ircoord [X] [Y] [Z]");
