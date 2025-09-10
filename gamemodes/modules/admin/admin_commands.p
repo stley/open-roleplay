@@ -307,6 +307,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
                     vehData[i][veh_Matricula] = get_plate();
                     vehData[i][veh_Gasolina] = 100;
+                    vehData[i][veh_EspacioMal] = GetBootSize(modelo);
                     vehData[i][veh_Vida] = 1000.0;
                     orm_vehicle(i);
                     new dslog[512];
@@ -328,6 +329,11 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
     }
     return;
 }
+GetBootSize(modelo){
+    //extender con extended-vehicle-information
+    return 6;
+}
+
 flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
 CMD:ircoord(playerid, params[]){
     if(sscanf(params, "fff", params[0], params[1], params[2])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ircoord [X] [Y] [Z]");
