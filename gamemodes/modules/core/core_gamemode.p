@@ -35,10 +35,14 @@ public OnPlayerDisconnect(playerid, reason){
 }
 public OnPlayerRequestClass(playerid, classid){
 	CallLocalFunction("accountOnPlayerRequestClass", "dd", playerid, classid);
-	if(!IsPlayerUsingOmp(playerid)){
-		SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
-		SetTimerEx("Kick", 2000, false, "d", playerid);
-	}
+	#if defined UGMP_ON
+		if(IsPlayerUsingOfficialClient(playerid)) SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
+	#else
+		if(!IsPlayerUsingOmp(playerid)){
+			SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
+			SetTimerEx("Kick", 2000, false, "d", playerid);
+		}
+	#endif
 	return 1;
 }
 

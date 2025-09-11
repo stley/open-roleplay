@@ -14,6 +14,8 @@
 #pragma dynamic 7000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
+
+#define UGMP_ON
 //Módulos
 #include "modules/misc/misc_header.p" // Misceláneos
 #include "modules/discord-bot/discord-bot_header.p" // Conexión con bot de discord!
@@ -23,6 +25,7 @@
 #include "modules/item-system/item_header.p" // Objetos
 #include "modules/admin/admin_header.p" // Admin
 #include "modules/vehicle/vehicle_header.p"
+#include "modules/ugmp-vehicles/ugmp_header.p"
 #include "modules/damage_system/damage_header.p"
 #include "modules/account-management/account_header.p"  //Management de los usuarios y sus personajes
 #include "modules/rptools/rptools.p"
