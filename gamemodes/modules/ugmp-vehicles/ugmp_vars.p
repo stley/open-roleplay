@@ -6,8 +6,8 @@ enum ugmp_vehicle_models{
 #define MAX_CUSTOM_MODELS   (100)
 new custom[][ugmp_vehicle_models] =
 {
-    {6697, 597, "LCPD Stanier"},
-    {6027, 427, "VCPD Enforcer"}
+    {612, 560, "Dodge Charger"},
+    {613, 560, "Ford Taurus"}
 };
 enum alloc_models{
     realModel,

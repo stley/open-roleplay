@@ -427,7 +427,7 @@ public createTempVehicle(playerid, modelid){
                         allocated_models[i][realModel] = custom[x][realModel];
                         allocated_models[i][backendModel] = custom[x][backendModel];
                         alm(allocated_models[i][fxtname], custom[x][fxtname]);
-                        SendClientMessage(playerid, COLOR_DARKRED, "Creando el vehículo temporal \"%s\", (ID %D | BACKEND %d)", custom[x][fxtname], modelid, custom[x][backendModel]);
+                        SendClientMessage(playerid, COLOR_DARKRED, "Creando el vehículo temporal \"%s\", (ID %d | BACKEND %d)", custom[x][fxtname], modelid, custom[x][backendModel]);
                         return 1;
                     }
                 }
