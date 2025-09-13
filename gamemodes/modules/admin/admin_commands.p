@@ -296,7 +296,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
         if(!vehData[i][veh_Modelo]){
             for(new x; x < 2; x++){
                 if(!Datos[nuevodueno][jCoche][x]){
-                    alm(vehData[i][veh_Dueno], GetName(nuevodueno));
+                    alm(vehData[i][veh_Owner], GetName(nuevodueno));
                     vehData[i][veh_Modelo] = modelo;
                     vehData[i][veh_Tipo] = 1;
                     vehData[i][veh_Color1] = color1;
@@ -311,7 +311,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_Vida] = 1000.0;
                     orm_vehicle(i);
                     new dslog[512];
-                    format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: LS%s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Dueno], Datos[playerid][jNombrePJ], username[playerid]);
+                    format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: LS%s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]);
                     serverLogRegister(dslog);
                     orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
                     vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);

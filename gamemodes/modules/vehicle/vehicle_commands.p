@@ -1,47 +1,49 @@
-    CMD:miscoches(playerid){
+CMD:miscoches(playerid){
     if(!IsPlayerConnected(playerid)) return 1;
-    new dlg[1024];
-    new buff[128];
+    if(Datos[playerid][EnChar]) return dialog_vehiculos(playerid);
+}
+
+dialog_vehiculos(playerid){
     new cantidad;
-    for(new i; i < 2; i++){
-        if(Datos[playerid][jCoche][i]){
-            for(new x; x < MAX_VEHICULOS; x++){
-                if(vehData[x][veh_SQLID] == Datos[playerid][jCoche][i]){
-                    if(IsValidTimer(savehTimer[x])) formatt(buff, "Personal %d: %s [%d] (en proceso de guardado)\n", i+1, modelGetName(vehData[x][veh_Modelo]), vehData[x][veh_SQLID]);
-                    else formatt(buff, "Personal %d: %s [%d]\n", i+1, modelGetName(vehData[x][veh_Modelo]), vehData[x][veh_SQLID]);
-                    strcat(dlg, buff);
-                    cantidad++;
-                }
-            }
-        }
-        else{
-            formatt(buff, "Personal %d: Vacío\n", i+1);
-            strcat(dlg, buff);
-        }
-        if(Datos[playerid][jCocheLlaves][i]){
-            for(new x; x < MAX_VEHICULOS; x++){
-                if(vehData[x][veh_SQLID] == Datos[playerid][jCocheLlaves][i]){
-                    if(i == 1){
-                        if(IsValidTimer(savehTimer[x])) formatt(buff, "Prestado %d: %s [%d] (en proceso de guardado)", i+1, modelGetName(vehData[x][veh_Modelo]), vehData[x][veh_SQLID]);
-                        else formatt(buff, "Prestado %d: %s [%d]", i+1, modelGetName(vehData[x][veh_Modelo]), vehData[x][veh_SQLID]);
-                    }
-                    else{
-                        if(IsValidTimer(savehTimer[x])) formatt(buff, "Prestado %d: %s [%d] (en proceso de guardado)", i+1, modelGetName(vehData[x][veh_Modelo]), vehData[x][veh_SQLID]);
-                        else formatt(buff, "Prestado %d: %s [%d]\n", i+1, modelGetName(vehData[x][veh_Modelo]), vehData[x][veh_SQLID]);
-                    }
-                    strcat(dlg, buff);
-                    cantidad++;
-                }
-            }
-        }
-        else{
-            if(i == 1) formatt(buff, "Prestado %d: Vacío", i+1);
-            else formatt(buff, "Prestado %d: Vacío\n", i+1);
-            strcat(dlg, buff);
+    
+    for(new i; i < MAX_VEHICULOS; i++){
+        if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
+            new buffer[128];
+            formatt(buffer, "[%d] %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]));
+            new key[18];
+            format(key, sizeof key, "veh_list_%d", cantidad);
+            SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
+            AddDialogListitem(playerid, buffer);
+            cantidad++;
+            continue;
         }
     }
     if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
-    Dialog_Show(playerid, CharVehicles, DIALOG_STYLE_LIST, "Mis vehiculos", dlg, "Seleccionar", "");
+    SetPVarInt(playerid, "vehicle_listsize", cantidad);
+    ShowPlayerDialogPages(playerid, "vehPanelDialog", DIALOG_STYLE_LIST, "Tus vehículos", "Seleccionar", "Cancelar", 12);
+    return 1;
+}
+
+DialogPages:vehPanelDialog(playerid, response, listitem, inputtext[]){
+    new cantidad = GetPVarInt(playerid, "vehicle_listsize");
+    if(cantidad) DeletePVar(playerid, "vehicle_listsize");
+    if(listitem < 0 || listitem >= cantidad) return 1;
+    new key[18];
+    formatt(key, "veh_list_%d", listitem);
+    new v = GetPVarInt(playerid, key);
+    for (new p = 0; p < 256; p++) {
+        new k[18];
+        format(k, sizeof k, "veh_list_%d", p);
+        if (GetPVarType(playerid, k)) DeletePVar(playerid, k);
+    }
+    new title[64],
+    opts[120];
+    formatt(title, "%s [%d] - LS%s", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID], vehData[v][veh_Matricula]);
+    if(vehData[v][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
+    else if(!IsValidTimer(savehTimer[v])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
+    else if(IsValidTimer(savehTimer[v]) && vehData[v][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
+    Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "");
+    SetPVarInt(playerid, "op_veh", v);
     return 1;
 }
 
