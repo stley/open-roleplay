@@ -3,7 +3,7 @@ stock orm_vehicle(index){
 
     orm_addvar_int(ormid, vehData[index][veh_SQLID], "SQLID");
     orm_addvar_string(ormid, vehData[index][veh_Owner], 25, "Owner");
-    orm_addvar_int(ormid, vehData[index][veh_charID], "Owner_ID");
+    orm_addvar_int(ormid, vehData[index][veh_OwnerID], "Owner_ID");
     orm_addvar_float(ormid, vehData[index][veh_Vida], "Vida");
     orm_addvar_float(ormid, vehData[index][veh_PosX], "PosX");
     orm_addvar_float(ormid, vehData[index][veh_PosY], "PosY");

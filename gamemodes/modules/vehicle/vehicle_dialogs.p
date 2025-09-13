@@ -1,79 +1,34 @@
-Dialog:CharVehicles(playerid, response, listitem, inputtext[]){
-    if(!response) return 1;
-    switch(listitem){
-        case 0:{
-            if(!Datos[playerid][jCoche][0]){
-                SendClientMessage(playerid, COLOR_DARKRED, "No tienes ningun vehiculo en ese slot.");
-                return 1;
-            }
-            new idex = FindVehIndxFromSQLID(Datos[playerid][jCoche][0]);
-            new title[32];
-            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
-            new opts[128];
-            if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
-            else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
-            else if(IsValidTimer(savehTimer[idex]) && vehData[idex][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
-            Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "");
-            SetPVarInt(playerid, "op_veh", idex);
-            return 1;        
-        }
-        case 1:{
-            if(!Datos[playerid][jCocheLlaves][0]){
-                SendClientMessage(playerid, COLOR_DARKRED, "No tienes ningun vehiculo en ese slot.");
-                return 1;
-            }
-            new idex = FindVehIndxFromSQLID(Datos[playerid][jCocheLlaves][0]);
-            new title[32];
-            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
-            new opts[128];
-            if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
-            else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
-            else if(IsValidTimer(savehTimer[idex]) && vehData[idex][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
-            Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "");
-            SetPVarInt(playerid, "op_veh", idex);
-            return 1;        
-        }
-        case 2:{
-            if(!Datos[playerid][jCoche][1]){
-                SendClientMessage(playerid, COLOR_DARKRED, "No tienes ningun vehiculo en ese slot.");
-                return 1;
-            }
-            new idex = FindVehIndxFromSQLID(Datos[playerid][jCoche][1]);
-            new title[32];
-            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
-            new opts[128];
-            if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
-            else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
-            else if(IsValidTimer(savehTimer[idex]) && vehData[idex][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
-            Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "");
-            SetPVarInt(playerid, "op_veh", idex);
-            return 1;        
-        }
-        case 3:{
-            if(!Datos[playerid][jCocheLlaves][1]){
-                SendClientMessage(playerid, COLOR_DARKRED, "No tienes ningun vehiculo en ese slot.");
-                return 1;
-            }
-            new idex = FindVehIndxFromSQLID(Datos[playerid][jCocheLlaves][1]);
-            new title[32];
-            formatt(title, "%s [%d]", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
-            new opts[128];
-            if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
-            else if(!IsValidTimer(savehTimer[idex])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
-            else if(IsValidTimer(savehTimer[idex]) && vehData[idex][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
-            Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "");
-            SetPVarInt(playerid, "op_veh", idex);
-            return 1;  
-        }
+
+DialogPages:vehPanelDialog(playerid, response, listitem, inputtext[]){
+    new cantidad = GetPVarInt(playerid, "vehicle_listsize");
+    if(cantidad) DeletePVar(playerid, "vehicle_listsize");
+    if(listitem < 0 || listitem >= cantidad) return 1;
+    new key[18];
+    formatt(key, "veh_list_%d", listitem);
+    new v = GetPVarInt(playerid, key);
+    for (new p = 0; p < cantidad; p++) {
+        new k[18];
+        format(k, sizeof k, "veh_list_%d", p);
+        if (GetPVarType(playerid, k)) DeletePVar(playerid, k);
     }
+    new title[64],
+    opts[120];
+    formatt(title, "%s [%d] - LS%s", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID], vehData[v][veh_Matricula]);
+    if(vehData[v][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
+    else if(!IsValidTimer(savehTimer[v])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
+    else if(IsValidTimer(savehTimer[v]) && vehData[v][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
+    Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "Salir");
+    SetPVarInt(playerid, "op_veh", v);
     return 1;
 }
 
-Dialog:vehicle_trunk(playerid, response, listitem, inputtext[]){
+
+
+DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
     new idex = GetPVarInt(playerid, "veh_mal");
+    DeletePVar(playerid, "veh_mal");
     if(!idex) return 0;
     idex--;
-    DeletePVar(playerid, "veh_mal");
     if(!response){
         vehData[idex][veh_Trunk] = false;
         SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
@@ -81,74 +36,109 @@ Dialog:vehicle_trunk(playerid, response, listitem, inputtext[]){
         return 1;
     }
     new espacio = vehData[idex][veh_EspacioMal];
+    new slot;
+    new bool:success;
     if(listitem > espacio-1){
         if(listitem != espacio){
             if(listitem == espacio+1){
                 if(Datos[playerid][jMano][0]){
                     for(new i; i < vehData[idex][veh_EspacioMal]; i++){
-                        if(!vehData[idex][veh_Maletero][i]){
+                        slot = vehicleFetchInventorySlot(idex, i);
+                        if(slot == -1){
+                            for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
+                                if(!vehicleInventory[arr][veh_SQLID]){
+                                    vehicleInventory[arr][veh_SQLID] = vehData[idex][veh_SQLID];
+                                    vehicleInventory[arr][veh_Slot] = i;
+                                    vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
+                                    vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
+                                    vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
+                                    alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
+                                    break;
+                                }
+                            }
+                        }
+                        else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
                             SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
                             new action[64];
                             formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
                             accion_player(playerid, 1, action);
-                            vehData[idex][veh_Maletero][i] = Datos[playerid][jMano][0];
+                            vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][0];
                             Datos[playerid][jMano][0] = 0;
-                            vehData[idex][veh_MaleteroCant][i] = Datos[playerid][jManoCant][0];
+                            vehicleInventory[slot][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
                             Datos[playerid][jManoCant][0] = 0;
-                            vehData[idex][veh_MaleteroData][i] = Datos[playerid][jManoData][0];
+                            vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][0];
                             Datos[playerid][jManoData][0] = 0;
                             update_manos(playerid);
+                            success = true;
                             return 1;
                         }
                     }
                 }
-                return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano derecha.");
+                else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano derecha.");
+                if(!success) return SendClientMessage(playerid, COLOR_DARKRED, "No hay más espacio en este maletero.");
             }
             else if(listitem == espacio+2){
                 if(Datos[playerid][jMano][1]){
                     for(new i; i < vehData[idex][veh_EspacioMal]; i++){
-                        if(!vehData[idex][veh_Maletero][i]){
+                        slot = vehicleFetchInventorySlot(idex, i);
+                        if(slot == -1){
+                            for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
+                                if(!vehicleInventory[arr][veh_SQLID]){
+                                    vehicleInventory[arr][veh_SQLID] = vehData[idex][veh_SQLID];
+                                    vehicleInventory[arr][veh_Slot] = i;
+                                    vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
+                                    vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
+                                    vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
+                                    alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
+                                    break;
+                                }
+                            }
+                        }
+                        else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
                             SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
                             new action[64];
                             formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
                             accion_player(playerid, 1, action);
-                            vehData[idex][veh_Maletero][i] = Datos[playerid][jMano][1];
+                            vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][1];
                             Datos[playerid][jMano][1] = 0;
-                            vehData[idex][veh_MaleteroCant][i] = Datos[playerid][jManoCant][1];
+                            vehicleInventory[slot][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
                             Datos[playerid][jManoCant][1] = 0;
-                            vehData[idex][veh_MaleteroData][i] = Datos[playerid][jManoData][1];
+                            vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][1];
                             Datos[playerid][jManoData][1] = 0;
                             update_manos(playerid);
-                            return 1;
+                            success = true;
+                            break;
                         }
                     }
                 }
-                return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano izquierda.");
+                else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano izquierda.");
+                if(!success) return SendClientMessage(playerid, COLOR_DARKRED, "No hay más espacio en este maletero.");
             }
         }
     }
     else{
-        if(!vehData[idex][veh_Maletero][listitem]) return SendClientMessage(playerid, COLOR_DARKRED, "Ese hueco está vacío.");
+        slot = vehicleFetchInventorySlot(idex, listitem);
+        if(slot == -1 || !vehicleInventory[slot][veh_Maletero]) return SendClientMessage(playerid, COLOR_DARKRED, "Ese hueco está vacío.");
         if(Datos[playerid][jMano][0]){
             if(Datos[playerid][jMano][1]) return SendClientMessage(playerid, COLOR_DARKRED, "Tienes ambas manos ocupadas. Tira algun objeto o guardalo en tu bolsillo.");
-            Datos[playerid][jMano][1] = vehData[idex][veh_Maletero][listitem];
-            vehData[idex][veh_Maletero][listitem] = 0;
-            Datos[playerid][jManoCant][1] = vehData[idex][veh_MaleteroCant][listitem];
-            vehData[idex][veh_MaleteroCant][listitem] = 0;
-            Datos[playerid][jManoData][1] = vehData[idex][veh_MaleteroData][listitem];
-            vehData[idex][veh_MaleteroData][listitem] = 0;
+            Datos[playerid][jMano][1] = vehicleInventory[slot][veh_Maletero];
+            vehicleInventory[slot][veh_Maletero] = 0;
+            Datos[playerid][jManoCant][1] = vehicleInventory[slot][veh_MaleteroCant];
+            vehicleInventory[slot][veh_MaleteroCant] = 0;
+            Datos[playerid][jManoData][1] = vehicleInventory[slot][veh_MaleteroData];
+            vehicleInventory[slot][veh_MaleteroData] = 0;
             update_manos(playerid);
             new action[64];
             formatt(action, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
             accion_player(playerid, 1, action);
             return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
         }
-        Datos[playerid][jMano][0] = vehData[idex][veh_Maletero][listitem];
-        vehData[idex][veh_Maletero][listitem] = 0;
-        Datos[playerid][jManoCant][0] = vehData[idex][veh_MaleteroCant][listitem];
-        vehData[idex][veh_MaleteroCant][listitem] = 0;
-        Datos[playerid][jManoData][0] = vehData[idex][veh_MaleteroData][listitem];
-        vehData[idex][veh_MaleteroData][listitem] = 0;
+        Datos[playerid][jMano][0] = vehicleInventory[slot][veh_Maletero];
+        vehicleInventory[slot][veh_Maletero] = 0;
+        Datos[playerid][jManoCant][0] = vehicleInventory[slot][veh_MaleteroCant];
+        vehicleInventory[slot][veh_MaleteroCant] = 0;
+        Datos[playerid][jManoData][0] = vehicleInventory[slot][veh_MaleteroData];
+        vehicleInventory[slot][veh_MaleteroData] = 0;
         update_manos(playerid);
         new action[64];
         formatt(action, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
@@ -159,11 +149,9 @@ Dialog:vehicle_trunk(playerid, response, listitem, inputtext[]){
     return 1;
 }
 
+
 Dialog:CharVeh_Op(playerid, response, listitem, inputtext[]){
-    if(!response){
-        PC_EmulateCommand(playerid, "/miscoches");
-        return 1;
-    }
+    if(!response) return dialog_vehiculos(playerid);
     new idex = GetPVarInt(playerid, "op_veh");
     DeletePVar(playerid, "op_veh");
     switch(listitem){

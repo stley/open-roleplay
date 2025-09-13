@@ -130,6 +130,7 @@ public vehicleInventory_Load(){
             placed = false;
         }
     }
+    return 1;
 }
 stock modelGetName(modelid){
     new string[32];
@@ -320,6 +321,7 @@ public CharVeh_Spawn(indx){
     }
     return 1;
 }
+
 FindVehIndxFromSQLID(sqlid){
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_SQLID] == sqlid){
@@ -331,6 +333,14 @@ FindVehIndxFromSQLID(sqlid){
 FindVehIndxFromVehID(vehicleid){
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_vID] == vehicleid){
+            return i;
+        }
+    }
+    return -1;
+}
+vehicleFetchInventorySlot(veh_index, arr_slot){
+    for(new i; i < MAX_VEHICLE_INVENTORY_CACHE; i++){
+        if(vehicleInventory[i][veh_SQLID] == vehData[veh_index][veh_SQLID] && vehicleInventory[i][veh_Slot] == arr_slot){
             return i;
         }
     }
