@@ -51,7 +51,7 @@ public CharVeh_Load(charid){
 	}
 	if(connected != INVALID_PLAYER_ID){
 		new query[256];
-        mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `Dueno` = '%e'", Datos[connected][jNombrePJ]);
+        mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `Owner_ID` = %d", charid);
         mysql_tquery(SQLDB, query, "OnCharacterVehicleLoad", "d", connected);
         return 1;
 	}
