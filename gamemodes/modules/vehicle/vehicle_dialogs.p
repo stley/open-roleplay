@@ -46,8 +46,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                         slot = vehicleFetchInventorySlot(idex, i);
                         if(slot == -1){
                             for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
-                                if(!vehicleInventory[arr][veh_SQLID]){
-                                    vehicleInventory[arr][veh_SQLID] = vehData[idex][veh_SQLID];
+                                if(!vehicleInventory[arr][vehSQLID]){
+                                    vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                     vehicleInventory[arr][veh_Slot] = i;
                                     vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
                                     vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
@@ -83,12 +83,12 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                         slot = vehicleFetchInventorySlot(idex, i);
                         if(slot == -1){
                             for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
-                                if(!vehicleInventory[arr][veh_SQLID]){
-                                    vehicleInventory[arr][veh_SQLID] = vehData[idex][veh_SQLID];
+                                if(!vehicleInventory[arr][vehSQLID]){
+                                    vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                     vehicleInventory[arr][veh_Slot] = i;
-                                    vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
-                                    vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
-                                    vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
+                                    vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][1];
+                                    vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
+                                    vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][1];
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     break;
                                 }

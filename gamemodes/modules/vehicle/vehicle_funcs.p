@@ -106,13 +106,13 @@ public vehicleInventory_Load(){
             cache_get_value_name_int(i, "inventory_data", data);
             cache_get_value_name(i, "huellasInventory", huellas, 25);
             for(new inv; inv < MAX_VEHICLE_INVENTORY_CACHE; inv++){
-                if(vehicleInventory[inv][veh_SQLID] == sqlid && vehicleInventory[inv][veh_Slot] == slot){
+                if(vehicleInventory[inv][vehSQLID] == sqlid && vehicleInventory[inv][veh_Slot] == slot){
                     placed = true;
                     break;
                 }
-                if(vehicleInventory[inv][veh_SQLID] == 0){
+                if(vehicleInventory[inv][vehSQLID] == 0){
                     
-                    vehicleInventory[inv][veh_SQLID] = sqlid;
+                    vehicleInventory[inv][vehSQLID] = sqlid;
                     vehicleInventory[inv][veh_Slot] = slot;
                     vehicleInventory[inv][veh_Maletero] = tipo;
                     vehicleInventory[inv][veh_MaleteroCant] = cant;
@@ -340,7 +340,7 @@ FindVehIndxFromVehID(vehicleid){
 }
 vehicleFetchInventorySlot(veh_index, arr_slot){
     for(new i; i < MAX_VEHICLE_INVENTORY_CACHE; i++){
-        if(vehicleInventory[i][veh_SQLID] == vehData[veh_index][veh_SQLID] && vehicleInventory[i][veh_Slot] == arr_slot){
+        if(vehicleInventory[i][vehSQLID] == vehData[veh_index][veh_SQLID] && vehicleInventory[i][veh_Slot] == arr_slot){
             return i;
         }
     }
@@ -396,10 +396,11 @@ save_veh_inventory(index){
     if(index < 0) return 1;
     new query[256];
     mysql_format(SQLDB, query, sizeof(query), "DELETE FROM `vehicle_inventory` WHERE `vehicle_id` = %d", vehData[index][veh_SQLID]);
+    mysql_tquery(SQLDB, query);
     for(new i; i < MAX_VEHICLE_INVENTORY_CACHE; i++){
-        if(vehData[index][veh_SQLID] == vehicleInventory[i][veh_SQLID]){
+        if(vehData[index][veh_SQLID] == vehicleInventory[i][vehSQLID]){
             mysql_format(SQLDB, query, sizeof(query), "INSERT INTO `vehicle_inventory` VALUES (%d, %d, %d, %d, %d, '%e')", 
-            vehicleInventory[i][veh_SQLID], 
+            vehicleInventory[i][vehSQLID], 
             vehicleInventory[i][veh_Slot], 
             vehicleInventory[i][veh_Maletero], 
             vehicleInventory[i][veh_MaleteroCant], 
@@ -446,8 +447,8 @@ clear_vehiclevars(index){
         vehData[index][veh_mods][i] = 0;
     }
     for(new i; i < MAX_VEHICLE_INVENTORY_CACHE; i++){
-        if(vehicleInventory[i][veh_SQLID] == vehData[i][veh_SQLID]){
-            vehicleInventory[i][veh_SQLID] = -1;
+        if(vehicleInventory[i][vehSQLID] == vehData[index][veh_SQLID]){
+            vehicleInventory[i][vehSQLID] = -1;
             vehicleInventory[i][veh_Slot] = -1;
             vehicleInventory[i][veh_Maletero] = 0;
             vehicleInventory[i][veh_MaleteroCant] = 0;

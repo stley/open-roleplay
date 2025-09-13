@@ -264,13 +264,6 @@ ALTER TABLE `accounts`
 ALTER TABLE `characters`
   ADD PRIMARY KEY (`SQLIDPJ`);
 
---
--- Indices de la tabla `vehicle_inventory`
---
-
-ALTER TABLE `vehicle_inventory`
-  ADD PRIMARY KEY (`vehicle_id`);
---
 -- Indices de la tabla `vehicles`
 --
 ALTER TABLE `vehicles`

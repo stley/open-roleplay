@@ -43,7 +43,7 @@ enum vehInfo
 }
 #define MAX_VEHICLE_INVENTORY_CACHE   (MAX_VEHICULOS*20)
 enum VehicleInventory{
-    veh_SQLID,
+    vehSQLID,
     veh_Slot,
     veh_Maletero,
     veh_MaleteroCant,
