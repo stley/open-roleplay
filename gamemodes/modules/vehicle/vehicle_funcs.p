@@ -343,18 +343,30 @@ vehicleFetchInventorySlot(veh_index, arr_slot){
     return -1;
 }
 
-get_plate(str[]){
+get_plate(str[], type){
+    alm(str, "-");
     new query[96];
-    new plate[15]; 
-    formatt(plate, "%d", Random(100, 99999999));
+    new plate[20];
+    switch(type){
+        case 1:{
+            formatt(plate, "LS%d", Random(100, 99999999));
+        }
+        case 2:{
+            formatt(plate, "SA%d", Random(100, 99999999));
+        }
+        default:{
+            formatt(plate, "LS%d", Random(100, 99999999));
+        }
+    }
     mysql_format(SQLDB, query, sizeof(query), "SELECT `Matricula` FROM `vehicles` WHERE `Matricula` = '%e'", plate);
     new Cache:check = mysql_query(SQLDB, query);
     cache_set_active(check);
     new rows = cache_num_rows();
     cache_delete(check);
     if(rows){
-        return get_plate(str);
+        return get_plate(str, type);
     }
+    alm(str, plate);
     return 1;
 }
 public CharVeh_Free(index){

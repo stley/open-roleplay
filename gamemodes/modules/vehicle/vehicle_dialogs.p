@@ -56,6 +56,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
                                     Datos[playerid][jManoData][0] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
+                                    update_manos(playerid);
+                                    success = true;
                                     break;
                                 }
                             }
@@ -96,6 +98,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][1];
                                     Datos[playerid][jManoData][1] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
+                                    update_manos(playerid);
+                                    success = true;
                                     break;
                                 }
                             }

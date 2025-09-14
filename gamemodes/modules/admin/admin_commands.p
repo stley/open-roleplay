@@ -305,7 +305,7 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     GetPlayerFacingAngle(nuevodueno, vehData[i][veh_PosR]);
                     vehData[i][veh_Interior] = GetPlayerInterior(nuevodueno);
                     vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
-                    get_plate(vehData[i][veh_Matricula]);
+                    get_plate(vehData[i][veh_Matricula], vehData[i][veh_Tipo]);
                     vehData[i][veh_Gasolina] = 100;
                     vehData[i][veh_EspacioMal] = GetBootSize(modelo);
                     vehData[i][veh_Vida] = 1000.0;
