@@ -250,7 +250,8 @@ CREATE TABLE `vehicle_inventory` (
   `inventory_value` int(11) NOT NULL DEFAULT 0,
   `inventory_quantity` int(11) NOT NULL DEFAULT 0,
   `inventory_data` int(11) NOT NULL DEFAULT 0,
-  `huellasInventory` text NOT NULL DEFAULT '-'
+  `huellasInventory` text NOT NULL,
+  PRIMARY KEY (`vehicle_id`, `inventory_slot_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 --
 -- Indices de la tabla `accounts`
