@@ -278,7 +278,7 @@ public vehiclesOnVehicleSpawn(vehicleid){
 public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
     SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s) en su slot %d. SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), slot, vehData[index][veh_SQLID]);
     SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d) en tu slot %d.", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID], slot);
-    Datos[ownerid][jCoche][slot] = vehData[index][veh_SQLID];
+    //Datos[ownerid][jCoche][slot] = vehData[index][veh_SQLID];
     save_char(ownerid);
     return 1;
 }
@@ -287,7 +287,8 @@ public CharVeh_Unspawn(indx){
     format(dslog, sizeof(dslog), "Ocultando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]);
     serverLogRegister(dslog);
     save_vehicle(indx);
-    if(vehData[indx][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[indx][veh_vID]);
+    DestroyVehicle(vehData[indx][veh_vID]);
+    vehData[indx][veh_vID] = INVALID_VEHICLE_ID;
     return 1;
 }
 public CharVeh_Spawn(indx){
@@ -400,6 +401,40 @@ save_vehicle(index){
     save_veh_inventory(index);
 }
 
+GetBootCapacity(modelid)
+{
+    if (!Model_IsValid(modelid)) return 0;
+
+    // non-land first
+    if (Model_IsBike(modelid))         return 0;
+    if (Model_IsBoat(modelid))         return 8;
+    if (Model_IsHelicopter(modelid))   return 12;
+    if (Model_IsPlane(modelid))        return 20;
+    if (Model_IsTrain(modelid))        return 30;
+
+    // service and specials
+    if (Model_IsAmbulance(modelid))    return 12;
+    if (Model_IsFire(modelid))         return 18;
+    if (Model_IsTaxi(modelid))         return 8;
+    if (Model_IsPolice(modelid)
+     || Model_IsFBI(modelid)
+     || Model_IsSWAT(modelid))         return 10;
+    if (Model_IsMilitary(modelid))     return 10;
+    if (Model_IsTank(modelid))         return 4;   // cramped
+    if (Model_IsWeaponised(modelid))   return 6;
+
+    // cargo and large
+    if (Model_IsVan(modelid))          return 16;
+    if (Model_IsTruck(modelid)
+     || Model_IsTransport(modelid))    return 24;
+
+    // defaults
+    if (Model_IsCar(modelid))          return 8;
+
+    // catch-all
+    return 8;
+}
+
 save_veh_inventory(index){
     if(index < 0) return 1;
     new query[256];
@@ -407,6 +442,7 @@ save_veh_inventory(index){
     mysql_tquery(SQLDB, query);
     for(new i; i < MAX_VEHICLE_INVENTORY_CACHE; i++){
         if(vehData[index][veh_SQLID] == vehicleInventory[i][vehSQLID]){
+            if(!vehicleInventory[i][veh_Maletero]) continue;
             mysql_format(SQLDB, query, sizeof(query), "INSERT INTO `vehicle_inventory` VALUES (%d, %d, %d, %d, %d, '%e')", 
             vehicleInventory[i][vehSQLID], 
             vehicleInventory[i][veh_Slot], 

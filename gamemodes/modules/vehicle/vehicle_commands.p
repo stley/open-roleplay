@@ -10,7 +10,7 @@ dialog_vehiculos(playerid){
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
             new buffer[128];
-            formatt(buffer, "[%d] %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]));
+            formatt(buffer, "[%d] %s — %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
             new key[18];
             format(key, sizeof key, "veh_list_%d", cantidad);
             SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
@@ -329,10 +329,11 @@ CMD:mal(playerid, params[]){
                     if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d] %s (%d) [%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
                     else formatt(dlg_buff, "[%d] Vacío", x);
                     AddDialogListitem(playerid, dlg_buff);
+                    continue;
                 }
                 else formatt(dlg_buff, "[%d] Vacío", x);
                 AddDialogListitem(playerid, dlg_buff);
-                continue;  
+                continue;
             }
             
             AddDialogListitem(playerid, "—————————————————");
@@ -361,6 +362,7 @@ CMD:mal(playerid, params[]){
                     if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d] %s (%d) [%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
                     else formatt(dlg_buff, "[%d] Vacío", x);
                     AddDialogListitem(playerid, dlg_buff);
+                    continue;
                 }
                 else formatt(dlg_buff, "[%d] Vacío", x);
                 AddDialogListitem(playerid, dlg_buff);

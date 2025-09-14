@@ -89,6 +89,10 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                         if(slot == -1){
                             for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
                                 if(!vehicleInventory[arr][vehSQLID]){
+                                    SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                                    new action[64];
+                                    formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                                    accion_player(playerid, 1, action);
                                     vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                     vehicleInventory[arr][veh_Slot] = i;
                                     vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][1];
@@ -137,10 +141,13 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
             vehicleInventory[slot][veh_MaleteroCant] = 0;
             Datos[playerid][jManoData][1] = vehicleInventory[slot][veh_MaleteroData];
             vehicleInventory[slot][veh_MaleteroData] = 0;
+            
+            new query[128];
+            mysql_format(SQLDB, query, sizeof(query), "DELETE FROM `vehicle_inventory` WHERE `vehicle_id` = %d AND `inventory_slot_id` = %d", vehData[idex][veh_SQLID], vehicleInventory[slot][veh_Slot]);
+            mysql_tquery(SQLDB, query);
             update_manos(playerid);
-            new action[64];
-            formatt(action, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
-            accion_player(playerid, 1, action);
+            formatt(query, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
+            accion_player(playerid, 1, query);
             return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
         }
         Datos[playerid][jMano][0] = vehicleInventory[slot][veh_Maletero];
@@ -150,9 +157,11 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         Datos[playerid][jManoData][0] = vehicleInventory[slot][veh_MaleteroData];
         vehicleInventory[slot][veh_MaleteroData] = 0;
         update_manos(playerid);
-        new action[64];
-        formatt(action, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
-        accion_player(playerid, 1, action);
+        new query[128];
+        mysql_format(SQLDB, query, sizeof(query), "DELETE FROM `vehicle_inventory` WHERE `vehicle_id` = %d AND `inventory_slot_id` = %d", vehData[idex][veh_SQLID], vehicleInventory[slot][veh_Slot]);
+        mysql_tquery(SQLDB, query);
+        formatt(query, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+        accion_player(playerid, 1, query);
         return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
     }
     

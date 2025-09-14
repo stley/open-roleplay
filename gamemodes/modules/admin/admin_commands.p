@@ -308,11 +308,11 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
                     vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
                     get_plate(vehData[i][veh_Matricula], vehData[i][veh_Tipo]);
                     vehData[i][veh_Gasolina] = 100;
-                    vehData[i][veh_EspacioMal] = GetBootSize(modelo);
+                    vehData[i][veh_EspacioMal] = GetBootCapacity(modelo);
                     vehData[i][veh_Vida] = 1000.0;
                     orm_vehicle(i);
                     new dslog[512];
-                    format(dslog, sizeof(dslog), "Creando el vehículo index %d (SQLID %d) (Matrícula: %s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]);
+                    format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Modelo], vehData[i][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]);
                     serverLogRegister(dslog);
                     orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
                     vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);
@@ -329,10 +329,6 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
         }
     }
     return;
-}
-GetBootSize(modelo){
-    //extender con extended-vehicle-information
-    return 6;
 }
 
 flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
