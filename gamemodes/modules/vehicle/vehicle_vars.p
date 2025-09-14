@@ -12,7 +12,7 @@ enum vehInfo
     Float:veh_PosZ,
     Float:veh_PosR,
     veh_Tipo,
-    veh_Matricula[12],
+    veh_Matricula[20],
     veh_Modelo,
     veh_Color1,
     veh_Color2,

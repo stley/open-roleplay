@@ -50,8 +50,11 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                     vehicleInventory[arr][veh_Slot] = i;
                                     vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
+                                    Datos[playerid][jMano][0] = 0;
                                     vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
+                                    Datos[playerid][jManoCant][0] = 0;
                                     vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
+                                    Datos[playerid][jManoData][0] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     break;
                                 }
@@ -87,8 +90,11 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                     vehicleInventory[arr][veh_Slot] = i;
                                     vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][1];
+                                    Datos[playerid][jMano][1] = 0;
                                     vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
+                                    Datos[playerid][jManoCant][1] = 0;
                                     vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][1];
+                                    Datos[playerid][jManoData][1] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     break;
                                 }

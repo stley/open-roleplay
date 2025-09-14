@@ -263,9 +263,7 @@ public vehiclesOnVehicleSpawn(vehicleid){
     for(i = -1; i < MAX_VEHICULOS; i++){
         if(i == -1) continue;
         if(vehicleid == vehData[i][veh_vID]){
-            new plate[20];
-            formatt(plate, "LS%s", vehData[i][veh_Matricula]);
-            SetVehicleNumberPlate(vehicleid, plate);
+            SetVehicleNumberPlate(vehicleid, vehData[i][veh_Matricula]);
             SetVehicleHealth(vehicleid, vehData[i][veh_Vida]);
             UpdateVehicleDamageStatus(vehicleid, vehData[i][veh_DmgSuperficie], vehData[i][veh_DmgPuertas], vehData[i][veh_DmgLuces], vehData[i][veh_DmgRuedas]);
         }
@@ -286,7 +284,7 @@ public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
 }
 public CharVeh_Unspawn(indx){
     new dslog[512];
-    format(dslog, sizeof(dslog), "Ocultando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]);
+    format(dslog, sizeof(dslog), "Ocultando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]);
     serverLogRegister(dslog);
     save_vehicle(indx);
     if(vehData[indx][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[indx][veh_vID]);
@@ -301,7 +299,7 @@ public CharVeh_Spawn(indx){
     }
     else{
         new dslog[512];
-        format(dslog, sizeof(dslog), "Spawneando el vehículo index %d (SQLID: %d | Matrícula: LS%s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]);
+        format(dslog, sizeof(dslog), "Spawneando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]);
         serverLogRegister(dslog);
         vehData[indx][veh_vID] = CreateVehicle(vehData[indx][veh_Modelo], vehData[indx][veh_PosX], vehData[indx][veh_PosY], vehData[indx][veh_PosZ], vehData[indx][veh_PosR], vehData[indx][veh_Color1], vehData[indx][veh_Color2], -1, false);
         LinkVehicleToInterior(vehData[indx][veh_vID], vehData[indx][veh_Interior]);
@@ -312,9 +310,7 @@ public CharVeh_Spawn(indx){
             bool:engine, bool:lights, bool:alarm, bool:doors, bool:bonnet, bool:boot, bool:objective;
         GetVehicleParamsEx(vehData[indx][veh_vID], engine, lights, alarm, doors, bonnet, boot, objective);
         if(vehData[indx][veh_Bloqueo]) SetVehicleParamsEx(vehData[indx][veh_vID], engine, lights, alarm, VEHICLE_PARAMS_ON, bonnet, boot, objective);
-        new plate[20];
-        formatt(plate, "LS%d", vehData[indx][veh_Matricula]);
-        SetVehicleNumberPlate(vehData[indx][veh_vID], plate);
+        SetVehicleNumberPlate(vehData[indx][veh_vID], vehData[indx][veh_Matricula]);
         new query[256];
         mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicle_inventory` WHERE `vehicle_id` = %d LIMIT %d", vehData[indx][veh_SQLID], vehData[indx][veh_EspacioMal]);
         mysql_tquery(SQLDB, query, "vehicleInventory_Load");
@@ -347,9 +343,9 @@ vehicleFetchInventorySlot(veh_index, arr_slot){
     return -1;
 }
 
-get_plate(){
+get_plate(str[]){
     new query[96];
-    new plate[12]; 
+    new plate[15]; 
     formatt(plate, "%d", Random(100, 99999999));
     mysql_format(SQLDB, query, sizeof(query), "SELECT `Matricula` FROM `vehicles` WHERE `Matricula` = '%e'", plate);
     new Cache:check = mysql_query(SQLDB, query);
@@ -357,9 +353,9 @@ get_plate(){
     new rows = cache_num_rows();
     cache_delete(check);
     if(rows){
-        return get_plate();
+        return get_plate(str);
     }
-    else return plate;
+    return 1;
 }
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
@@ -407,7 +403,7 @@ save_veh_inventory(index){
             vehicleInventory[i][veh_MaleteroData],
             vehicleInventory[i][veh_Huellas]);
             mysql_tquery(SQLDB, query);
-            break;
+            continue;
         }
     }
     return 1;
@@ -426,7 +422,7 @@ clear_vehiclevars(index){
     vehData[index][veh_PosZ] = 0.0;
     vehData[index][veh_PosR] = 0.0;
     vehData[index][veh_Tipo] = 0;
-    vehData[index][veh_Matricula] = 0;
+    alm(vehData[i][veh_Matricula], "-");
     vehData[index][veh_Modelo] = 0;
     vehData[index][veh_Color1] = 0;
     vehData[index][veh_Color2] = 0;
@@ -448,7 +444,7 @@ clear_vehiclevars(index){
     }
     for(new i; i < MAX_VEHICLE_INVENTORY_CACHE; i++){
         if(vehicleInventory[i][vehSQLID] == vehData[index][veh_SQLID]){
-            vehicleInventory[i][vehSQLID] = -1;
+            vehicleInventory[i][vehSQLID] = 0;
             vehicleInventory[i][veh_Slot] = -1;
             vehicleInventory[i][veh_Maletero] = 0;
             vehicleInventory[i][veh_MaleteroCant] = 0;

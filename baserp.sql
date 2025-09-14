@@ -197,7 +197,7 @@ CREATE TABLE `char_toys` (
 CREATE TABLE `vehicles` (
   `SQLID` int(11) NOT NULL,
   `Tipo` int(11) DEFAULT NULL,
-  `Matricula` varchar(10) NOT NULL,
+  `Matricula` varchar(20) NOT NULL,
   `Modelo` int(11) DEFAULT NULL,
   `Color1` smallint(6) DEFAULT NULL,
   `Color2` smallint(6) DEFAULT NULL,
