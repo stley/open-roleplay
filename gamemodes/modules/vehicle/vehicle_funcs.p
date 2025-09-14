@@ -422,7 +422,7 @@ clear_vehiclevars(index){
     vehData[index][veh_PosZ] = 0.0;
     vehData[index][veh_PosR] = 0.0;
     vehData[index][veh_Tipo] = 0;
-    alm(vehData[i][veh_Matricula], "-");
+    alm(vehData[index][veh_Matricula], "-");
     vehData[index][veh_Modelo] = 0;
     vehData[index][veh_Color1] = 0;
     vehData[index][veh_Color2] = 0;

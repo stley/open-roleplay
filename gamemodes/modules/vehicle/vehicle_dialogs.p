@@ -13,7 +13,7 @@ DialogPages:vehPanelDialog(playerid, response, listitem, inputtext[]){
     }
     new title[64],
     opts[120];
-    formatt(title, "%s [%d] - LS%s", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID], vehData[v][veh_Matricula]);
+    formatt(title, "%s [%d] - %s", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID], vehData[v][veh_Matricula]);
     if(vehData[v][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
     else if(!IsValidTimer(savehTimer[v])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
     else if(IsValidTimer(savehTimer[v]) && vehData[v][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
