@@ -458,10 +458,7 @@ save_veh_inventory(index){
 }
 
 clear_vehiclevars(index){
-    if(vehData[index][vehORM] != MYSQL_INVALID_ORM){
-        orm_destroy(vehData[index][vehORM]);
-        vehData[index][vehORM] = MYSQL_INVALID_ORM;
-    }
+    
     alm(vehData[index][veh_Owner], "-");
     vehData[index][veh_vID] = INVALID_VEHICLE_ID;
     vehData[index][veh_Vida] = 1000.0;
@@ -500,10 +497,14 @@ clear_vehiclevars(index){
         }
         else continue;
     }
-    orm_clear_vars(vehData[index][vehORM]);
     vehData[index][veh_Engine] = false;
     vehData[index][veh_Hood] = false;
     vehData[index][veh_Trunk] = false;
     vehData[index][veh_SQLID] = 0;
+    orm_clear_vars(vehData[index][vehORM]);
+    if(vehData[index][vehORM] != MYSQL_INVALID_ORM){
+        orm_destroy(vehData[index][vehORM]);
+        vehData[index][vehORM] = MYSQL_INVALID_ORM;
+    }
     return 1;
 }
