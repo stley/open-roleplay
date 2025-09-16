@@ -47,6 +47,10 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                         if(slot == -1){
                             for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
                                 if(!vehicleInventory[arr][vehSQLID]){
+                                    SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                                    new action[64];
+                                    formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                                    accion_player(playerid, 1, action);
                                     vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                     vehicleInventory[arr][veh_Slot] = i;
                                     vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
