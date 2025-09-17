@@ -197,14 +197,15 @@ CREATE TABLE `char_toys` (
 CREATE TABLE `vehicles` (
   `SQLID` int(11) NOT NULL,
   `Tipo` int(11) DEFAULT NULL,
-  `Matricula` int(11) NOT NULL,
+  `Matricula` varchar(10) NOT NULL,
   `Modelo` int(11) DEFAULT NULL,
   `Color1` smallint(6) DEFAULT NULL,
   `Color2` smallint(6) DEFAULT NULL,
-  `Dueno` varchar(25) DEFAULT NULL,
-  `Gasolina` int(11) DEFAULT NULL,
-  `Bloqueo` tinyint(1) DEFAULT NULL,
-  `Vida` float DEFAULT NULL,
+  `Owner` varchar(25) DEFAULT NULL,
+  `Owner_ID` int(11) DEFAULT 0,
+  `Gasolina` int(11) DEFAULT 100,
+  `Bloqueo` tinyint(1) DEFAULT 0,
+  `Vida` float DEFAULT 1000.0,
   `PosX` float DEFAULT NULL,
   `PosY` float DEFAULT NULL,
   `PosZ` float DEFAULT NULL,
@@ -232,51 +233,6 @@ CREATE TABLE `vehicles` (
   `mods13` int(11) DEFAULT NULL,
   `mods14` int(11) DEFAULT NULL,
   `EspacioMal` int(11) DEFAULT NULL,
-  `Maletero_0` int(11) DEFAULT NULL,
-  `MaleteroCant_0` int(11) DEFAULT NULL,
-  `MaleteroData_0` int(11) DEFAULT NULL,
-  `Maletero_1` int(11) DEFAULT NULL,
-  `MaleteroCant_1` int(11) DEFAULT NULL,
-  `MaleteroData_1` int(11) DEFAULT NULL,
-  `Maletero_2` int(11) DEFAULT NULL,
-  `MaleteroCant_2` int(11) DEFAULT NULL,
-  `MaleteroData_2` int(11) DEFAULT NULL,
-  `Maletero_3` int(11) DEFAULT NULL,
-  `MaleteroCant_3` int(11) DEFAULT NULL,
-  `MaleteroData_3` int(11) DEFAULT NULL,
-  `Maletero_4` int(11) DEFAULT NULL,
-  `MaleteroCant_4` int(11) DEFAULT NULL,
-  `MaleteroData_4` int(11) DEFAULT NULL,
-  `Maletero_5` int(11) DEFAULT NULL,
-  `MaleteroCant_5` int(11) DEFAULT NULL,
-  `MaleteroData_5` int(11) DEFAULT NULL,
-  `Maletero_6` int(11) DEFAULT NULL,
-  `MaleteroCant_6` int(11) DEFAULT NULL,
-  `MaleteroData_6` int(11) DEFAULT NULL,
-  `Maletero_7` int(11) DEFAULT NULL,
-  `MaleteroCant_7` int(11) DEFAULT NULL,
-  `MaleteroData_7` int(11) DEFAULT NULL,
-  `Maletero_8` int(11) DEFAULT NULL,
-  `MaleteroCant_8` int(11) DEFAULT NULL,
-  `MaleteroData_8` int(11) DEFAULT NULL,
-  `Maletero_9` int(11) DEFAULT NULL,
-  `MaleteroCant_9` int(11) DEFAULT NULL,
-  `MaleteroData_9` int(11) DEFAULT NULL,
-  `Maletero_10` int(11) DEFAULT NULL,
-  `MaleteroCant_10` int(11) DEFAULT NULL,
-  `MaleteroData_10` int(11) DEFAULT NULL,
-  `Maletero_11` int(11) DEFAULT NULL,
-  `MaleteroCant_11` int(11) DEFAULT NULL,
-  `MaleteroData_11` int(11) DEFAULT NULL,
-  `Maletero_12` int(11) DEFAULT NULL,
-  `MaleteroCant_12` int(11) DEFAULT NULL,
-  `MaleteroData_12` int(11) DEFAULT NULL,
-  `Maletero_13` int(11) DEFAULT NULL,
-  `MaleteroCant_13` int(11) DEFAULT NULL,
-  `MaleteroData_13` int(11) DEFAULT NULL,
-  `Maletero_14` int(11) DEFAULT NULL,
-  `MaleteroCant_14` int(11) DEFAULT NULL,
-  `MaleteroData_14` int(11) DEFAULT NULL,
   `Guantera` int(11) DEFAULT NULL,
   `GuanteraCant` int(11) DEFAULT NULL,
   `GuanteraData` int(11) DEFAULT NULL,
@@ -288,7 +244,15 @@ CREATE TABLE `vehicles` (
 --
 -- Ýndices para tablas volcadas
 --
-
+CREATE TABLE `vehicle_inventory` (
+  `vehicle_id` int(11) NOT NULL DEFAULT 0,
+  `inventory_slot_id` int(11) NOT NULL DEFAULT -1,
+  `inventory_value` int(11) NOT NULL DEFAULT 0,
+  `inventory_quantity` int(11) NOT NULL DEFAULT 0,
+  `inventory_data` int(11) NOT NULL DEFAULT 0,
+  `huellasInventory` text NOT NULL,
+  PRIMARY KEY (`vehicle_id`, `inventory_slot_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 --
 -- Indices de la tabla `accounts`
 --
@@ -301,11 +265,6 @@ ALTER TABLE `accounts`
 ALTER TABLE `characters`
   ADD PRIMARY KEY (`SQLIDPJ`);
 
---
--- Indices de la tabla `char_toys`
---
-
---
 -- Indices de la tabla `vehicles`
 --
 ALTER TABLE `vehicles`
@@ -314,6 +273,7 @@ ALTER TABLE `vehicles`
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
+
 
 --
 -- AUTO_INCREMENT de la tabla `accounts`

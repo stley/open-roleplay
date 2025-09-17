@@ -94,7 +94,8 @@
             "mysql",
             "streamer",
             "samp_bcrypt",
-            "pawn-memory"
+            "pawn-memory",
+            "PawnPlus"
         ],
         "main_scripts": [
             "main"

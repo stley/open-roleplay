@@ -2,14 +2,15 @@ stock orm_vehicle(index){
     new ORM:ormid = vehData[index][vehORM] = orm_create("vehicles", SQLDB);
 
     orm_addvar_int(ormid, vehData[index][veh_SQLID], "SQLID");
-    orm_addvar_string(ormid, vehData[index][veh_Dueno], 25, "Dueno");
+    orm_addvar_string(ormid, vehData[index][veh_Owner], 25, "Owner");
+    orm_addvar_int(ormid, vehData[index][veh_OwnerID], "Owner_ID");
     orm_addvar_float(ormid, vehData[index][veh_Vida], "Vida");
     orm_addvar_float(ormid, vehData[index][veh_PosX], "PosX");
     orm_addvar_float(ormid, vehData[index][veh_PosY], "PosY");
     orm_addvar_float(ormid, vehData[index][veh_PosZ], "PosZ");
     orm_addvar_float(ormid, vehData[index][veh_PosR], "PosR");
     orm_addvar_int(ormid, vehData[index][veh_Tipo], "Tipo");
-    orm_addvar_int(ormid, vehData[index][veh_Matricula], "Matricula");
+    orm_addvar_string(ormid, vehData[index][veh_Matricula], 10, "Matricula");
     orm_addvar_int(ormid, vehData[index][veh_Modelo], "Modelo");
     orm_addvar_int(ormid, vehData[index][veh_Color1], "Color1");
     orm_addvar_int(ormid, vehData[index][veh_Color2], "Color2");
@@ -33,15 +34,6 @@ stock orm_vehicle(index){
         new sql[8];
         formatt(sql, "mods%d", i);
         orm_addvar_int(ormid, vehData[index][veh_mods][i], sql);
-    }
-    for(new m; m < 15; m++){
-        new sql2[20];
-        formatt(sql2, "Maletero_%d", m);
-        orm_addvar_int(ormid, vehData[index][veh_Maletero][m], sql2);
-        formatt(sql2, "MaleteroCant_%d", m);
-        orm_addvar_int(ormid, vehData[index][veh_MaleteroCant][m], sql2);
-        formatt(sql2, "MaleteroData_%d", m);
-        orm_addvar_int(ormid, vehData[index][veh_MaleteroData][m], sql2);
     }
     orm_setkey(ormid, "SQLID");
     return 1;

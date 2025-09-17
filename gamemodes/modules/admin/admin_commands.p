@@ -274,64 +274,44 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
     ;
     if(sscanf(params, "rddd", nuevodueno, modelo, color1, color2)){
         SendClientMessage(playerid, COLOR_SYSTEM, "USO: /crearvehiculo [ID/nombrejugador] [modelo] [Color 1] [Color 2]");
-        return;
+        return 1;
     }
     if(!IsPlayerConnected(nuevodueno)){
         SendClientMessage(playerid, COLOR_DARKRED, "ERROR: Ese jugador no está conectado.");
-        return;
+        return 1;
     }
     if(GetPlayerState(nuevodueno) != PLAYER_STATE_ONFOOT){
         SendClientMessage(playerid, COLOR_DARKRED, "ERROR: El jugador tiene que estar a pie.");
-        return;
+        return 1;
     }
     if(modelo < 400 || modelo > 611){
         SendClientMessage(playerid, COLOR_DARKRED, "ERROR: ID de modelo inválida.");
-        return;
+        return 1;
     }
     else if(color1 > 255 || color1 < 0 || color2 > 255 || color2 < 0 ){
         SendClientMessage(playerid, COLOR_DARKRED, "ERROR: ID de colores inválida.");
-        return;
+        return 1;
     }
     for(new i; i < MAX_VEHICULOS; i++){
         if(!vehData[i][veh_Modelo]){
-            for(new x; x < 2; x++){
-                if(!Datos[nuevodueno][jCoche][x]){
-                    alm(vehData[i][veh_Dueno], GetName(nuevodueno));
-                    vehData[i][veh_Modelo] = modelo;
-                    vehData[i][veh_Tipo] = 1;
-                    vehData[i][veh_Color1] = color1;
-                    vehData[i][veh_Color2] = color2;
-                    GetPlayerPos(nuevodueno, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
-                    GetPlayerFacingAngle(nuevodueno, vehData[i][veh_PosR]);
-                    vehData[i][veh_Interior] = GetPlayerInterior(nuevodueno);
-                    vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
-                    vehData[i][veh_Matricula] = get_plate();
-                    vehData[i][veh_Gasolina] = 100;
-                    vehData[i][veh_EspacioMal] = GetBootSize(modelo);
-                    vehData[i][veh_Vida] = 1000.0;
-                    orm_vehicle(i);
-                    new dslog[512];
-                    format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: LS%s | Modelo: %s | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", i, vehData[i][veh_SQLID], vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Dueno], Datos[playerid][jNombrePJ], username[playerid]);
-                    serverLogRegister(dslog);
-                    orm_insert(vehData[i][vehORM], "vehiclesOnCharVehicleCreated", "ddddd", playerid, nuevodueno, modelo, i, x);
-                    vehData[i][veh_vID] = CreateVehicle(modelo, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ], vehData[i][veh_PosR], color1, color2, -1, false);
-                    PutPlayerInVehicle(nuevodueno, vehData[i][veh_vID], 0);
-                    
-                    return;
-                }
-                else if(Datos[nuevodueno][jCoche][x] && x == 1){
-                    SendClientMessage(playerid, COLOR_DARKRED, "ERROR: Este jugador tiene sus slots de vehiculos ya ocupados.");
-                    return;
-                }
-            }
-            SendClientMessage(playerid, COLOR_DARKRED, "ERROR: No hay más index para vehiculos, contacta con un administrador.");
+                alm(vehData[i][veh_Owner], GetName(nuevodueno));
+                vehData[i][veh_OwnerID] = Datos[nuevodueno][jSQLIDP];
+                vehData[i][veh_Modelo] = modelo;
+                vehData[i][veh_Tipo] = 1;
+                vehData[i][veh_Color1] = color1;
+                vehData[i][veh_Color2] = color2;
+                GetPlayerPos(nuevodueno, vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
+                GetPlayerFacingAngle(nuevodueno, vehData[i][veh_PosR]);
+                vehData[i][veh_Interior] = GetPlayerInterior(nuevodueno);
+                vehData[i][veh_VW] = GetPlayerVirtualWorld(nuevodueno);
+                vehData[i][veh_Gasolina] = 100;
+                vehData[i][veh_EspacioMal] = GetBootCapacity(modelo);
+                vehData[i][veh_Vida] = 1000.0;
+                orm_vehicle(i);
+                return get_plate(playerid, nuevodueno, modelo, i, color1, color2);
         }
     }
-    return;
-}
-GetBootSize(modelo){
-    //extender con extended-vehicle-information
-    return 6;
+    return 1;
 }
 
 flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)

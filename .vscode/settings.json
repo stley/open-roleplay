@@ -4,5 +4,8 @@
     "discord.detailsEditing": "Editing {file_name}",
     "discord.detailsIdling": "{empty}",
     "vscord.app.privacyMode.enable": false,
-    "vscord.status.idle.enabled": false
+    "vscord.status.idle.enabled": false,
+    "editor.fontLigatures": false,
+    "editor.fontFamily": "'JetBrains Mono'",
+    "editor.fontSize": 12
 }

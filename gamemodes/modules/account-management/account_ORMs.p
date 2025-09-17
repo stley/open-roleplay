@@ -79,10 +79,10 @@ orm_char(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jDocumento], "Documento"); 
 	orm_addvar_int(ormid, Datos[playerid][jLicencias][0], "Licencia1");
 	orm_addvar_int(ormid, Datos[playerid][jLicencias][1], "Licencia2");
-	orm_addvar_int(ormid, Datos[playerid][jCoche][0], "Coche1");
-	orm_addvar_int(ormid, Datos[playerid][jCoche][1], "Coche2");
-	orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][0], "CocheLlaves1"); 
-	orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][1], "CocheLlaves2"); 
+	//orm_addvar_int(ormid, Datos[playerid][jCoche][0], "Coche1");
+	//orm_addvar_int(ormid, Datos[playerid][jCoche][1], "Coche2");
+	//orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][0], "CocheLlaves1"); 
+	//orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][1], "CocheLlaves2"); 
 	orm_addvar_int(ormid, Datos[playerid][jCasa][0], "Casa");
 	orm_addvar_int(ormid, Datos[playerid][jCasa][1], "Casa2");
 	orm_addvar_int(ormid, Datos[playerid][jCasaLlaves], "CasaLlaves"); 
