@@ -82,3 +82,4 @@ enum (<<= 1)
 	CMD_PROPERTY_MANAGER
 };
 new a_perms[MAX_PLAYERS];
+

@@ -23,7 +23,7 @@ serverLogRegister(const info[])
     }
     if (serverLogBufferLines > 0) strcat(serverLogBuffer, "\n");
     new today[32];
-    formatt(today, "**[%d/%d/%d %d:%d:%d]** - ", day, month, year, hour, minute, second);
+    formatt(today, "**[%2d/%2d/%4d %2d:%2d:%2d]** - ", day, month, year, hour, minute, second);
     strcat(serverLogBuffer, today);
     strcat(serverLogBuffer, line);
     serverLogBufferLines++;

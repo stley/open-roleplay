@@ -14,6 +14,7 @@ forward vehiclesOnVehicleUpdate();
 
 forward OnCharacterVehicleLoad(playerid);
 forward vehicleInventory_Load();
+forward putPlayerInVeh(playerid, vehicleid, seat);
 forward vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2);
 forward vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger);
 forward vehiclesOnPlayerEnterCheckpoint(playerid);
@@ -263,7 +264,9 @@ public vehiclesOnVehicleSpawn(vehicleid){
     for(i = -1; i < MAX_VEHICULOS; i++){
         if(i == -1) continue;
         if(vehicleid == vehData[i][veh_vID]){
+            SetVehicleVirtualWorld(vehicleid, random(10)+1);
             SetVehicleNumberPlate(vehicleid, vehData[i][veh_Matricula]);
+            SetVehicleVirtualWorld(vehicleid, vehData[i][veh_VW]);
             SetVehicleHealth(vehicleid, vehData[i][veh_Vida]);
             UpdateVehicleDamageStatus(vehicleid, vehData[i][veh_DmgSuperficie], vehData[i][veh_DmgPuertas], vehData[i][veh_DmgLuces], vehData[i][veh_DmgRuedas]);
         }
@@ -275,15 +278,19 @@ public vehiclesOnVehicleSpawn(vehicleid){
     
     return 1;
 }
+public putPlayerInVeh(playerid, vehicleid, seat) return PutPlayerInVehicle(playerid, vehicleid, seat);
 public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2){
     SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s). SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), vehData[index][veh_SQLID]);
     SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d)", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID]);
     vehData[index][veh_vID] = CreateVehicle(modelid, vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ], vehData[index][veh_PosR], color1, color2, -1, false);
-    PutPlayerInVehicle(ownerid, vehData[index][veh_vID], 0);
-    //Datos[ownerid][jCoche][slot] = vehData[index][veh_SQLID];
+    SetVehicleVirtualWorld(vehData[index][veh_vID], random(10)+1);
+    SetVehicleNumberPlate(vehData[index][veh_vID], vehData[index][veh_Matricula]);
+    SetVehicleVirtualWorld(vehData[index][veh_vID], GetPlayerVirtualWorld(ownerid));
+    SetTimerEx("putPlayerInVeh", 500, false, "ddd", ownerid, vehData[index][veh_vID], 0);
     save_char(ownerid);
     return 1;
 }
+
 public CharVeh_Unspawn(indx){
     new dslog[512];
     format(dslog, sizeof(dslog), "Ocultando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]);
@@ -347,12 +354,10 @@ vehicleFetchInventorySlot(veh_index, arr_slot){
 }
 
 get_plate(playerid, nuevodueno, modelo, index, color1, color2){
-    new plate[20];
     randomPlate(vehData[index][veh_Matricula], 10);
     new query[128];
-    mysql_format(SQLDB, query, sizeof(query), "SELECT `Matricula` FROM `vehicles` WHERE `Matricula` = '%e'", plate);
+    mysql_format(SQLDB, query, sizeof(query), "SELECT `Matricula` FROM `vehicles` WHERE `Matricula` = '%e'", vehData[index][veh_Matricula]);
     mysql_tquery(SQLDB, query, "plateCheck", "dddddd", playerid, nuevodueno, modelo, index, color1, color2);
-    
     return 1;
 }
 forward plateCheck(playerid, nuevodueno, modelo, index, color1, color2);
@@ -364,7 +369,7 @@ public plateCheck(playerid, nuevodueno, modelo, index, color1, color2){
         new dslog[256];
         format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", index, vehData[index][veh_Matricula], modelGetName(vehData[index][veh_Modelo]), vehData[index][veh_Modelo], vehData[index][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]);
         serverLogRegister(dslog);
-        orm_insert(vehData[index][vehORM], "vehiclesOnCharVehicleCreated", "dddd", playerid, nuevodueno, modelo, index, color1, color2);
+        orm_insert(vehData[index][vehORM], "vehiclesOnCharVehicleCreated", "dddddd", playerid, nuevodueno, modelo, index, color1, color2);
     }
     return 1;
 }
@@ -395,11 +400,10 @@ public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
         
         for(new i; i < MAX_PLAYERS; i++){
-            if(!IsPlayerConnected(i)) continue;
-            if(vehData[index][veh_SQLID] == Datos[i][jCoche][0]) return 1;
-            else if(vehData[index][veh_SQLID] == Datos[i][jCoche][1]) return 1;
-            else if(vehData[index][veh_SQLID] == Datos[i][jCocheLlaves][0]) return 1;
-            else if(vehData[index][veh_SQLID] == Datos[i][jCocheLlaves][1]) return 1;
+            if(vehData[index][veh_OwnerID] == Datos[i][jSQLIDP]){
+                return 1;
+            }
+            else continue;
         }
         save_vehicle(index);
         if(vehData[index][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[index][veh_vID]);
