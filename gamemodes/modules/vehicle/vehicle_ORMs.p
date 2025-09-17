@@ -10,7 +10,7 @@ stock orm_vehicle(index){
     orm_addvar_float(ormid, vehData[index][veh_PosZ], "PosZ");
     orm_addvar_float(ormid, vehData[index][veh_PosR], "PosR");
     orm_addvar_int(ormid, vehData[index][veh_Tipo], "Tipo");
-    orm_addvar_string(ormid, vehData[index][veh_Matricula], 20, "Matricula");
+    orm_addvar_string(ormid, vehData[index][veh_Matricula], 10, "Matricula");
     orm_addvar_int(ormid, vehData[index][veh_Modelo], "Modelo");
     orm_addvar_int(ormid, vehData[index][veh_Color1], "Color1");
     orm_addvar_int(ormid, vehData[index][veh_Color2], "Color2");

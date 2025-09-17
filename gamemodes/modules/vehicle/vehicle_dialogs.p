@@ -1,5 +1,6 @@
 
 DialogPages:vehPanelDialog(playerid, response, listitem, inputtext[]){
+    if(!response) return 1;
     new cantidad = GetPVarInt(playerid, "vehicle_listsize");
     if(cantidad) DeletePVar(playerid, "vehicle_listsize");
     if(listitem < 0 || listitem >= cantidad) return 1;
@@ -62,7 +63,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
                                     success = true;
-                                    break;
+                                    return 1;
                                 }
                             }
                         }
@@ -108,7 +109,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
                                     success = true;
-                                    break;
+                                    return 1;
                                 }
                             }
                         }
@@ -125,7 +126,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             Datos[playerid][jManoData][1] = 0;
                             update_manos(playerid);
                             success = true;
-                            break;
+                            return 1;
                         }
                     }
                 }

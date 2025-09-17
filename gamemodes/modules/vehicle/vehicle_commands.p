@@ -371,7 +371,7 @@ CMD:mal(playerid, params[]){
             
             AddDialogListitem(playerid, "—————————————————");
             if(Datos[playerid][jMano][0]) formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
-            else formatt(dlg_buff, "Mano derecha: Nad");
+            else formatt(dlg_buff, "Mano derecha: Nada");
             AddDialogListitem(playerid, dlg_buff);
             if(Datos[playerid][jMano][1]) formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
             else formatt(dlg_buff, "Mano izquierda: Nada");

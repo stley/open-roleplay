@@ -14,7 +14,7 @@ forward vehiclesOnVehicleUpdate();
 
 forward OnCharacterVehicleLoad(playerid);
 forward vehicleInventory_Load();
-forward vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot);
+forward vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2);
 forward vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger);
 forward vehiclesOnPlayerEnterCheckpoint(playerid);
 forward vehiclesOnPlayerLeaveCheckpoint(playerid);
@@ -275,9 +275,11 @@ public vehiclesOnVehicleSpawn(vehicleid){
     
     return 1;
 }
-public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, slot){
-    SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s) en su slot %d. SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), slot, vehData[index][veh_SQLID]);
-    SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d) en tu slot %d.", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID], slot);
+public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2){
+    SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s). SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), vehData[index][veh_SQLID]);
+    SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d)", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID]);
+    vehData[index][veh_vID] = CreateVehicle(modelid, vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ], vehData[index][veh_PosR], color1, color2, -1, false);
+    PutPlayerInVehicle(ownerid, vehData[index][veh_vID], 0);
     //Datos[ownerid][jCoche][slot] = vehData[index][veh_SQLID];
     save_char(ownerid);
     return 1;
@@ -344,32 +346,51 @@ vehicleFetchInventorySlot(veh_index, arr_slot){
     return -1;
 }
 
-get_plate(str[], type){
-    alm(str, "-");
-    new query[96];
+get_plate(playerid, nuevodueno, modelo, index, color1, color2){
     new plate[20];
-    switch(type){
-        case 1:{
-            formatt(plate, "LS%d", Random(100, 99999999));
-        }
-        case 2:{
-            formatt(plate, "SA%d", Random(100, 99999999));
-        }
-        default:{
-            formatt(plate, "LS%d", Random(100, 99999999));
-        }
-    }
+    randomPlate(vehData[index][veh_Matricula], 10);
+    new query[128];
     mysql_format(SQLDB, query, sizeof(query), "SELECT `Matricula` FROM `vehicles` WHERE `Matricula` = '%e'", plate);
-    new Cache:check = mysql_query(SQLDB, query);
-    cache_set_active(check);
-    new rows = cache_num_rows();
-    cache_delete(check);
-    if(rows){
-        return get_plate(str, type);
-    }
-    alm(str, plate);
+    mysql_tquery(SQLDB, query, "plateCheck", "dddddd", playerid, nuevodueno, modelo, index, color1, color2);
+    
     return 1;
 }
+forward plateCheck(playerid, nuevodueno, modelo, index, color1, color2);
+public plateCheck(playerid, nuevodueno, modelo, index, color1, color2){
+    if(cache_num_rows()){
+        return get_plate(playerid, nuevodueno, modelo, index, color1, color2);
+    }
+    else{
+        new dslog[256];
+        format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", index, vehData[index][veh_Matricula], modelGetName(vehData[index][veh_Modelo]), vehData[index][veh_Modelo], vehData[index][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]);
+        serverLogRegister(dslog);
+        orm_insert(vehData[index][vehORM], "vehiclesOnCharVehicleCreated", "dddd", playerid, nuevodueno, modelo, index, color1, color2);
+    }
+    return 1;
+}
+
+#define LETTER_A 65          // 'A'
+#define LETTERS_COUNT 26
+
+randomPlate(plate[], len)
+{
+    new leading = random(9) + 1;        // 1..9
+    new l1 = LETTER_A + random(LETTERS_COUNT);
+    new l2 = LETTER_A + random(LETTERS_COUNT);
+    new l3 = LETTER_A + random(LETTERS_COUNT);
+    new digits = random(10000);         // 0000..9999
+
+    format(plate, len, "%d%c%c%c%04d",
+        leading,
+        l1,
+        l2,
+        l3,
+        digits
+    );
+    return 1;
+}
+
+
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
         
