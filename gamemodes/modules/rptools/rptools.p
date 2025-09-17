@@ -6,7 +6,7 @@ accion_player(playerid, tipo, const action[]){
     new Float:playerpos[3];
     new player_vw = GetPlayerVirtualWorld(playerid);
     GetPlayerPos(playerid, playerpos[0], playerpos[1], playerpos[2]);
-    for(new i; i < MAX_PLAYERS; i++){
+    foreach(new i: Player){
         if(IsPlayerInRangeOfPoint(i, 30.0, playerpos[0], playerpos[1], playerpos[2])){
             switch(tipo){
                 case 0:{
@@ -68,7 +68,7 @@ public ProxDetector(Float:radi, playerid, string[], color1, color2, color3, colo
 		Float:checkPos[3]
 	;
 	GetPlayerPos(playerid, oldPos[0], oldPos[1], oldPos[2]);
-	for(new i; i < MAX_PLAYERS; i++)
+	foreach(new i: Player)
 	{
         if(!IsPlayerConnected(i)) continue;
 		GetPlayerPos(i, currentPos[0], currentPos[1], currentPos[2]);

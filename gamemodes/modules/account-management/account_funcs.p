@@ -440,7 +440,7 @@ public accountOnPlayerDisconnect(playerid, reason)
 }
 
 public accountOnGameModeExit(){
-	for(new i; i < MAX_PLAYERS; i++){
+	foreach(new i: Player){
 		if(IsPlayerConnected(i)){
 			if(Datos[i][EnChar] == true) save_char(i);
 			else if(Datos[i][LoggedIn] == true) save_account(i);

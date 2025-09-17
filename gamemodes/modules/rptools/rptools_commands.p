@@ -32,7 +32,7 @@ CMD:sus(playerid, params[]){
     formatt(sentence, "%s susurra: %s", Name_sin(GetRPName(playerid)), accion);
     if(IsPlayerInAnyVehicle(playerid)){
         new vid = GetPlayerVehicleID(playerid);
-        for(new i; i < MAX_PLAYERS; i++){
+        foreach(new i: Player){
             if(IsPlayerInVehicle(i, vid)){
                 SendClientMessage(playerid, C_FADE1, sentence);
                 continue;

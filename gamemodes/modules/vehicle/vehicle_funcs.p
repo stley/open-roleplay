@@ -44,7 +44,7 @@ public vehiclesOnGameModeExit(){
 
 public CharVeh_Load(charid){
 	new connected;
-	for(new i; i < MAX_PLAYERS; i++){
+	foreach(new i: Player){
 		if(Datos[i][jSQLIDP] == charid){
 			connected = i;
 			break;
@@ -206,7 +206,7 @@ public OnVehicleUpdate()
                 vehiclesEngine(i);
                 if(IsVehicleOccupied(vehData[i][veh_vID])){
                     vehiclesLock(i);
-                    for(new x; x < MAX_PLAYERS; x++){
+                    foreach(new x: Player){
                         if(IsPlayerConnected(x) && IsPlayerInVehicle(x, vehData[i][veh_vID])) GameTextForPlayer(x, "~r~VEHICULO DESTRUIDO!", 3000, 4);
                         else continue;
                     }
@@ -399,7 +399,7 @@ randomPlate(plate[], len)
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
         
-        for(new i; i < MAX_PLAYERS; i++){
+        foreach(new i: Player){
             if(vehData[index][veh_OwnerID] == Datos[i][jSQLIDP]){
                 return 1;
             }
