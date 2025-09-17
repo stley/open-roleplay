@@ -11,6 +11,7 @@
 #include <YSI_Game/y_vehicledata>
 #include <samp_bcrypt>
 #include <ndialog-pages>
+#include <foreach>
 #pragma dynamic 7000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)

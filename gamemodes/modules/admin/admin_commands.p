@@ -427,7 +427,7 @@ CMD:darmod(playerid, params[]){
     if(level >= Datos[playerid][jAdmin]) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes ceder rangos administrativos superiores o igual al tuyo!");
     //if(!accountCheck(target)) return SendClientMessage(playerid, COLOR_DARKRED, "¡La cuenta %s no existe!");
     new query[256];
-    for(new i; i < MAX_PLAYERS; i++){
+    foreach(new i: Player){
         if(strcmp(target, username[i], true) == 0){
             if(Datos[i][jAdmin] >= Datos[playerid][jAdmin]) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes cambiar el rango de un superior o un usuario de tu mismo rango!");
             SendClientMessage(playerid, COLOR_LIGHTBLUE, "Le cediste el rango administrativo nivel %d a %s (%s)", level, username[i], Name_sin(GetName(i)));
