@@ -31,8 +31,7 @@ static const g_aPreloadLibs[][] =
 
 animationsPreload(playerid)
 {
-	for (new i = 0; i < sizeof(g_aPreloadLibs); i ++)
-	{
+	for (new i = 0; i < sizeof(g_aPreloadLibs); i ++){
 		ApplyAnimation(playerid, g_aPreloadLibs[i], "null", 0.0, 0, 0, 0, 0, 0);
 	}
 	return 1;
