@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: nightly-${{ github.ref }}
+  group: nightly-main
   cancel-in-progress: false
 
 jobs:
@@ -101,26 +101,22 @@ jobs:
           retention-days: 7
 
   release-nightly:
-    if: github.event_name != 'pull_request'
+    if: >
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      || github.event_name == 'schedule'
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     needs: build
     runs-on: ubuntu-latest
     env:
       NIGHTLY_TAG: nightly
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
-      # Prefer the main artifact if present, else branch-named
       - uses: actions/download-artifact@v4
         with:
           name: nightly-main
           path: bundle
-        continue-on-error: true
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-${{ github.ref_name }}
-          path: bundle
-        continue-on-error: true
 
       - name: Ensure bundle exists
         run: |
@@ -136,37 +132,22 @@ jobs:
         run: |
           set -euo pipefail
           work="$(mktemp -d)"
-          # Recreate standard tree
           mkdir -p "$work/gamemodes" "$work/plugins" "$work/components" "$work/libs" "$work/models"
-
-          # Bring all content while preserving tree
           rsync -a bundle/ "$work/"
-
-          # Ensure gamemodes/main.amx is in place
           if [ ! -f "$work/gamemodes/main.amx" ]; then
             echo "gamemodes/main.amx missing in artifact" >&2
             exit 1
           fi
-
-          # Move misc launchers to root if they exist
           [ -f "$work/misc/run-offline.ps1" ] && mv "$work/misc/run-offline.ps1" "$work/run-offline.ps1" || true
           [ -f "$work/misc/run-offline.bat" ] && mv "$work/misc/run-offline.bat" "$work/run-offline.bat" || true
           [ -f "$work/misc/run-offline.sh" ]  && mv "$work/misc/run-offline.sh"  "$work/run-offline.sh"  || true
           rmdir "$work/misc" 2>/dev/null || true
-
-          # Optional: prune empty dirs
           find "$work" -type d -empty -delete || true
-
           mkdir -p out
           (cd "$work" && zip -r9 ../out/nightly.zip .)
           ls -l out
 
-      - name: Install GitHub CLI
-        uses: cli/cli-action@v2
-
       - name: Create or update rolling nightly release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           if gh release view "$NIGHTLY_TAG" >/dev/null 2>&1; then
@@ -179,8 +160,6 @@ jobs:
           git push -f origin "$NIGHTLY_TAG"
 
       - name: Replace assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           gh release delete-asset "$NIGHTLY_TAG" nightly.zip -y || true
