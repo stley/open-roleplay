@@ -75,7 +75,7 @@ public Models_OnGameModeInit()
     AddSimpleModel(-1, 19142, -1020, "obj/police/platePD.dff", "obj/police/platePD.txd");
     AddSimpleModel(-1, 19142, -1021, "obj/police/plateSH.dff", "obj/police/plateSH.txd");
     AddSimpleModel(-1, 11747, -1022, "gun/kriss.dff", "gun/kriss.txd"); //Vector
-    AddSimpleModel(-1, 11747, -1023, "gun/ar15.dff", "gun/ar15.txd"); //AR15MP
+    AddSimpleModel(-1, 11747, -1023, "gun/patriot.dff", "gun/patriot.txd"); //MGS3 Patriot
     AddSimpleModel(-1, 19995, -1024, "gun/magazine.dff", "gun/m4a1.txd"); //cargadores de arma larga
     return 1;
 }

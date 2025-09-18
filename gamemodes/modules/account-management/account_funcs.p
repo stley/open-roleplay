@@ -445,6 +445,7 @@ public accountOnGameModeExit(){
 			if(Datos[i][EnChar] == true) save_char(i);
 			else if(Datos[i][LoggedIn] == true) save_account(i);
 			ClearPlayerVars(i);
+			SendClientMessage(i, COLOR_LIGHTBLUE, "El servidor se está cerrando, por lo que guardamos todos tus datos.");
 			//SetPlayerName(i, username[i]);
 			SetTimerEx("Kick", 2000, false, "d", i);
 			continue;

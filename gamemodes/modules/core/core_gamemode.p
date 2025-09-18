@@ -16,9 +16,11 @@ public OnGameModeInit()
 }
 public OnGameModeExit()
 {
-    CallLocalFunction("databaseOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
+
+
+    CallLocalFunction("databaseOnGameModeExit"); //keep it last, so it saves everything, smh with my past myself
 	return 1;
 }
 //player

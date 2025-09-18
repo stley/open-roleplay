@@ -147,5 +147,6 @@ orm_char(playerid)
 	orm_addvar_float(ormtoy, CharToys[playerid][PechoScale][2], "PechoScaleZ");
 	
 	orm_setkey(ormid, "SQLIDPJ");
+	orm_setkey(ormtoy, "character_id");
 	return 1;
 }

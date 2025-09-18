@@ -127,7 +127,7 @@ DialogPages:character_dialog(playerid, response, listitem, inputtext[]){
 		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
 		orm_char(playerid);
 		new query[128];
-		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d", charid);
+		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d LIMIT 1", charid);
 		mysql_tquery(SQLDB, query, "accountOnCharFirstLoad", "d", playerid);
 		return 1;
 	}

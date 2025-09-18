@@ -43,8 +43,11 @@ ColocarObjeto(playerid, slot, objeto)
         {
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
             if(IsPlayerAttachedObjectSlotUsed(playerid, 0)) RemovePlayerAttachedObject(playerid, 0);
-            if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
-            else SetPlayerAttachedObject(playerid, 1, modelo, 6);
+            switch(modelo){
+                case 19995: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
+                case -1024: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
+                default: SetPlayerAttachedObject(playerid, 0, modelo, 6);
+            }
         }
         case 1: //Mano Izquierda
         {
@@ -68,8 +71,8 @@ ColocarObjeto(playerid, slot, objeto)
                     default: SetPlayerAttachedObject(playerid, 1, modelo, 5);
                 }
             }
-            else if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, 0, modelo, 5, 0.08);
-            else SetPlayerAttachedObject(playerid, 1, modelo, 5);
+            else if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, 1, modelo, 5, 0.08);
+            else SetPlayerAttachedObject(playerid, 1, modelo, 5, 0.138999, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
         }
         case 2:{
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
@@ -87,7 +90,7 @@ ColocarObjeto(playerid, slot, objeto)
 				case 34: SetPlayerAttachedObject(playerid, 2, modelo, 1, -0.089000, -0.172999, 0.000000, -11.200003, 32.799995, 9.599994, 1.000000, 1.000000, 1.000000); //- Rifle de francotirador
                 default: SetPlayerAttachedObject(playerid, 2, modelo, 1, -0.116, 0.189, 0.088, 0.0, 44.5, 0.0, 1.000000, 1.000000, 1.000000);
             }
-            if(strcmp(ObjetoInfo[objeto][NombreObjeto], "Mochila") == 0) SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.028999, -0.129997, -0.004999, -1.900012, 90.000000, 4.299992, 1.000000, 1.000000, 1.000000);
+            if(modelo == 371) SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.028999, -0.129997, -0.004999, -1.900012, 90.000000, 4.299992, 1.000000, 1.000000, 1.000000);
         }
         case 3:{
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
@@ -107,7 +110,7 @@ ColocarObjeto(playerid, slot, objeto)
                     default: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.116, -0.189, -0.088, 0.0, -135.5, 0.0, 1.000000, 1.000000, 1.000000);
                 }
             }
-            if(strcmp(ObjetoInfo[objeto][NombreObjeto], "Mochila") == 0) SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.029999, 0.135997, -0.001999, -179.900009, 90.000000, 2.199994, 1.000000, 1.000000, 1.000000);
+            if(modelo == 371) SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.029999, 0.135997, -0.001999, -179.900009, 90.000000, 2.199994, 1.000000, 1.000000, 1.000000);
         }
     }
     return 1;
