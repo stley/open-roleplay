@@ -1,10 +1,21 @@
 # .github/workflows/pawn-build-windows.yml
 name: Pawn Build (Windows)
+
 on:
-  pull_request:
   push:
     branches: [main]
+  pull_request:
+  schedule:
+    # 06:00 UTC daily ? 03:00 America/Argentina/Buenos_Aires
+    - cron: "0 6 * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -41,8 +52,8 @@ jobs:
           setlocal
           set "ROOT=%PAWN_ROOT%"
           if not exist "%ROOT%\bin\pawncc.exe" exit /b 1
-          if not exist dist mkdir dist
-          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iinclude -igamemodes\modules -d3 -Z+ -;+ -(+ -odist\main.amx 1>build.log 2>&1
+          if not exist gamemodes mkdir gamemodes
+          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iinclude -igamemodes\modules -d3 -Z+ -;+ -(+ -ogamemodes\main.amx 1>build.log 2>&1
           set EC=%ERRORLEVEL%
           findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
           findstr /ri "warning 203:" all_warns.txt > warns_203.txt
@@ -73,7 +84,8 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: |
-            dist/main.amx
+            gamemodes/main.amx
+            models/**
             components/**/*.dll
             components/**/*.so
             components/**/*.cfg
@@ -87,3 +99,90 @@ jobs:
             misc/run-offline.bat
           if-no-files-found: ignore
           retention-days: 7
+
+  release-nightly:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      NIGHTLY_TAG: nightly
+    steps:
+      - uses: actions/checkout@v4
+
+      # Prefer the main artifact if present, else branch-named
+      - uses: actions/download-artifact@v4
+        with:
+          name: nightly-main
+          path: bundle
+        continue-on-error: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.ref_name }}
+          path: bundle
+        continue-on-error: true
+
+      - name: Ensure bundle exists
+        run: |
+          set -e
+          shopt -s nullglob
+          files=(bundle/**)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No bundle found. Skipping release."
+            exit 0
+          fi
+
+      - name: Prepare open.mp-style nightly.zip
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          # Recreate standard tree
+          mkdir -p "$work/gamemodes" "$work/plugins" "$work/components" "$work/libs" "$work/models"
+
+          # Bring all content while preserving tree
+          rsync -a bundle/ "$work/"
+
+          # Ensure gamemodes/main.amx is in place
+          if [ ! -f "$work/gamemodes/main.amx" ]; then
+            echo "gamemodes/main.amx missing in artifact" >&2
+            exit 1
+          fi
+
+          # Move misc launchers to root if they exist
+          [ -f "$work/misc/run-offline.ps1" ] && mv "$work/misc/run-offline.ps1" "$work/run-offline.ps1" || true
+          [ -f "$work/misc/run-offline.bat" ] && mv "$work/misc/run-offline.bat" "$work/run-offline.bat" || true
+          [ -f "$work/misc/run-offline.sh" ]  && mv "$work/misc/run-offline.sh"  "$work/run-offline.sh"  || true
+          rmdir "$work/misc" 2>/dev/null || true
+
+          # Optional: prune empty dirs
+          find "$work" -type d -empty -delete || true
+
+          mkdir -p out
+          (cd "$work" && zip -r9 ../out/nightly.zip .)
+          ls -l out
+
+      - name: Install GitHub CLI
+        uses: cli/cli-action@v2
+
+      - name: Create or update rolling nightly release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if gh release view "$NIGHTLY_TAG" >/dev/null 2>&1; then
+            echo "Nightly exists"
+          else
+            gh release create "$NIGHTLY_TAG" --title "Nightly" --notes "Rolling nightly build" --prerelease || true
+          fi
+          git fetch --tags
+          git tag -f "$NIGHTLY_TAG" "${GITHUB_SHA}"
+          git push -f origin "$NIGHTLY_TAG"
+
+      - name: Replace assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release delete-asset "$NIGHTLY_TAG" nightly.zip -y || true
+          gh release upload "$NIGHTLY_TAG" out/nightly.zip --clobber
+          gh release edit "$NIGHTLY_TAG" --prerelease --latest=false --title "Nightly"
