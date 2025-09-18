@@ -134,18 +134,21 @@ jobs:
           work="$(mktemp -d)"
           mkdir -p "$work/gamemodes" "$work/plugins" "$work/components" "$work/libs" "$work/models"
           rsync -a bundle/ "$work/"
+
           if [ ! -f "$work/gamemodes/main.amx" ]; then
             echo "gamemodes/main.amx missing in artifact" >&2
             exit 1
           fi
+
           [ -f "$work/misc/run-offline.ps1" ] && mv "$work/misc/run-offline.ps1" "$work/run-offline.ps1" || true
           [ -f "$work/misc/run-offline.bat" ] && mv "$work/misc/run-offline.bat" "$work/run-offline.bat" || true
           [ -f "$work/misc/run-offline.sh" ]  && mv "$work/misc/run-offline.sh"  "$work/run-offline.sh"  || true
           rmdir "$work/misc" 2>/dev/null || true
           find "$work" -type d -empty -delete || true
-          mkdir -p out
-          (cd "$work" && zip -r9 ../out/nightly.zip .)
-          ls -l out
+
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          (cd "$work" && zip -r9 "$GITHUB_WORKSPACE/out/nightly.zip" .)
+          ls -l "$GITHUB_WORKSPACE/out"
 
       - name: Create or update rolling nightly release
         run: |
