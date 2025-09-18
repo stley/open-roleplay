@@ -1,7 +1,7 @@
 #include "modules/account-management/account_vars.p"
-
 forward update_manos(playerid);
 forward update_torso(playerid);
+
 tirar_objeto(sueloid){
     new ObjetoID = EnSuelo[sueloid][floor_ObjetoID];
     if(!ObjetoID) return 1;
@@ -43,11 +43,8 @@ ColocarObjeto(playerid, slot, objeto)
         {
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
             if(IsPlayerAttachedObjectSlotUsed(playerid, 0)) RemovePlayerAttachedObject(playerid, 0);
-            switch(modelo){
-                case 19995: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
-                case -1024: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
-                default: SetPlayerAttachedObject(playerid, 0, modelo, 6);
-            }
+            if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
+            else SetPlayerAttachedObject(playerid, 1, modelo, 6);
         }
         case 1: //Mano Izquierda
         {
@@ -234,10 +231,6 @@ public update_manos(playerid)
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][0]);
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][1]);
                 if(Datos[playerid][jManoCant][0] == -1) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
-            }
-            if(ObjetoInfo[manoder][IDArma] == 30) SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 999);
-            if(ObjetoInfo[manoder][ModeloObjeto] == -1024){
-                SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 0);
             }
             ColocarObjeto(playerid, 0, manoder);
         }
