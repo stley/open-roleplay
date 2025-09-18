@@ -23,6 +23,7 @@ public OnGameModeExit()
 }
 //player
 public OnPlayerConnect(playerid){
+	animationsPreload(playerid);
 	CallLocalFunction("discordOnPlayerConnect", "d", playerid);
 	CallLocalFunction("accountOnPlayerConnect", "d", playerid);
 	return 1;
