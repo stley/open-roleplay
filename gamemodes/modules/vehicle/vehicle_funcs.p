@@ -53,7 +53,7 @@ public CharVeh_Load(charid){
 	}
 	if(connected != INVALID_PLAYER_ID){
 		new query[256];
-        mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `Owner_ID` = %d", charid);
+        mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `Owner_ID` = %d OR `SQLID` = %d OR `SQLID` = %d", charid, Datos[connected][jCocheLlaves][0], Datos[connected][jCocheLlaves][1]);
         mysql_tquery(SQLDB, query, "OnCharacterVehicleLoad", "d", connected);
         return 1;
 	}
@@ -71,6 +71,10 @@ public OnCharacterVehicleLoad(playerid){
             for(new v; v < MAX_VEHICULOS; v++){
                 if(vehData[v][veh_SQLID] == curr_load){
                     SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ya fue cargado anteriormente, salteando...", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID]);
+                    save_vehicle(v);
+                    if(IsValidTimer(vehData[v][veh_AutoSaveTimer])) KillTimer(vehData[v][veh_AutoSaveTimer]);
+                    vehData[v][veh_AutoSaveTimer] = SetTimerEx("vehicleAutoSave", 600000, true, "d", v);
+                    if(IsValidTimer(vehTimer[v])) KillTimer(vehTimer[v]);
                     success = true;
                     break;
                 }
@@ -80,6 +84,7 @@ public OnCharacterVehicleLoad(playerid){
                     SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID]);
                     if(IsValidTimer(vehData[v][veh_AutoSaveTimer])) KillTimer(vehData[v][veh_AutoSaveTimer]);
                     vehData[v][veh_AutoSaveTimer] = SetTimerEx("vehicleAutoSave", 600000, true, "d", v);
+                    if(IsValidTimer(vehTimer[v])) KillTimer(vehTimer[v]);
                     success = true;
                     break;
                 }
