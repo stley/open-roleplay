@@ -1079,7 +1079,8 @@ CMD:recargar(playerid){
                 Datos[playerid][jManoCant][0]++;
                 cantbean++;
             }
-            ApplyAnimation(playerid, "BUDDY", "buddy_reload", 4.1, false, true, true, false, 1, SYNC_ALL);
+            if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_DUCK) ApplyAnimation(playerid, "BUDDY", "buddy_crouchreload", 4.1, false, false, false, false, 1300, SYNC_ALL);
+            else ApplyAnimation(playerid, "BUDDY", "buddy_reload", 4.1, false, false, false, false, 1300, SYNC_ALL);
             update_manos(playerid);
             return SendClientMessage(playerid, COLOR_DARKGREEN, "Cargas tu escopeta no letal con %d cartuchos de munición no letal. (duh).", cantbean);
         }
@@ -1087,7 +1088,8 @@ CMD:recargar(playerid){
             if(Datos[playerid][jManoCant][0]) return SendClientMessage(playerid, COLOR_DARKRED, "Tu táser aún tiene cartuchos!");
             Datos[playerid][jManoCant][0] = 2;
             update_manos(playerid);
-            ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, true, true, false, 1, SYNC_ALL);
+            if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_DUCK) ApplyAnimation(playerid, "PYTHON", "python_crouchreload", 4.1, false, false, false, false, 930, SYNC_ALL);
+            else ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, false, false, false, 930, SYNC_ALL);
             return SendClientMessage(playerid, COLOR_DARKGREEN, "Cargas tu táser con 2 cartuchos.");
         }
         new cargador = find_mag(manoder);
@@ -1116,7 +1118,8 @@ CMD:recargar(playerid){
                     if(!Datos[playerid][jManoCant][1]) Datos[playerid][jMano][1] = 0;
                     update_manos(playerid);
                     SendClientMessage(playerid, COLOR_DARKGREEN, "Cargas con %d balas tu revolver.", cantbalas);
-                    ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, true, true, false, 1, SYNC_ALL);
+                    if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_DUCK) ApplyAnimation(playerid, "PYTHON", "python_crouchreload", 4.1, false, false, false, false, 930, SYNC_ALL);
+                    else ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, false, false, false, 930, SYNC_ALL);
                     return 1;
                 }
                 else return 1;
@@ -1138,7 +1141,8 @@ CMD:recargar(playerid){
                     if(!Datos[playerid][jManoCant][1]) Datos[playerid][jMano][1] = 0;
                     update_manos(playerid);
                     SendClientMessage(playerid, COLOR_DARKGREEN, "Cargas con %d cartuchos tu escopeta.", cantbalas);
-                    ApplyAnimation(playerid, "BUDDY", "buddy_reload", 4.1, false, true, true, false, 1, SYNC_ALL);
+                    if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_DUCK) ApplyAnimation(playerid, "BUDDY", "buddy_crouchreload", 4.1, false, false, false, false, 1300, SYNC_ALL);
+                    else ApplyAnimation(playerid, "BUDDY", "buddy_reload", 4.1, false, false, false, false, 1300, SYNC_ALL);
                     return 1;
                 }
                 else return 1;
@@ -1157,7 +1161,8 @@ CMD:recargar(playerid){
                 Datos[playerid][jManoCant][1] = Datos[playerid][jManoCant][0];
                 Datos[playerid][jManoCant][0] = manoizcant;
             }
-            ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, true, true, false, 1, SYNC_ALL);
+            if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_DUCK) ApplyAnimation(playerid, "PYTHON", "python_crouchreload", 4.1, false, false, false, false, 930, SYNC_ALL);
+            ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, false, false, false, 930, SYNC_ALL);
         }
         else{
             new bolid = -1;
@@ -1188,11 +1193,11 @@ CMD:recargar(playerid){
                 Datos[playerid][jManoCant][0] = quant;
                 update_manos(playerid);
             }
-            ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, true, true, false, 1, SYNC_ALL);
+            if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_DUCK) ApplyAnimation(playerid, "PYTHON", "python_crouchreload", 4.1, false, false, false, false, 930, SYNC_ALL);
+            ApplyAnimation(playerid, "PYTHON", "python_reload", 4.1, false, false, false, false, 930, SYNC_ALL);
         }
         update_manos(playerid);
     }
-    
     return 1;
 }
 alias:ceder("darobjeto")

@@ -113,18 +113,18 @@ dialog_personajes(playerid)
 
 DialogPages:character_dialog(playerid, response, listitem, inputtext[]){
 	if(!response) Kick(playerid);
-	cache_set_active(Datos[playerid][characterCache]);
+	cache_set_active(characterCache[playerid]);
 	if(listitem+1 > cache_num_rows()){
 		cache_unset_active();
-		cache_delete(Datos[playerid][characterCache]);
-		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
 		return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "Ingresa un nombre para tu personaje. (Ejemplo: Pedro_Perez)", "Continuar", "Cancelar");
 	}
 	else{
 		new charid;
 		cache_get_value_name_int(listitem, "SQLIDPJ", charid);
-		cache_delete(Datos[playerid][characterCache]);
-		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
 		orm_char(playerid);
 		new query[128];
 		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d LIMIT 1", charid);

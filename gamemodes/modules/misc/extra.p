@@ -424,3 +424,13 @@ GetName(playerid){
 	GetPlayerName(playerid, name);
 	return name;
 }
+
+forward _Kick(playerid);
+public _Kick(playerid){
+	return Kick(playerid);
+}
+
+playerDelayedKick(playerid, time = 1000){
+	SetTimerEx("_Kick", time, false, "d", playerid);
+	return 1;
+}

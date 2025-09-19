@@ -259,7 +259,7 @@ CMD:verstats(playerid, params[]){
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Puntos de rol: %d / %d", Datos[target][jPuntosRol], Datos[target][jPuntosRolNeg]);
     SendClientMessage(playerid, COLOR_GREEN, "Propiedades:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casas: %d — %d | Casa prestada: %d", Datos[target][jCasa][0], Datos[target][jCasa][1], Datos[target][jCasaLlaves]);
-    SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos: %d — %d | Vehículo prestado: %d", Datos[target][jCoche][0], Datos[target][jCoche][1], Datos[target][jCocheLlaves]);
+    SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos prestados: %d | %d", Datos[target][jCocheLlaves][0], Datos[target][jCocheLlaves][1]);
     SendClientMessage(playerid, COLOR_GREEN, "Interiores:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casa: %d — Negocio: %d | Interior: %d — VirtualWorld: %d", DentroCasa[target], DentroNegocio[target], GetPlayerInterior(target), GetPlayerVirtualWorld(target));
     return 1;
@@ -440,7 +440,7 @@ CMD:darmod(playerid, params[]){
         }
     }
     mysql_format(SQLDB, query, sizeof(query), "SELECT `accounts`.`Administrador`, `accounts`.`Nombre`,`accounts`.`SQLID` FROM `accounts` WHERE `Nombre` = '%e' LIMIT 1", target);
-    mysql_tquery(SQLDB, query, "adminUpdate", "d", playerid);
+    mysql_tquery(SQLDB, query, "adminUpdate", "dsd", playerid, target, level);
     return 1;
 }
 

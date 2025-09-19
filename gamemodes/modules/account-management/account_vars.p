@@ -24,7 +24,8 @@ enum jInfo
 	FechaReg[101],
 	UltimaConexion[101],
 	CharacterLimit,
-	Cache:characterCache,
+
+	
 	
 	//Personaje
 	ORM:ORMPJ,
@@ -69,30 +70,16 @@ enum jInfo
 	jDiv2,
 	jDocumento,
 	jLicencias[2],
-	jCoche[2],
 	jCocheLlaves[2],
 	jCasa[2],
 	jCasaLlaves,
-	jFechaCreacion[101],
+	jFechaCreacion[101]
 };
-/*enum jInventory
-{
-	jMano[2],
-	jManoCant[2],
-	jManoData[2][96],
-	jBolsillo[5],
-	jBolsilloCant[5],
-	jBolsilloData[5][96],
-	jEspalda,
-	jEspaldaCant,
-	jPecho,
-	jPechoCant,
-	jEspaldaData[96],
-	jPechoData[96]
-};
-new inventory[MAX_PLAYERS][jInventory];*/
-//No almacenables en la base de datos
+
+
 new
+	muerto[MAX_PLAYERS],
+	//No almacenables en la base de datos - Datos temporales, no persisten entre sesiones!
 	/*
 	Solicitudes
 	1 - Cacheos
@@ -106,18 +93,19 @@ new
 	2 - Edición de accesorios ya colocados
 	*/	
 	EditType[MAX_PLAYERS],
+	// AutoSave
+	autosaveTimer[MAX_PLAYERS],
 
 	/* CheckPoints
 	1 - Localizar vehiculo
 	*/
 	checkpoints[MAX_PLAYERS],
-	//
 	esposado[MAX_PLAYERS],
-	muerto[MAX_PLAYERS],
 	CinturonV[MAX_PLAYERS],
 	DentroCasa[MAX_PLAYERS], // Esta el personaje dentro de un casa?
 	DentroNegocio[MAX_PLAYERS], //Esta el personaje dentro de una negocio?
-	asesino[MAX_PLAYERS][MAX_PLAYER_NAME] //Contendría la última persona que te asesinó/noqueo.
+	asesino[MAX_PLAYERS][MAX_PLAYER_NAME], //Contendría la última persona que te asesinó/noqueo.
+	Cache:characterCache[MAX_PLAYERS] // Cache necesaria para la precarga de personajes en tu cuenta.
 ;
 enum characterToys
 {

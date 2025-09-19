@@ -1,8 +1,9 @@
 forward adminRefresh(playerid);
-forward adminUpdate(playerid, account[], rank);
+forward adminUpdate(playerid, const account[], rank);
 
 #define HIER_TOP           CMD_JR_MOD
 #define ALL_FROM(%0)      ((HIER_TOP << 1) - (%0))
+
 public adminRefresh(playerid){
 	new mask;
     switch(Datos[playerid][jAdmin]){
@@ -21,7 +22,7 @@ public adminRefresh(playerid){
     return 1;
 }
 
-public adminUpdate(playerid, account[], rank){
+public adminUpdate(playerid, const account[], rank){
     if(cache_num_rows()){
         new curr_rank, sqlid, retrieved_acc[35];
         cache_get_value_name_int(0, "SQLID", sqlid);

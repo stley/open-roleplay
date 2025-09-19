@@ -2,8 +2,9 @@ forward accountPassHash(playerid, const password[], is_register);
 forward accountPassCheck(playerid, bool:success);
 forward accountOnCharFirstLoad(playerid);
 forward accountOnPlayerDisconnect(playerid, reason);
+forward accountAutoSave(playerid);
 forward accountOnUserDataSaved(playerid);
-forward accountOnCharDataSaved(playerid);
+forward accountOnCharDataSaved(playerid, type);
 forward accountLoadToys(playerid);
 forward accountOnPlayerConnect(playerid);
 forward accountOnGameModeExit();
@@ -13,6 +14,7 @@ forward accountOnPlayerRequestClass(playerid, classid);
 forward accountOnUserCharacterList(playerid);
 forward accountOnCharToyInsert(playerid);
 forward accountOnCharInserted(playerid);
+
 forward updateToys(playerid);
 
 public OnDialogPerformed(playerid, const dialog[], response, success) {
@@ -64,7 +66,7 @@ public accountPassCheck(playerid, bool:success){
 			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
 			formatt(query_str, "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
 			serverLogRegister(query_str);
-			SetTimerEx("Kick", 2000, false, "d", playerid);
+			playerDelayedKick(playerid, 2000);
 		}
 	}
 	return 1;
@@ -74,7 +76,7 @@ public accountOnUserCharacterList(playerid){
 	new dlg_buff[96];
 	new charname[MAX_PLAYER_NAME];
 	new charid;
-	Datos[playerid][characterCache] = cache_save();
+	characterCache[playerid] = cache_save();
 	if(cache_num_rows()){
 		for(new i; i < cache_num_rows(); i++){
 			cache_get_value_name_int(i, "SQLIDPJ", charid);
@@ -88,7 +90,7 @@ public accountOnUserCharacterList(playerid){
 		AddDialogListitem(playerid, "{C0C0C0}Crear otro personaje");
 	}
 	else if (!cache_num_rows()){
-		AddDialogListitem(playerid, "\n{C0C0C0}Crear un personaje");
+		AddDialogListitem(playerid, "{C0C0C0}Crear un personaje");
 	}
 	return ShowPlayerDialogPages(playerid, "character_dialog", DIALOG_STYLE_LIST, "Personajes disponibles", "Ingresar", "Salir", 12);
 }
@@ -124,17 +126,7 @@ public accountOnCharToyInsert(playerid){
 	orm_setkey(CharToys[playerid][ORM_toy], "character_id");
 	return 1;
 }
-/*bool:accountCheck(account_name[]){
-	new query[128], sqlid;
-	if(isnull(account_name)) return 0;
-	mysql_format(SQLDB, "SELECT `SQLID` FROM `accounts` WHERE `Nombre` = `%e` LIMIT 1", account_name);
-	new Cache:accountQuery;
-	accountQuery = mysql_query(SQLDB, query);
-	cache_set_active(accountQuery);
-	cache_get_value_name_int(0, "SQLID", sqlid);
-	cache_delete(accountQuery);
-	return sqlid;
-}*/
+
 
 
 characterTextDraws(playerid){
@@ -197,6 +189,10 @@ load_character(playerid)
 		muerto[playerid] = 0;
 		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
 		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
+	}
+	if(IsValidTimer(autosaveTimer[playerid])){
+		KillTimer(autosaveTimer[playerid]);
+		autosaveTimer[playerid] = SetTimerEx("accountAutoSave", 600000, true, "d", playerid);
 	}
 	return 1;
 }
@@ -279,11 +275,36 @@ public accountLoadToys(playerid){
 	return 1;
 }
 
-public  accountOnUserDataSaved(playerid) return 1;
-public  accountOnCharDataSaved(playerid) return 1;
+public accountOnUserDataSaved(playerid){
+	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
+		printf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]);
+	}
+	else{
+		printf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]);
+	}
+	return 1;
+}
+public accountOnCharDataSaved(playerid, type){
+	switch(type){
+		case 1:{
+			if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
+				printf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			}
+			else{
+				printf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			}
+		}
+		case 2:{
+			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
+				printf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			}
+			else return 1;
+		}
+	}
+	return 1;
+}
 
-clear_chardata(playerid)
-{
+clear_chardata(playerid){
 	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM){
 		orm_destroy(Datos[playerid][ORMPJ]);
 		Datos[playerid][ORMPJ] = MYSQL_INVALID_ORM;
@@ -311,13 +332,11 @@ clear_chardata(playerid)
     }
 	Datos[playerid][jLicencias][0] = 0;
     Datos[playerid][jLicencias][1] = 0;
-	Datos[playerid][jCoche][0] = 0;
-	Datos[playerid][jCocheLlaves][0] = 0;
-    Datos[playerid][jCoche][1] = 0;
-	Datos[playerid][jCocheLlaves][1] = 0;
 	Datos[playerid][jCasa][0] = 0;
     Datos[playerid][jCasa][1] = 0;
     Datos[playerid][jCasaLlaves] = 0;
+	Datos[playerid][jCocheLlaves][0] = 0;
+	Datos[playerid][jCocheLlaves][1] = 0;
 	Datos[playerid][jNivel] = 0;
 	Datos[playerid][jExp] = 0;
 	Datos[playerid][jHoras] = 0;
@@ -345,6 +364,7 @@ clear_chardata(playerid)
 	Datos[playerid][jDocumento] = 0;
 
 	if(CharToys[playerid][ORM_toy] != MYSQL_INVALID_ORM){
+		orm_clear_vars(CharToys[playerid][ORM_toy]);
 		orm_destroy(CharToys[playerid][ORM_toy]);
 		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
 	}
@@ -359,11 +379,12 @@ clear_chardata(playerid)
 	asesino[playerid] = "-";
 	checkpoints[playerid] = 0;
 	CinturonV[playerid] = 0;
-	/*CanRespawn[playerid] = false;
-	KillTimer(RespawnTime[playerid]);
-	KillTimer(SuccumbTime[playerid]);*/
-
-
+	CanRespawn[playerid] = false;
+	if(cache_is_valid(characterCache[playerid])){
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
+	}
+	KillTimer(RespawnTimer[playerid]);
 }
 clear_account_data(playerid)
 {
@@ -383,9 +404,9 @@ clear_account_data(playerid)
 	Datos[playerid][jCreditos] = 0;
 	Datos[playerid][CharacterLimit] = DEFAULT_MAX_CHARACTERS;
 	Datos[playerid][LoggedIn] = false;
-	if(Datos[playerid][characterCache]){
-		cache_delete(Datos[playerid][characterCache]);
-		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
+	if(characterCache[playerid]){
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
 	}
 }
 ClearPlayerVars(playerid)
@@ -399,7 +420,8 @@ save_account(playerid){
 	new dslog[512];
 	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
-	return orm_update(Datos[playerid][ORMID]);
+	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
+	return 1;
 }
 save_char(playerid)
 {
@@ -414,8 +436,9 @@ save_char(playerid)
 		format(dslog, sizeof(dslog), "ORMPJ playerid %d invalida", playerid);
 		serverLogRegister(dslog);
 	}
-	orm_update(CharToys[playerid][ORM_toy]);
-	return orm_update(Datos[playerid][ORMPJ]);
+	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
+	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
+	return 1;
 }
 
 public accountOnPlayerDisconnect(playerid, reason)
@@ -429,26 +452,30 @@ public accountOnPlayerDisconnect(playerid, reason)
 		mysql_tquery(SQLDB, query);
 	}
 	for(new i; i < MAX_VEHICULOS; i++){
-		if(vehData[i][veh_SQLID] == Datos[playerid][jCoche][0] || vehData[i][veh_SQLID] == Datos[playerid][jCoche][1]){
+		if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
 			if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
 			vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
 		}
 	}
 	if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);
+	if(IsValidTimer(autosaveTimer[playerid])) KillTimer(autosaveTimer[playerid]);
 	ClearPlayerVars(playerid);
 	return 1;
+}
+
+
+public accountAutoSave(playerid){
+	if(Datos[playerid][LoggedIn] == true)
+	{
+		save_account(playerid);
+		if(Datos[playerid][EnChar] == true) save_char(playerid);
+	}
 }
 
 public accountOnGameModeExit(){
 	foreach(new i: Player){
 		if(IsPlayerConnected(i)){
-			if(Datos[i][EnChar] == true) save_char(i);
-			else if(Datos[i][LoggedIn] == true) save_account(i);
-			ClearPlayerVars(i);
-			SendClientMessage(i, COLOR_LIGHTBLUE, "El servidor se está cerrando, por lo que guardamos todos tus datos.");
-			//SetPlayerName(i, username[i]);
-			SetTimerEx("Kick", 2000, false, "d", i);
-			continue;
+			SendClientMessage(i, COLOR_LIGHTBLUE, "Apagado del servidor: El servidor se esta apagando.");
 		}
 		else continue;
 	}

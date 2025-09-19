@@ -22,7 +22,7 @@ CMD:stats(playerid)
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Puntos de rol: %d / %d", Datos[playerid][jPuntosRol], Datos[playerid][jPuntosRolNeg]);
     SendClientMessage(playerid, COLOR_GREEN, "Propiedades:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casas: %d — %d | Casa prestada: %d", Datos[playerid][jCasa][0], Datos[playerid][jCasa][1], Datos[playerid][jCasaLlaves]);
-    SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos: %d — %d | Vehículo prestado: %d", Datos[playerid][jCoche][0], Datos[playerid][jCoche][1], Datos[playerid][jCocheLlaves]);
+    SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos prestados: %d | %d", Datos[playerid][jCocheLlaves][0], Datos[playerid][jCocheLlaves][1]);
     SendClientMessage(playerid, COLOR_GREEN, "Interiores:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casa: %d — Negocio: %d | Interior: %d — VirtualWorld: %d", DentroCasa[playerid], DentroNegocio[playerid], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid));
     return 1;
