@@ -30,6 +30,6 @@ public databaseOnGameModeInit()
 
 public databaseOnGameModeExit()
 {
-	mysql_close(SQLDB); // Closing the database.
+	mysql_close(SQLDB);
 	return 1;
 }

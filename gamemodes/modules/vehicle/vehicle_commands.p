@@ -8,15 +8,25 @@ dialog_vehiculos(playerid){
     new cantidad;
     
     for(new i; i < MAX_VEHICULOS; i++){
+        new buffer[128];
+        new key[18];
         if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
-            new buffer[128];
             formatt(buffer, "[%d] %s — %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
-            new key[18];
             format(key, sizeof key, "veh_list_%d", cantidad);
             SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
             AddDialogListitem(playerid, buffer);
             cantidad++;
             continue;
+        }
+        for(new x; x < 2; x++){
+            if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
+                formatt(buffer, "Prestado %d : [%d] %s — %s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                format(key, sizeof key, "veh_list_%d", cantidad);
+                SetPVarInt(playerid, key, i);
+                AddDialogListitem(playerid, buffer);
+                cantidad++;
+                continue;
+            }
         }
     }
     if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
@@ -28,7 +38,11 @@ dialog_vehiculos(playerid){
 bool:hasVehicleKeys(playerid, veh_index){
     if(vehData[veh_index][veh_Tipo] == 1){ // Si es un vehículo personal:
         if(vehData[veh_index][veh_OwnerID] == Datos[playerid][jSQLIDP]) return true;
-        else return false;
+        for(new i; i < 2; i++){
+            if(vehData[veh_index][veh_SQLID] == Datos[playerid][jCocheLlaves][i]) return true;
+            else continue;
+        }
+        return false;
     }
     return false;
 }
@@ -249,43 +263,33 @@ CMD:vergrack(playerid){
     else return SendClientMessage(playerid, COLOR_DARKRED, "La gunrack se encuentra vacía.");
 }
 
-/*CMD:prestarveh(playerid, params[]){
+CMD:prestarveh(playerid, params[]){
     new
         user,
-        slot,
-        veh_id
+        sqlid,
+        veh_idex
     ;
-    if(sscanf(params, "rd", user, slot) || isnull(params)){
-        SendClientMessage(playerid, COLOR_DARKRED, "USO: /prestarveh [id/Nombre] [SLOT]");
-        SendClientMessage(playerid, COLOR_DARKBLUE, "Tus vehículos:");
-        for(new i; i < 2; i++){
-            if(Datos[playerid][jCoche][i]){
-                new idex = FindVehIndxFromSQLID(Datos[playerid][jCoche][i]);
-                if(idex != -1) SendClientMessage(playerid, COLOR_YELLOW, "[Personal %d] %s (%d)", i+1, modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_SQLID]);
-            }
-            return 1;
-        }
-    }
+    if(sscanf(params, "rd", user, sqlid) || isnull(params)) return SendClientMessage(playerid, COLOR_DARKRED, "USO: /prestarveh [id/Nombre] [ID en /coches]");
     if(!IsPlayerConnected(user)) return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: El jugador no está conectado.");
-    if(slot > 2 || slot < 1) return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: Slot inválido.");
-    if(!Datos[playerid][jCoche][slot-1]) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes ningun vehículo en ese slot.");
-    veh_id = FindVehIndxFromSQLID(Datos[playerid][jCoche][slot-1]);
-    if(veh_id == -1) return 1;
+    if(sqlid < 1) return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: ID inválida.");
+    veh_idex = FindVehIndxFromSQLID(sqlid);
+    if(veh_idex == -1) return 1;
+    if(vehData[veh_idex][veh_OwnerID] != Datos[playerid][jSQLIDP]) return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: Ese vehículo no es tuyo.");
     for(new i; i < 2; i++){
         if(Datos[user][jCocheLlaves][i]){
             if(i == 0) continue;
-            else if(i == 1) return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: El jugador ya tiene sus slots de vehículos ocupados.");   
+            else if(i == 1) return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: El jugador ya tiene sus slots de vehículos ocupados.");
         }
-        SendClientMessage(playerid, COLOR_BLUE, "Le ofreciste las llaves de tu %s a %s. Espera una respuesta.", modelGetName(vehData[veh_id][veh_Modelo]), GetRPName(user));
-        SendClientMessage(user, COLOR_BLUE, "%s te ofreció las llaves de su %s. Utiliza /aceptar o /rechazar.", GetRPName(playerid), modelGetName(vehData[veh_id][veh_Modelo]));
+        SendClientMessage(playerid, COLOR_BLUE, "Le ofreciste las llaves de tu %s a %s. Espera una respuesta.", modelGetName(vehData[veh_idex][veh_Modelo]), GetRPName(user));
+        SendClientMessage(user, COLOR_BLUE, "%s te ofreció las llaves de su %s. Utiliza /aceptar o /rechazar.", GetRPName(playerid), modelGetName(vehData[veh_idex][veh_Modelo]));
         solicitud_tipo[user] = 2;
         solicitante[user] = playerid;
         solicitud_timer[user] = SetTimerEx("TimeOutRequest", 8000, false, "d", user);
-        SetPVarInt(playerid, "prestar_veh_slot", slot-1);
+        SetPVarInt(playerid, "prestar_veh_idex", veh_idex);
         return 1;
     }
     return 1;
-}*/
+}
 CMD:mal(playerid, params[]){
     new 
         Float:veh_pos[3],

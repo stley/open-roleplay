@@ -679,6 +679,7 @@ static stock NDP_ProcessDialogResponse(playerid, dialogid, response, listitem, i
 			listitem = INVALID_LISTITEM;
 		}
 		dialogid = NDP_ProcessDialogResponse(playerid, dialogid, response, listitem, inputtext, NDP_P[playerid][ndp_type]);
+		#pragma unused dialogid
 	}
 	return 0;
 }
