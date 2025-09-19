@@ -8,15 +8,25 @@ dialog_vehiculos(playerid){
     new cantidad;
     
     for(new i; i < MAX_VEHICULOS; i++){
+        new buffer[128];
+        new key[18];
         if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
-            new buffer[128];
             formatt(buffer, "[%d] %s — %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
-            new key[18];
             format(key, sizeof key, "veh_list_%d", cantidad);
             SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
             AddDialogListitem(playerid, buffer);
             cantidad++;
             continue;
+        }
+        for(new x; x < 2; x++){
+            if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
+                formatt(buffer, "Prestado %d : [%d] %s — %s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                format(key, sizeof key, "veh_list_%d", cantidad);
+                SetPVarInt(playerid, key, i);
+                AddDialogListitem(playerid, buffer);
+                cantidad++;
+                continue;
+            }
         }
     }
     if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
@@ -28,7 +38,11 @@ dialog_vehiculos(playerid){
 bool:hasVehicleKeys(playerid, veh_index){
     if(vehData[veh_index][veh_Tipo] == 1){ // Si es un vehículo personal:
         if(vehData[veh_index][veh_OwnerID] == Datos[playerid][jSQLIDP]) return true;
-        else return false;
+        for(new i; i < 2; i++){
+            if(vehData[veh_index][veh_SQLID] == Datos[playerid][jCocheLlaves][i]) return true;
+            else continue;
+        }
+        return false;
     }
     return false;
 }
