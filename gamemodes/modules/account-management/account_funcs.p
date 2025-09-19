@@ -441,6 +441,17 @@ save_char(playerid)
 	return 1;
 }
 
+bool:hasDriverOnline(veh_idex, exclude){
+	foreach(new playerid: Player){
+		if(playerid == exclude) continue;
+		if(vehData[veh_idex][veh_OwnerID] == Datos[playerid][jSQLIDP]) return true;
+		for(new i; i < 2; i++){
+			if(vehData[veh_idex][veh_SQLID] == Datos[playerid][jCocheLlaves][i]) return true;
+		}
+	}
+	return false;
+}
+
 public accountOnPlayerDisconnect(playerid, reason)
 {
 	if(Datos[playerid][LoggedIn] == true)
@@ -454,7 +465,16 @@ public accountOnPlayerDisconnect(playerid, reason)
 	for(new i; i < MAX_VEHICULOS; i++){
 		if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
 			if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
-			vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+			if(!hasDriverOnline(i, playerid)){
+				vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+			}
+		}
+		for(new v; v < 2; v++){
+			if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][v]){
+				if(!hasDriverOnline(i, playerid)){
+					vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+				}
+			}
 		}
 	}
 	if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);

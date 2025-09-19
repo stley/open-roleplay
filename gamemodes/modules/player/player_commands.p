@@ -27,11 +27,11 @@ CMD:aceptar(playerid){
         case 2:{ //prestar vehiculo personal
             if(GetDistanceBetweenPlayers(playerid, solid) > 5.0) return SendClientMessage(solid, COLOR_DARKRED, "¡Estás muy lejos del jugador!");
             new veh_idex = GetPVarInt(solid, "prestar_veh_idex");
-            SendClientMessage(playerid, COLOR_GREEN, "Aceptaste las llaves de %s.", GetRPName(solid));
-            SendClientMessage(solid, COLOR_GREEN, "%s aceptó las llaves de tu %s.", GetRPName(playerid), modelGetName(vehData[veh_idex][veh_Modelo]));
             for(new i; i < 2; i++){
-                if(Datos[playerid][jCocheLlaves][i]){
+                if(!Datos[playerid][jCocheLlaves][i]){
                     Datos[playerid][jCocheLlaves][i] = vehData[veh_idex][veh_SQLID];
+                    SendClientMessage(playerid, COLOR_GREEN, "Aceptaste las llaves de %s.", GetRPName(solid));
+                    SendClientMessage(solid, COLOR_GREEN, "%s aceptó las llaves de tu %s.", GetRPName(playerid), modelGetName(vehData[veh_idex][veh_Modelo]));
                     DeletePVar(solid, "prestar_veh_idex");
                     return 1;
                 }
