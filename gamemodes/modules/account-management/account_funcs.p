@@ -8,6 +8,7 @@ forward accountOnCharDataSaved(playerid, type);
 forward accountLoadToys(playerid);
 forward accountOnPlayerConnect(playerid);
 forward accountOnGameModeExit();
+forward ClearPlayerVars(playerid);
 forward characterRespawn(playerid);
 forward onCharacterInventorySave(playerid);
 forward accountOnUserFirstLoad(playerid);
@@ -283,6 +284,7 @@ public accountOnUserDataSaved(playerid){
 	else{
 		printf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]);
 	}
+	if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
 	return 1;
 }
 public accountOnCharDataSaved(playerid, type){
@@ -294,6 +296,7 @@ public accountOnCharDataSaved(playerid, type){
 			else{
 				printf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
 			}
+			if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
 		}
 		case 2:{
 			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
@@ -306,11 +309,7 @@ public accountOnCharDataSaved(playerid, type){
 }
 
 clear_chardata(playerid){
-	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM){
-		orm_destroy(Datos[playerid][ORMPJ]);
-		Datos[playerid][ORMPJ] = MYSQL_INVALID_ORM;
-	}
-	Datos[playerid][jSQLIDP] = 0;
+	
 	Datos[playerid][EnChar] = false;
 	alm(Datos[playerid][jNombrePJ], "-");
 	Datos[playerid][jUsuario] = 0;
@@ -364,16 +363,6 @@ clear_chardata(playerid){
 	Datos[playerid][jDiv2] = 0;
 	Datos[playerid][jDocumento] = 0;
 
-	if(CharToys[playerid][ORM_toy] != MYSQL_INVALID_ORM){
-		orm_clear_vars(CharToys[playerid][ORM_toy]);
-		orm_destroy(CharToys[playerid][ORM_toy]);
-		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
-	}
-	if(Datos[playerid][inventoryORM] != MYSQL_INVALID_ORM){
-		orm_clear_vars(Datos[playerid][inventoryORM]);
-		orm_destroy(Datos[playerid][inventoryORM]);
-		Datos[playerid][inventoryORM] = MYSQL_INVALID_ORM;
-	}
 	//no guardables
 	DentroCasa[playerid] = 0;
 	DentroNegocio[playerid] = 0;
@@ -386,10 +375,25 @@ clear_chardata(playerid){
 	checkpoints[playerid] = 0;
 	CinturonV[playerid] = 0;
 	CanRespawn[playerid] = false;
+	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM){
+		orm_destroy(Datos[playerid][ORMPJ]);
+		Datos[playerid][ORMPJ] = MYSQL_INVALID_ORM;
+	}
 	if(cache_is_valid(characterCache[playerid])){
 		cache_delete(characterCache[playerid]);
 		characterCache[playerid] = MYSQL_INVALID_CACHE;
 	}
+	if(CharToys[playerid][ORM_toy] != MYSQL_INVALID_ORM){
+		orm_clear_vars(CharToys[playerid][ORM_toy]);
+		orm_destroy(CharToys[playerid][ORM_toy]);
+		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
+	}
+	if(Datos[playerid][inventoryORM] != MYSQL_INVALID_ORM){
+		orm_clear_vars(Datos[playerid][inventoryORM]);
+		orm_destroy(Datos[playerid][inventoryORM]);
+		Datos[playerid][inventoryORM] = MYSQL_INVALID_ORM;
+	}
+	Datos[playerid][jSQLIDP] = 0;
 	KillTimer(RespawnTimer[playerid]);
 }
 clear_account_data(playerid)
@@ -415,7 +419,7 @@ clear_account_data(playerid)
 		characterCache[playerid] = MYSQL_INVALID_CACHE;
 	}
 }
-ClearPlayerVars(playerid)
+public ClearPlayerVars(playerid)
 {
 	clear_account_data(playerid);
 	clear_chardata(playerid);
@@ -506,7 +510,6 @@ public accountOnPlayerDisconnect(playerid, reason)
 	}
 	if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);
 	if(IsValidTimer(autosaveTimer[playerid])) KillTimer(autosaveTimer[playerid]);
-	ClearPlayerVars(playerid);
 	return 1;
 }
 
