@@ -452,8 +452,10 @@ saveCharacterInventory(playerid){
 	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
 		format(dslog, sizeof(dslog), "inventoryORM playerid %d invalida", playerid);
 		serverLogRegister(dslog);
+		return 1;
 	}
-	orm_save(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
+	orm_update(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
+	return 1;
 }
 
 public onCharacterInventorySave(playerid){

@@ -55,6 +55,7 @@ orm_char(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jManoData][0], "ManoDerData");
 	orm_addvar_int(ormid, Datos[playerid][jManoData][1], "ManoIzData");
 	new ORM:inv_orm = Datos[playerid][inventoryORM] = orm_create("characters", SQLDB);
+	orm_addvar_int(inv_orm, Datos[playerid][jSQLIDP], "SQLIDPJ");
 	for(new bol; bol < 5; bol++)
 	{
 		new str[24];
