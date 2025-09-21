@@ -965,6 +965,8 @@ CMD:ceder(playerid, params[]){
     Datos[playerid][jManoData][mano] = 0;
     update_manos(playerid);
     update_manos(id2);
+    saveCharacterInventory(playerid);
+    saveCharacterInventory(id2);
     return 1;
 }
 CMD:cederizq(playerid, params[]){
@@ -983,6 +985,8 @@ CMD:cederizq(playerid, params[]){
     Datos[playerid][jManoData][mano] = 0;
     update_manos(playerid);
     update_manos(id2);
+    saveCharacterInventory(playerid);
+    saveCharacterInventory(id2);
     return 1;
 }
 CMD:tirar(playerid){

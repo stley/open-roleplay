@@ -20,9 +20,6 @@
 //#define BUILD_PRODUCTION
 #define BUILD_DEBUG
 
-#if defined BUILD_DEBUG && defined BUILD_PRODUCTION
-    #error "You must choose between BUILD_PRODUCTION or BUILD_DEBUG, can't be both at the same time."
-#endif
 
 //Módulos
 #include "modules/misc/misc_header.p" // Misceláneos
@@ -52,6 +49,10 @@ main(){
 }
 
 // Directivas
+
+#if defined BUILD_DEBUG && defined BUILD_PRODUCTION
+    #error "You must choose between BUILD_PRODUCTION or BUILD_DEBUG, can't be both at the same time."
+#endif
 #if defined BUILD_DEBUG
     #pragma option -d3
 #elseif defined BUILD_PRODUCTION

@@ -54,16 +54,27 @@ orm_char(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jManoCant][1], "ManoIzCant");
 	orm_addvar_int(ormid, Datos[playerid][jManoData][0], "ManoDerData");
 	orm_addvar_int(ormid, Datos[playerid][jManoData][1], "ManoIzData");
+	new ORM:inv_orm = Datos[playerid][inventoryORM] = orm_create("characters", SQLDB);
 	for(new bol; bol < 5; bol++)
 	{
 		new str[24];
 		formatt(str, "Bolsillo%d", bol);
 		orm_addvar_int(ormid, Datos[playerid][jBolsillo][bol], str);
+		orm_addvar_int(inv_orm, Datos[playerid][jBolsillo][bol], str);
 		formatt(str, "BolsilloCant%d", bol);
 		orm_addvar_int(ormid, Datos[playerid][jBolsilloCant][bol], str);
+		orm_addvar_int(inv_orm, Datos[playerid][jBolsilloCant][bol], str);
 		formatt(str, "BolsilloData%d", bol);
 		orm_addvar_int(ormid, Datos[playerid][jBolsilloData][bol], str); 
+		orm_addvar_int(inv_orm, Datos[playerid][jBolsilloData][bol], str); 
 	}
+	orm_addvar_int(inv_orm, Datos[playerid][jPecho], "Pecho"); 
+	orm_addvar_int(inv_orm, Datos[playerid][jPechoCant], "PechoCant"); 
+	orm_addvar_int(inv_orm, Datos[playerid][jEspalda], "Espalda"); 
+	orm_addvar_int(inv_orm, Datos[playerid][jEspaldaCant], "EspaldaCant"); 
+	orm_addvar_int(inv_orm, Datos[playerid][jEspaldaData], "EspaldaData"); 
+	orm_addvar_int(inv_orm, Datos[playerid][jPechoData], "PechoData");
+
 	orm_addvar_int(ormid, Datos[playerid][jPecho], "Pecho"); 
 	orm_addvar_int(ormid, Datos[playerid][jPechoCant], "PechoCant"); 
 	orm_addvar_int(ormid, Datos[playerid][jEspalda], "Espalda"); 
@@ -147,6 +158,7 @@ orm_char(playerid)
 	orm_addvar_float(ormtoy, CharToys[playerid][PechoScale][2], "PechoScaleZ");
 	
 	orm_setkey(ormid, "SQLIDPJ");
+	orm_setkey(inv_orm, "SQLIDPJ");
 	orm_setkey(ormtoy, "character_id");
 	return 1;
 }

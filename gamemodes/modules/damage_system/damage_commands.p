@@ -71,6 +71,7 @@ CMD:reaparecer(playerid){
             Datos[playerid][jBolsillo][i] = 0;
             Datos[playerid][jBolsilloCant][i] = 0;
             Datos[playerid][jBolsilloData][i] = 0;
+            saveCharacterInventory(playerid);
             continue;
         }
     }
@@ -81,6 +82,7 @@ CMD:reaparecer(playerid){
             Datos[playerid][jManoCant][x] = 0;
             Datos[playerid][jManoData][x] = 0;
             update_manos(playerid);
+            saveCharacterInventory(playerid);
             continue;
         }
     }

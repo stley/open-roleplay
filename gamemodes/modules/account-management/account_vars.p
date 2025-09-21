@@ -42,6 +42,7 @@ enum jInfo
 	jSexo,
 	jDinero,
 	jRopa,
+	ORM:inventoryORM,
 	jMano[2],
 	jManoCant[2],
 	jManoData[2],

@@ -62,6 +62,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     Datos[playerid][jManoData][0] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
+                                    saveCharacterInventory(playerid);
+                                    save_vehicle(idex);
                                     success = true;
                                     return 1;
                                 }
@@ -79,6 +81,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][0];
                             Datos[playerid][jManoData][0] = 0;
                             update_manos(playerid);
+                            saveCharacterInventory(playerid);
+                            save_vehicle(idex);
                             success = true;
                             return 1;
                         }
@@ -108,6 +112,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     Datos[playerid][jManoData][1] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
+                                    saveCharacterInventory(playerid);
+                                    save_vehicle(idex);
                                     success = true;
                                     return 1;
                                 }
@@ -125,6 +131,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][1];
                             Datos[playerid][jManoData][1] = 0;
                             update_manos(playerid);
+                            saveCharacterInventory(playerid);
+                            save_vehicle(idex);
                             success = true;
                             return 1;
                         }

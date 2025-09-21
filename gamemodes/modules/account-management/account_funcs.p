@@ -9,6 +9,7 @@ forward accountLoadToys(playerid);
 forward accountOnPlayerConnect(playerid);
 forward accountOnGameModeExit();
 forward characterRespawn(playerid);
+forward onCharacterInventorySave(playerid);
 forward accountOnUserFirstLoad(playerid);
 forward accountOnPlayerRequestClass(playerid, classid);
 forward accountOnUserCharacterList(playerid);
@@ -368,6 +369,11 @@ clear_chardata(playerid){
 		orm_destroy(CharToys[playerid][ORM_toy]);
 		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
 	}
+	if(Datos[playerid][inventoryORM] != MYSQL_INVALID_ORM){
+		orm_clear_vars(Datos[playerid][inventoryORM]);
+		orm_destroy(Datos[playerid][inventoryORM]);
+		Datos[playerid][inventoryORM] = MYSQL_INVALID_ORM;
+	}
 	//no guardables
 	DentroCasa[playerid] = 0;
 	DentroNegocio[playerid] = 0;
@@ -439,6 +445,25 @@ save_char(playerid)
 	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
 	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
 	return 1;
+}
+
+saveCharacterInventory(playerid){
+	new dslog[96];
+	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
+		format(dslog, sizeof(dslog), "inventoryORM playerid %d invalida", playerid);
+		serverLogRegister(dslog);
+	}
+	orm_save(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
+}
+
+public onCharacterInventorySave(playerid){
+	new str[96];
+	if(orm_errno(Datos[playerid][inventoryORM]) != ERROR_OK){
+		formatt(str, "Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]);
+		return serverLogRegister(str);
+	}
+	formatt(str, "Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	return serverLogRegister(str);
 }
 
 bool:hasDriverOnline(veh_idex, exclude){
