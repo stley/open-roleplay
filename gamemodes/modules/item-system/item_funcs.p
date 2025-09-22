@@ -208,8 +208,7 @@ public update_manos(playerid)
         Datos[playerid][jManoData][1] = 0;
     }
     if(manoder){
-        if(ObjetoInfo[manoder][IDArma])
-        {
+        if(ObjetoInfo[manoder][IDArma]){
             new idArma = ObjetoInfo[manoder][IDArma];
             new Balas = Datos[playerid][jManoCant][0];
             ResetPlayerWeapons(playerid);
@@ -238,6 +237,7 @@ public update_manos(playerid)
             ColocarObjeto(playerid, 0, manoder);
         }
         else{
+            ResetPlayerWeapons(playerid);
             ColocarObjeto(playerid, 0, manoder);
             PlayerTextDrawHide(playerid, Gun_Hud[playerid][0]);
             PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);

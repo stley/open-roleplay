@@ -49,7 +49,7 @@ cp -f "$AMX_SRC" "${WORKDIR}/gamemodes/main.amx"
 echo "Installed gamemodes/main.amx from '${ARTIFACT}'."
 
 # Deploy components/, plugins/, libs/ if present
-for d in components plugins libs; do
+for d in components plugins libs models; do
   src="$UNZIP_DIR/$d"
   if [[ -d "$src" ]]; then
     dst="$WORKDIR/$d"

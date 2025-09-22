@@ -328,10 +328,19 @@ CMD:mal(playerid, params[]){
             SendClientMessage(playerid, COLOR_DARKGREEN, "Cierras el maletero del vehículo.");
             vehData[idex][veh_Trunk] = false;
             vehiclesTrunk(idex);
+            foreach(new invplayer: Player){
+                if(GetPVarType(invplayer, "veh_mal")){
+                    if(GetPVarInt(invplayer, "veh_mal") == idex+1){
+                        SendClientMessage(invplayer, COLOR_DARKRED, "El maletero del vehículo fue cerrado.");
+                        Dialog_Close(invplayer);
+                        DeletePVar(invplayer, "veh_mal");
+                    }
+                }
+            }
             return 1;
         }
         has_keys = hasVehicleKeys(playerid, idex);
-        if(!has_keys && vehData[idex][veh_Trunk] != true){
+        if(vehData[idex][veh_Trunk] != false){
             new dlg_buff[136];
             for(new x; x < vehData[idex][veh_EspacioMal]; x++){
                 new slot;
@@ -364,7 +373,7 @@ CMD:mal(playerid, params[]){
             }       
             ShowPlayerDialogPages(playerid, "vehicle_trunk", DIALOG_STYLE_LIST, "Maletero del vehículo", "Seleccionar", "Cerrar", vehData[idex][veh_EspacioMal]+4);
         }    
-        if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
+        else if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
         else{
             new dlg_buff[136];
             for(new x; x < vehData[idex][veh_EspacioMal]; x++){

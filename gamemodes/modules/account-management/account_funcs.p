@@ -16,6 +16,8 @@ forward accountOnPlayerRequestClass(playerid, classid);
 forward accountOnUserCharacterList(playerid);
 forward accountOnCharToyInsert(playerid);
 forward accountOnCharInserted(playerid);
+forward onUserRegister(playerid);
+
 
 forward updateToys(playerid);
 
@@ -113,6 +115,14 @@ public accountOnCharFirstLoad(playerid)
 	}
 }
 public accountOnCharInserted(playerid){
+	if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
+		new str[96];
+		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu personaje. Intenta de nuevo más tarde o contacta con administración.");
+		formatt(str, "ERROR AL CREAR EL PERSONAJE %s A %s (%d), (orm_errno no devolvio ERROR_OK!)", Datos[playerid][jNombrePJ], username[playerid], playerid);
+		serverLogRegister(str);
+		playerDelayedKick(playerid, 1000);
+		return 1;
+	}
 	new dslog[512];
 	format(dslog, sizeof(dslog), "La cuenta %s (SQLID %d) creó el personaje %s.", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
 	serverLogRegister(dslog);
@@ -121,7 +131,16 @@ public accountOnCharInserted(playerid){
 	save_char(playerid);
 	return 1;
 }
+
 public accountOnCharToyInsert(playerid){
+	if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
+		new str[96];
+		SendClientMessage(playerid, COLOR_DARKRED, "No se pudo crear la tabla de accesorios del personaje.");
+		playerDelayedKick(playerid, 1000);
+		formatt(str, "ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid);
+		serverLogRegister(str);
+		return 1;
+	}
 	new dslog[512];
 	format(dslog, sizeof(dslog), "Insertando tabla de objetos para el personaje %s (SQLID PJ: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
 	serverLogRegister(dslog);
@@ -558,5 +577,17 @@ public accountOnUserFirstLoad(playerid)
 		formatt(str, "Bienvenido %s.\nIngrese una contraseña para continuar.", username[playerid]);
 		Dialog_Show(playerid, D_REGISTRO, DIALOG_STYLE_PASSWORD, "Registro", str, "Continuar", "Salir");
 	}
+	return 1;
+}
+
+public onUserRegister(playerid){
+	new str[96];
+	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
+		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu cuenta. Intenta de nuevo más tarde o contacta a adminstración.");
+		formatt(str, "ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid);
+		serverLogRegister(str);
+		playerDelayedKick(playerid, 1000);
+	}
+	else return Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
 	return 1;
 }
