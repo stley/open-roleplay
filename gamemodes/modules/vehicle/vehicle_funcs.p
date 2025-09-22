@@ -34,12 +34,6 @@ public vehiclesOnGameModeInit(){
     }
 }
 public vehiclesOnGameModeExit(){
-    for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_Tipo] || vehData[i][veh_Modelo]){
-            clear_vehiclevars(i);
-            continue;
-        }
-    }
     return 1;
 }
 
@@ -253,11 +247,14 @@ public vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
 public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
     
     for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_vID] == vehicleid){
-            GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
-            GetVehicleZAngle(vehData[i][veh_vID], vehData[i][veh_PosR]);
-            vehData[i][veh_Interior] = GetVehicleInterior(vehData[i][veh_vID]);
-            vehData[i][veh_VW] = GetVehicleVirtualWorld(vehData[i][veh_vID]); 
+        if(vehData[i][veh_vID] && vehData[i][veh_SQLID]){
+            if(vehData[i][veh_vID] == vehicleid){
+                GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
+                GetVehicleZAngle(vehData[i][veh_vID], vehData[i][veh_PosR]);
+                vehData[i][veh_Interior] = GetVehicleInterior(vehData[i][veh_vID]);
+                vehData[i][veh_VW] = GetVehicleVirtualWorld(vehData[i][veh_vID]);
+                save_vehicle(i);
+            }
         }
     }
     if(CinturonV[playerid]){
@@ -283,10 +280,10 @@ public vehiclesOnVehicleSpawn(vehicleid){
     GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
     if(i == -1) SetVehicleParamsEx(vehicleid, false, false, false, false, false, false, false);
     else SetVehicleParamsEx(vehicleid, false, false, false, vehData[i][veh_Bloqueo], false, false, false);
-    
     return 1;
 }
 public putPlayerInVeh(playerid, vehicleid, seat) return PutPlayerInVehicle(playerid, vehicleid, seat);
+
 public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2){
     SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s). SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), vehData[index][veh_SQLID]);
     SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d)", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID]);
@@ -432,6 +429,7 @@ save_vehicle(index){
     }
     orm_update(vehData[index][vehORM]);
     save_veh_inventory(index);
+    return 1;
 }
 
 GetBootCapacity(modelid)

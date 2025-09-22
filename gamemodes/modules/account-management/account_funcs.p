@@ -535,13 +535,6 @@ public accountAutoSave(playerid){
 }
 
 public accountOnGameModeExit(){
-	foreach(new playerid: Player){
-		if(IsPlayerConnected(playerid)){
-			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Apagado del servidor: El servidor se esta apagando.");
-			playerDelayedKick(playerid, 2000);
-		}
-		else continue;
-	}
 	return 1;
 }
 
