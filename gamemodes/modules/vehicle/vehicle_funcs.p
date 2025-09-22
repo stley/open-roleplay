@@ -403,13 +403,8 @@ randomPlate(plate[], len)
 
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
-        
-        foreach(new i: Player){
-            if(vehData[index][veh_OwnerID] == Datos[i][jSQLIDP]){
-                return 1;
-            }
-            else continue;
-        }
+        new str[96];
+        formatt(str, "Liberando el vehículo %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
         save_vehicle(index);
         if(vehData[index][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[index][veh_vID]);
         vehData[index][veh_vID] = INVALID_VEHICLE_ID;
