@@ -55,6 +55,12 @@ orm_char(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jManoData][0], "ManoDerData");
 	orm_addvar_int(ormid, Datos[playerid][jManoData][1], "ManoIzData");
 	new ORM:inv_orm = Datos[playerid][inventoryORM] = orm_create("characters", SQLDB);
+	orm_addvar_int(inv_orm, Datos[playerid][jMano][0], "ManoDer");
+	orm_addvar_int(inv_orm, Datos[playerid][jManoCant][0], "ManoDerCant");
+	orm_addvar_int(inv_orm, Datos[playerid][jMano][1], "ManoIzq");
+	orm_addvar_int(inv_orm, Datos[playerid][jManoCant][1], "ManoIzCant");
+	orm_addvar_int(inv_orm, Datos[playerid][jManoData][0], "ManoDerData");
+	orm_addvar_int(inv_orm, Datos[playerid][jManoData][1], "ManoIzData");
 	orm_addvar_int(inv_orm, Datos[playerid][jSQLIDP], "SQLIDPJ");
 	for(new bol; bol < 5; bol++)
 	{
@@ -93,8 +99,8 @@ orm_char(playerid)
 	orm_addvar_int(ormid, Datos[playerid][jLicencias][1], "Licencia2");
 	//orm_addvar_int(ormid, Datos[playerid][jCoche][0], "Coche1");
 	//orm_addvar_int(ormid, Datos[playerid][jCoche][1], "Coche2");
-	//orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][0], "CocheLlaves1"); 
-	//orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][1], "CocheLlaves2"); 
+	orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][0], "CocheLlaves1"); 
+	orm_addvar_int(ormid, Datos[playerid][jCocheLlaves][1], "CocheLlaves2"); 
 	orm_addvar_int(ormid, Datos[playerid][jCasa][0], "Casa");
 	orm_addvar_int(ormid, Datos[playerid][jCasa][1], "Casa2");
 	orm_addvar_int(ormid, Datos[playerid][jCasaLlaves], "CasaLlaves"); 

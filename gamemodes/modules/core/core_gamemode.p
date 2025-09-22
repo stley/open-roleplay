@@ -71,6 +71,7 @@ public OnPlayerExitVehicle(playerid, vehicleid){
 }
 
 public globalAutoSave(){
+	serverLogRegister("Ejecutando el autoguardado automático global...");
 	foreach(new playerid: Player){
 		CallLocalFunction("accountAutoSave", "d", playerid);
 	}

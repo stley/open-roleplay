@@ -161,6 +161,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
             update_manos(playerid);
             formatt(query, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
             accion_player(playerid, 1, query);
+            saveCharacterInventory(playerid);
             return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
         }
         Datos[playerid][jMano][0] = vehicleInventory[slot][veh_Maletero];
@@ -175,6 +176,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         mysql_tquery(SQLDB, query);
         formatt(query, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
         accion_player(playerid, 1, query);
+        saveCharacterInventory(playerid);
         return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
     }
     

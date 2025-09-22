@@ -10,24 +10,27 @@ dialog_vehiculos(playerid){
     for(new i; i < MAX_VEHICULOS; i++){
         new buffer[128];
         new key[18];
-        if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
-            formatt(buffer, "[%d] %s — %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
-            format(key, sizeof key, "veh_list_%d", cantidad);
-            SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
-            AddDialogListitem(playerid, buffer);
-            cantidad++;
-            continue;
-        }
-        for(new x; x < 2; x++){
-            if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
-                formatt(buffer, "Prestado %d : [%d] %s — %s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+        if (vehData[i][veh_SQLID]){
+            if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
+                formatt(buffer, "[%d] %s — %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
                 format(key, sizeof key, "veh_list_%d", cantidad);
-                SetPVarInt(playerid, key, i);
+                SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
                 AddDialogListitem(playerid, buffer);
                 cantidad++;
                 continue;
             }
+            for(new x; x < 2; x++){
+                if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
+                    formatt(buffer, "Prestado %d : [%d] %s — %s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                    format(key, sizeof key, "veh_list_%d", cantidad);
+                    SetPVarInt(playerid, key, i);
+                    AddDialogListitem(playerid, buffer);
+                    cantidad++;
+                    continue;
+                }
+            }
         }
+        continue;
     }
     if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
     SetPVarInt(playerid, "vehicle_listsize", cantidad);
@@ -169,6 +172,7 @@ CMD:guantera(playerid){
         accion_player(playerid, 1, action);
         SendClientMessage(playerid, COLOR_GREEN, "Sacas un %s de la guantera de tu vehículo.", ObjetoInfo[Datos[playerid][jMano][mano]][NombreObjeto]);
         update_manos(playerid);
+        saveCharacterInventory(playerid);
     }
     else{ //Si la guantera esta vacía
         if(!Datos[playerid][jMano][0]){
@@ -229,6 +233,7 @@ CMD:grack(playerid){
         accion_player(playerid, 1, action);
         SendClientMessage(playerid, COLOR_GREEN, "Sacas un %s del gunrack de tu vehículo.", ObjetoInfo[Datos[playerid][jMano][mano]][NombreObjeto]);
         update_manos(playerid);
+        saveCharacterInventory(playerid);
     }
     else{ //Si la gunrack esta vacía
         if(!Datos[playerid][jMano][0]){
@@ -301,15 +306,17 @@ CMD:mal(playerid, params[]){
     SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /mal [cerrar, dejar en blanco para abrir y ver el maletero]");
     if(IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes hacer eso estando dentro de un vehículo.");
     for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
+        if(vehData[i][veh_SQLID]){
+            if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
 
-            if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
-                if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
-                    GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
-                    if(GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]) < currdist){
-                        idex = i;
-                        currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
-                        continue;
+                if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
+                    if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
+                        GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
+                        if(GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]) < currdist){
+                            idex = i;
+                            currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
+                            continue;
+                        }
                     }
                 }
             }

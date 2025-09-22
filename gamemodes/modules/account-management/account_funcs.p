@@ -296,7 +296,6 @@ public accountOnCharDataSaved(playerid, type){
 			else{
 				printf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
 			}
-			if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
 		}
 		case 2:{
 			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
@@ -305,6 +304,7 @@ public accountOnCharDataSaved(playerid, type){
 			else return 1;
 		}
 	}
+	if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
 	return 1;
 }
 
@@ -494,16 +494,19 @@ public accountOnPlayerDisconnect(playerid, reason)
 		mysql_tquery(SQLDB, query);
 	}
 	for(new i; i < MAX_VEHICULOS; i++){
-		if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
-			if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
-			if(!hasDriverOnline(i, playerid)){
-				vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
-			}
-		}
-		for(new v; v < 2; v++){
-			if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][v]){
+		if(vehData[i][veh_SQLID]){
+
+			if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
+				if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
 				if(!hasDriverOnline(i, playerid)){
 					vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+				}
+			}
+			for(new v; v < 2; v++){
+				if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][v]){
+					if(!hasDriverOnline(i, playerid)){
+						vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+					}
 				}
 			}
 		}
@@ -515,11 +518,20 @@ public accountOnPlayerDisconnect(playerid, reason)
 
 
 public accountAutoSave(playerid){
+	
 	if(Datos[playerid][LoggedIn] == true)
 	{
+		new str[64];
+		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(str);
 		save_account(playerid);
-		if(Datos[playerid][EnChar] == true) save_char(playerid);
+		if(Datos[playerid][EnChar] == true){
+			formatt(str, "Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			serverLogRegister(str);
+			save_char(playerid);
+		}
 	}
+	return 1;
 }
 
 public accountOnGameModeExit(){
