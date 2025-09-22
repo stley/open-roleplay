@@ -444,18 +444,20 @@ public ClearPlayerVars(playerid)
 	clear_chardata(playerid);
 	return 1;	
 }
-Task:asyncSaveAccount(Task:t, playerid){
 
+Task:ORMAsyncUpdate(ORM:id){
+	new Task:t = task_new();
+    orm_update(id, "OnORMUpdate", "d", _:t);
+    return t;
 }
 
 forward OnORMUpdate(Task:t, ORM:id);
 public OnORMUpdate(Task:t, ORM:id){
-	new err = orm_errno(id);
-	if(err != ERROR_OK){
-		task_set_error(t, err);
+	if(orm_errno(id) != ERROR_OK){
+		task_set_result(t, _:orm_errno(id));
 		return 1;
 	}
-	task_set_result(t, cache_affected_rows());
+	else task_set_result(t, _:orm_errno(id));
 	return 1;
 }
 
@@ -464,8 +466,12 @@ save_account(playerid){
 	new dslog[512];
 	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
-	new Task:t = task_new();
-	orm_update(Datos[playerid][ORMID], "OnORMUpdate", "d", _:t);
+	new error = await ORMAsyncUpdate(Datos[playerid][ORMID]);
+	if(error){
+		formatt(dslog, "Ocurrió un error al guardar los datos del usuario %s (SQLID %d).", username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(dslog);
+	} 
+	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
 save_char(playerid)
@@ -481,8 +487,18 @@ save_char(playerid)
 		format(dslog, sizeof(dslog), "ORMPJ playerid %d invalida", playerid);
 		serverLogRegister(dslog);
 	}
-	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
-	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
+	new error[2];
+	error[0] = await ORMAsyncUpdate(Datos[playerid][ORMPJ]);
+	error[1] = await ORMAsyncUpdate(CharToys[playerid][ORM_toy]);
+	if(error[0]){
+		formatt(dslog, "Ocurrió un error guardando los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+		serverLogRegister(dslog);
+	}
+	if(error[1]){
+		formatt(dslog, "Ocurrió un error guardando los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+		serverLogRegister(dslog);
+	}
+	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
 }
 

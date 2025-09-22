@@ -12,6 +12,8 @@
 #include <samp_bcrypt>
 #include <ndialog-pages>
 #include <foreach>
+#define PP_SYNTAX_AWAIT
+#include <PawnPlus>
 #pragma dynamic 7000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
