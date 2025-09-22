@@ -422,7 +422,6 @@ CMD:darmod(playerid, params[]){
     new target[32], level;
     if(sscanf(params, "s[32]d", target, level)) return SendClientMessage(playerid, COLOR_BRIGHTRED, "USO: /darmod [Cuenta] [Nivel de Rango Administrativo]");
     if(level >= Datos[playerid][jAdmin]) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes ceder rangos administrativos superiores o igual al tuyo!");
-    //if(!accountCheck(target)) return SendClientMessage(playerid, COLOR_DARKRED, "¡La cuenta %s no existe!");
     new query[256];
     foreach(new i: Player){
         if(strcmp(target, username[i], true) == 0){
