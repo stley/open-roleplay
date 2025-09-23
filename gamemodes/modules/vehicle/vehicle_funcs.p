@@ -544,7 +544,6 @@ clear_vehiclevars(index){
 
 
 public vehicleAutoSave(index){
-    yield 1;
     new str[64];
 	if(vehData[index][veh_SQLID]){
         formatt(str, "Ejecutando autoguardado del vehículo %s", vehData[index][veh_Matricula]);
