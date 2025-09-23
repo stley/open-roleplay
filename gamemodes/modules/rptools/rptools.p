@@ -40,7 +40,6 @@ Name_sin(const text[]){
 stock GetRPName(playerid) return Name_sin(GetName(playerid));
 
 public OnPlayerText(playerid, text[]){
-	if(!Datos[playerid][LoggedIn] && !Datos[playerid][EnChar]) return 0;
     new dice[200];
     new Float:distancia;
 	if(muerto[playerid] == 2){

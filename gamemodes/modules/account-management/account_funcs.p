@@ -303,7 +303,7 @@ public accountOnUserDataSaved(playerid){
 	else{
 		printf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]);
 	}
-	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
+	if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
 	return 1;
 }
 public accountOnCharDataSaved(playerid, type){
@@ -323,7 +323,7 @@ public accountOnCharDataSaved(playerid, type){
 			else return 1;
 		}
 	}
-	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
+	if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
 	return 1;
 }
 
@@ -444,28 +444,12 @@ public ClearPlayerVars(playerid)
 	clear_chardata(playerid);
 	return 1;	
 }
-Task:asyncSaveAccount(Task:t, playerid){
-
-}
-
-forward OnORMUpdate(Task:t, ORM:id);
-public OnORMUpdate(Task:t, ORM:id){
-	new err = orm_errno(id);
-	if(err != ERROR_OK){
-		task_set_error(t, err);
-		return 1;
-	}
-	task_set_result(t, cache_affected_rows());
-	return 1;
-}
-
 save_account(playerid){
 	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM) serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
 	new dslog[512];
 	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
-	new Task:t = task_new();
-	orm_update(Datos[playerid][ORMID], "OnORMUpdate", "d", _:t);
+	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
 	return 1;
 }
 save_char(playerid)
@@ -556,7 +540,7 @@ public accountAutoSave(playerid){
 	
 	if(Datos[playerid][LoggedIn] == true)
 	{
-		new str[128];
+		new str[64];
 		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
 		serverLogRegister(str);
 		save_account(playerid);
