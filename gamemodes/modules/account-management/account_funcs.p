@@ -483,14 +483,12 @@ save_char(playerid)
 	new error[2];
 	error[0] = await ORMAsyncUpdate(Datos[playerid][ORMPJ]);
 	error[1] = await ORMAsyncUpdate(CharToys[playerid][ORM_toy]);
-	if(error[0]){
-		formatt(dslog, "Ocurrió un error guardando los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-		serverLogRegister(dslog);
-	}
-	if(error[1]){
-		formatt(dslog, "Ocurrió un error guardando los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-		serverLogRegister(dslog);
-	}
+	if(error[0]) formatt(dslog, "Ocurrió un error guardando los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	else formatt(dslog, "Se guardaron los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	serverLogRegister(dslog);
+	if(error[1]) formatt(dslog, "Ocurrió un error guardando los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	else formatt(dslog, "Se guardaron los accesorios de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	serverLogRegister(dslog);
 	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
 }
@@ -570,7 +568,7 @@ public accountOnPlayerDisconnect(playerid, reason)
 
 
 public accountAutoSave(playerid){
-	
+	yield 1;
 	if(Datos[playerid][LoggedIn] == true)
 	{
 		new str[128];
