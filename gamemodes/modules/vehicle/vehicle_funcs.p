@@ -414,7 +414,6 @@ public CharVeh_Free(index){
 }
 
 save_vehicle(index){
-    if(!vehData[index][veh_SQLID]) return 1;
     if(vehData[index][veh_vID] != INVALID_VEHICLE_ID){
         GetVehiclePos(vehData[index][veh_vID], vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ]);
         GetVehicleZAngle(vehData[index][veh_vID], vehData[index][veh_PosR]);
@@ -422,11 +421,6 @@ save_vehicle(index){
         vehData[index][veh_Interior] = GetVehicleInterior(vehData[index][veh_vID]);
         GetVehicleHealth(vehData[index][veh_vID], vehData[index][veh_Vida]);
         GetVehicleDamageStatus(vehData[index][veh_vID], vehData[index][veh_DmgSuperficie], vehData[index][veh_DmgPuertas], vehData[index][veh_DmgLuces], vehData[index][veh_DmgRuedas]);
-    }
-    new log[96];
-    new err = await ORMAsyncUpdate(vehData[index][vehORM]);
-    if(err){
-        formatt(log, "Error al guardar los datos del vehículo ID %d Matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
     }
     orm_update(vehData[index][vehORM]);
     save_veh_inventory(index);

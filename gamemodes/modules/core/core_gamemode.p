@@ -1,4 +1,5 @@
 new g_AutoSave;
+forward globalAutoSave();
 
 public OnGameModeInit()
 {
@@ -69,7 +70,17 @@ public OnPlayerExitVehicle(playerid, vehicleid){
 	return 1;
 }
 
-
+public globalAutoSave(){
+	serverLogRegister("Ejecutando el autoguardado automático global...");
+	foreach(new playerid: Player){
+		CallLocalFunction("accountAutoSave", "d", playerid);
+	}
+	for(new v; v < MAX_VEHICULOS; v++){
+		CallLocalFunction("vehicleAutoSave", "d", v);
+		continue;
+	}
+	return 1;
+}
 
 //vehicle
 public OnVehicleSpawn(vehicleid){

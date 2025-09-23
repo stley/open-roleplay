@@ -18,6 +18,7 @@ forward accountOnCharToyInsert(playerid);
 forward accountOnCharInserted(playerid);
 forward onUserRegister(playerid);
 
+
 forward updateToys(playerid);
 
 public OnDialogPerformed(playerid, const dialog[], response, success) {
@@ -444,10 +445,21 @@ public ClearPlayerVars(playerid)
 	return 1;	
 }
 
+Task:ORMAsyncUpdate(ORM:id){
+	new Task:t = task_new();
+    orm_update(id, "OnORMUpdate", "d", _:t);
+    return t;
+}
 
-
-
-
+forward OnORMUpdate(Task:t, ORM:id);
+public OnORMUpdate(Task:t, ORM:id){
+	if(orm_errno(id) != ERROR_OK){
+		task_set_result(t, _:orm_errno(id));
+		return 1;
+	}
+	else task_set_result(t, _:orm_errno(id));
+	return 1;
+}
 
 save_account(playerid){
 	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM) serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
@@ -458,12 +470,7 @@ save_account(playerid){
 	if(error){
 		formatt(dslog, "Ocurrió un error al guardar los datos del usuario %s (SQLID %d).", username[playerid], Datos[playerid][jSQLID]);
 		serverLogRegister(dslog);
-	}
-	new err = await ORMAsyncUpdate(Datos[playerid][ORMID]);
-	if(err){
-		formatt(dslog, "Error al guardar los datos del usuario %s (SQLID %d).", username[playerid], Datos[playerid][jSQLID]);
-		serverLogRegister(dslog);
-	}
+	} 
 	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
@@ -495,9 +502,6 @@ save_char(playerid)
 	return 1;
 }
 
-
-
-
 saveCharacterInventory(playerid){
 	new dslog[96];
 	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
@@ -505,12 +509,7 @@ saveCharacterInventory(playerid){
 		serverLogRegister(dslog);
 		return 1;
 	}
-
-	new err = await ORMAsyncUpdate(Datos[playerid][inventoryORM]);
-	if(err){
-		formatt(dslog, "Error al guardar el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-		serverLogRegister(dslog);
-	}
+	orm_update(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
 	return 1;
 }
 
@@ -624,4 +623,3 @@ public onUserRegister(playerid){
 	else return Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
 	return 1;
 }
-
