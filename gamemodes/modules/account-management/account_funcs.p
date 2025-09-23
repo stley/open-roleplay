@@ -303,7 +303,7 @@ public accountOnUserDataSaved(playerid){
 	else{
 		printf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]);
 	}
-	if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
+	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
 public accountOnCharDataSaved(playerid, type){
@@ -323,7 +323,7 @@ public accountOnCharDataSaved(playerid, type){
 			else return 1;
 		}
 	}
-	if(!IsPlayerConnected(playerid)) ClearPlayerVars(playerid);
+	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
 }
 
@@ -540,7 +540,7 @@ public accountAutoSave(playerid){
 	
 	if(Datos[playerid][LoggedIn] == true)
 	{
-		new str[64];
+		new str[128];
 		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
 		serverLogRegister(str);
 		save_account(playerid);
