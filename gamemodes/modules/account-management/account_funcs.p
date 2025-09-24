@@ -27,12 +27,14 @@ public OnDialogPerformed(playerid, const dialog[], response, success) {
 
 public accountOnPlayerConnect(playerid)
 {
-	new str[129];
+	new login[96];
+    format(login, sizeof login, "%s ingresó al servidor (IP: %s | playerid %d)", GetName(playerid), GetPIP(playerid), playerid);
+    serverLogRegister(login);
 	ClearPlayerVars(playerid);
 	clear_wounds(playerid);
 	GetPlayerName(playerid, initialname[playerid], MAX_PLAYER_NAME);
-	formatt(str, "Conectando_%d", playerid);
-	SetPlayerName(playerid, str);
+	formatt(login, "Conectando_%d", playerid);
+	SetPlayerName(playerid, login);
 	return 1;
 }
 
@@ -298,27 +300,29 @@ public accountLoadToys(playerid){
 
 public accountOnUserDataSaved(playerid){
 	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
-		printf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(sprintf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]));
 	}
 	else{
-		printf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(sprintf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]));
 	}
 	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
 public accountOnCharDataSaved(playerid, type){
+	new str_log[96];
 	switch(type){
 		case 1:{
-			if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
-				printf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-			}
-			else{
-				printf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-			}
+			if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK)
+				formatt(str_log, "Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			else
+				formatt(str_log, "Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+
+			serverLogRegister(str_log);
 		}
 		case 2:{
 			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
-				printf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+				formatt(str_log, "Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+				serverLogRegister(str_log);
 			}
 			else return 1;
 		}

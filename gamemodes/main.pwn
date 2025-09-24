@@ -44,15 +44,7 @@
 #include "modules/anticheat/anticheat_header.p" // (Pawn.RakNet)
 
 main(){
-
-    printf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time);
-    if(IsValidRequestsClient(LOG_CHANNEL)){
-        new buff[164];
-        new logutf[164];
-        format(buff, sizeof(buff), "\"%s\" INICIADO - %s\nSERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __file, FechaActual(), __date, __time);
-        Cp1252ToUtf8(logutf, sizeof(logutf), buff);
-        discordSendMessage(logutf);
-    }
+    serverLogRegister(sprintf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time));
 }
 
 // Directivas

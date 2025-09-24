@@ -4,43 +4,45 @@ public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
 	DisableInteriorEnterExits();
-	pp_use_funcidx(true);
+	
+	CallLocalFunction("discordOnGameModeInit");
+	CallLocalFunction("serverLogInit");
     CallLocalFunction("databaseOnGameModeInit");
     CallLocalFunction("Models_OnGameModeInit");
 	CallLocalFunction("vehiclesOnGameModeInit");
-	CallLocalFunction("discordOnGameModeInit");
-	if(IsCrashDetectPresent()) printf("CrashDetect encontrado en la lista de plugins.");
+
+	if(IsCrashDetectPresent()) serverLogRegister("CrashDetect encontrado en la lista de plugins.");
 	g_AutoSave = SetTimer("globalAutoSave", 60*60000, true);
     return 1;
 }
 
 public OnGameModeExit()
 {
-	CallLocalFunction("discordOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
 
     CallLocalFunction("databaseOnGameModeExit");
+	CallLocalFunction("serverLogExit");
+	CallLocalFunction("discordOnGameModeExit");
 	return 1;
 }
 //player
 public OnPlayerConnect(playerid){
 	animationsPreload(playerid);
-	CallLocalFunction("discordOnPlayerConnect", "d", playerid);
 	CallLocalFunction("accountOnPlayerConnect", "d", playerid);
 	return 1;
 }
 
 public OnPlayerDisconnect(playerid, reason){
-	accountOnPlayerDisconnect(playerid, reason);
-	playerOnPlayerDisconnect(playerid, reason);
+	CallLocalFunction("accountOnPlayerDisconnect", "dd", playerid, reason);
+	CallLocalFunction("playerOnPlayerDisconnect", "dd", playerid, reason);
 	return 1;
 }
 public OnPlayerRequestClass(playerid, classid){
 	CallLocalFunction("accountOnPlayerRequestClass", "dd", playerid, classid);
 	if(!IsPlayerUsingOmp(playerid)){
 		SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
-		SetTimerEx("Kick", 2000, false, "d", playerid);
+		playerDelayedKick(playerid, 2000);
 	}
 	return 1;
 }

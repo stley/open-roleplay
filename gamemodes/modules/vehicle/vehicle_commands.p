@@ -299,16 +299,15 @@ CMD:mal(playerid, params[]){
     new 
         Float:veh_pos[3],
         idex = -1,
-        Float:currdist = 30.0,
+        Float:currdist = 7.0,
         bool:has_keys
     ;
-    sscanf(params, "S()[24]", params);
-    SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /mal [cerrar, dejar en blanco para abrir y ver el maletero]");
     if(IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes hacer eso estando dentro de un vehículo.");
+    sscanf(params, "S()[24]", params);
+    SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /mal [abrir | cerrar | (dejar en blanco para abrir y ver el maletero)]");
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_SQLID]){
             if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
-
                 if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
                     if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
                         GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
@@ -322,12 +321,21 @@ CMD:mal(playerid, params[]){
             }
         }
     }
-    if(idex != -1 && currdist < 6.8){
+    if(idex != -1 && currdist < 4.0){
+        has_keys = hasVehicleKeys(playerid, idex);
+        if(strcmp(params, "abrir", true) == 0 && !isnull(params)){
+            if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este maletero.");
+            if(vehData[idex][veh_Trunk]) return SendClientMessage(playerid, COLOR_DARKRED, "El maletero ya está abierto.");
+            SendClientMessage(playerid, COLOR_DARKGREEN, "Abriste el maletero del vehículo.");
+            vehData[idex][veh_Trunk] = true;
+            vehiclesTrunk(idex);
+        }
         if(strcmp(params, "cerrar", true) == 0 && !isnull(params)){
             if(!vehData[idex][veh_Trunk]) return SendClientMessage(playerid, COLOR_DARKRED, "El maletero ya está cerrado.");
             SendClientMessage(playerid, COLOR_DARKGREEN, "Cierras el maletero del vehículo.");
             vehData[idex][veh_Trunk] = false;
             vehiclesTrunk(idex);
+            if(GetPVarType(playerid, "veh_mal")) DeletePVar(playerid, "veh_mal");
             foreach(new invplayer: Player){
                 if(GetPVarType(invplayer, "veh_mal")){
                     if(GetPVarInt(invplayer, "veh_mal") == idex+1){
@@ -339,7 +347,6 @@ CMD:mal(playerid, params[]){
             }
             return 1;
         }
-        has_keys = hasVehicleKeys(playerid, idex);
         if(vehData[idex][veh_Trunk] != false){
             new dlg_buff[136];
             for(new x; x < vehData[idex][veh_EspacioMal]; x++){
@@ -372,9 +379,9 @@ CMD:mal(playerid, params[]){
                 vehiclesTrunk(idex);
             }       
             ShowPlayerDialogPages(playerid, "vehicle_trunk", DIALOG_STYLE_LIST, "Maletero del vehículo", "Seleccionar", "Cerrar", vehData[idex][veh_EspacioMal]+4);
-        }    
-        else if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
+        }
         else{
+            if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este vehículo (%s - %d).", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_vID]);
             new dlg_buff[136];
             for(new x; x < vehData[idex][veh_EspacioMal]; x++){
                 new slot= vehicleFetchInventorySlot(idex, x);
@@ -404,7 +411,7 @@ CMD:mal(playerid, params[]){
         }
         SetPVarInt(playerid, "veh_mal", idex+1);
     }
-    return 1;
+    return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
 }
 alias:miscoches("coches")
 alias:mal("maletero")

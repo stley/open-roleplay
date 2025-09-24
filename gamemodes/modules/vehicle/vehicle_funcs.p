@@ -130,7 +130,7 @@ public vehicleInventory_Load(){
             }
             if (!placed){
                 new vid; cache_get_value_name_int(i, "vehicle_id", vid);
-                printf("[vehicleInventory_Load] Sin espacio para vehicle_id=%d (fila %d).", vid, i);
+                serverLogRegister(sprintf("[vehicleInventory_Load] Sin espacio para vehicle_id=%d (fila %d).", vid, i));
                 return 1;
             }
             placed = false;
