@@ -329,6 +329,7 @@ CMD:mal(playerid, params[]){
             SendClientMessage(playerid, COLOR_DARKGREEN, "Abriste el maletero del vehículo.");
             vehData[idex][veh_Trunk] = true;
             vehiclesTrunk(idex);
+            return 1;
         }
         if(strcmp(params, "cerrar", true) == 0 && !isnull(params)){
             if(!vehData[idex][veh_Trunk]) return SendClientMessage(playerid, COLOR_DARKRED, "El maletero ya está cerrado.");
