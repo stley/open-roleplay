@@ -308,10 +308,10 @@ public accountOnCharDataSaved(playerid, type){
 		case 2:{
 			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK)
 				serverLogRegister(sprintf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
-			else return 1;
+			if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
+			return 1;
 		}
 	}
-	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
 }
 
