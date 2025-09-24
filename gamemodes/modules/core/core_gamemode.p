@@ -16,11 +16,11 @@ public OnGameModeInit()
 
 public OnGameModeExit()
 {
+	CallLocalFunction("discordOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
 
-
-    CallLocalFunction("databaseOnGameModeExit"); //keep it last, so it saves everything, smh with my past myself
+    CallLocalFunction("databaseOnGameModeExit");
 	return 1;
 }
 //player

@@ -195,7 +195,7 @@ CMD:limpiarmanos(playerid, params[])
     new objetivo;
     if(sscanf(params, "r", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
     new dslog[512];
-    format(dslog, sizeof(dslog), "AdmCmd: %s (%s) limpió las manos de %s (%s).\nTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
+    format(dslog, sizeof(dslog), "AdmCmd: %s (%s) limpió las manos de %s (%s).\n\tTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
     serverLogRegister(dslog);
     if(Datos[objetivo][jMano][0]){
         format(dslog, sizeof(dslog), "Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]);
@@ -449,7 +449,7 @@ CMD:test_wound(playerid){
 
 
 flags:server_shutdown(CMD_OWNER)
-CMD:shutdown(playerid){
+CMD:server_shutdown(playerid){
     CallLocalFunction("serverShutdown");
     return 1;
 }
