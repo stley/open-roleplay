@@ -11,13 +11,13 @@ forward accountOnGameModeExit();
 forward ClearPlayerVars(playerid);
 forward characterRespawn(playerid);
 forward onCharacterInventorySave(playerid);
+forward accountGlobalAutoSave();
 forward accountOnUserFirstLoad(playerid);
 forward accountOnPlayerRequestClass(playerid, classid);
 forward accountOnUserCharacterList(playerid);
 forward accountOnCharToyInsert(playerid);
 forward accountOnCharInserted(playerid);
 forward onUserRegister(playerid);
-
 
 forward updateToys(playerid);
 
@@ -110,7 +110,7 @@ public accountOnCharFirstLoad(playerid)
 	else
 	{
 		clear_chardata(playerid);
-		save_account(playerid);
+		accountSave(playerid);
 		return dialog_personajes(playerid);
 	}
 }
@@ -128,7 +128,7 @@ public accountOnCharInserted(playerid){
 	serverLogRegister(dslog);
 	mysql_format(SQLDB, dslog, sizeof(dslog), "INSERT INTO `char_toys` (`character_id`) VALUES (%d)", Datos[playerid][jSQLIDP]);
 	mysql_tquery(SQLDB, dslog);
-	save_char(playerid);
+	characterSave(playerid);
 	return 1;
 }
 
@@ -444,37 +444,42 @@ public ClearPlayerVars(playerid)
 	clear_chardata(playerid);
 	return 1;	
 }
-save_account(playerid){
-	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM) serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
-	new dslog[512];
+accountSave(playerid){
+	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM){
+		serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
+		return 1;
+	}
+	new dslog[256];
 	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
 	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
 	return 1;
 }
-save_char(playerid)
+characterSave(playerid)
 {
-	new dslog[512];
+	new dslog[256];
 	format(dslog, sizeof(dslog), "Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
+	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM){
+		format(dslog, sizeof(dslog), "[characterSave] ORMPJ playerid %d invalida", playerid);
+		serverLogRegister(dslog);
+		return 1;
+	}
 	GetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
 	GetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
 	Datos[playerid][jInt] = GetPlayerInterior(playerid);
 	Datos[playerid][jVW] = GetPlayerVirtualWorld(playerid);
-	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM){
-		format(dslog, sizeof(dslog), "ORMPJ playerid %d invalida", playerid);
-		serverLogRegister(dslog);
-	}
-	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
+	
 	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
+	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
 	return 1;
 }
 
 saveCharacterInventory(playerid){
-	new dslog[96];
+	new str[96];
 	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
-		format(dslog, sizeof(dslog), "inventoryORM playerid %d invalida", playerid);
-		serverLogRegister(dslog);
+		format(str, sizeof(str), "inventoryORM playerid %d invalida", playerid);
+		serverLogRegister(str);
 		return 1;
 	}
 	orm_update(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
@@ -507,8 +512,8 @@ public accountOnPlayerDisconnect(playerid, reason)
 	if(Datos[playerid][LoggedIn] == true)
 	{
 		new query[96];
-		save_account(playerid);
-		if(Datos[playerid][EnChar] == true) save_char(playerid);
+		accountSave(playerid);
+		if(Datos[playerid][EnChar] == true) characterSave(playerid);
 		mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `online` = 0 WHERE `Nombre` = '%e'", username[playerid]);
 		mysql_tquery(SQLDB, query);
 	}
@@ -536,22 +541,7 @@ public accountOnPlayerDisconnect(playerid, reason)
 }
 
 
-public accountAutoSave(playerid){
-	
-	if(Datos[playerid][LoggedIn] == true)
-	{
-		new str[128];
-		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
-		serverLogRegister(str);
-		save_account(playerid);
-		if(Datos[playerid][EnChar] == true){
-			formatt(str, "Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-			serverLogRegister(str);
-			save_char(playerid);
-		}
-	}
-	return 1;
-}
+
 
 public accountOnGameModeExit(){
 	return 1;
@@ -589,5 +579,33 @@ public onUserRegister(playerid){
 		playerDelayedKick(playerid, 1000);
 	}
 	else return Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
+	return 1;
+}
+
+public accountGlobalAutoSave(){
+	yield 1;
+	foreach(new playerid: Player){
+		if(Datos[playerid][jSQLID]){
+			accountAutoSave(playerid);
+		}
+		else continue;
+		wait_ticks(1);
+	}
+	return 1;
+}
+
+public accountAutoSave(playerid){
+	if(Datos[playerid][LoggedIn] == true)
+	{
+		new str[128];
+		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(str);
+		if(Datos[playerid][EnChar] == true){
+			formatt(str, "Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			serverLogRegister(str);
+			characterSave(playerid);
+		}
+		accountSave(playerid);
+	}
 	return 1;
 }

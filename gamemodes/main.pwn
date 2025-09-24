@@ -12,6 +12,9 @@
 #include <samp_bcrypt>
 #include <ndialog-pages>
 #include <foreach>
+#define PP_SYNTAX_AWAIT
+#define PP_SYNTAX_YIELD
+#include <PawnPlus>
 #pragma dynamic 7000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
@@ -26,6 +29,7 @@
 #include "modules/discord-bot/discord-bot_header.p" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header.p"
 #include "modules/core/core_header.p" //Funciones core del servidor.
+//#include "modules/shared/shared_header.p"
 #include "modules/database/database_header.p" // Conexión a la base de datos
 #include "modules/item-system/item_header.p" // Objetos
 #include "modules/admin/admin_header.p" // Admin

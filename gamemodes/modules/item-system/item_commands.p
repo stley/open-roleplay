@@ -591,9 +591,6 @@ CMD:quitar(playerid, params[])
         RemovePlayerAttachedObject(playerid, 7);  
         return 1;
     }
-    /*else if(!strcmp(params, "cuerpo", true)){
-
-    }*/
     return 1;
 }
 

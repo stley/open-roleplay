@@ -81,7 +81,7 @@ Dialog:D_FINREGPJ(playerid, response, listitem, inputtext[])
 {
 	if(!response) return Dialog_Show(playerid, D_EDAD, DIALOG_STYLE_INPUT, "Edad del Personaje", "¿Cuantos años tendrá tu personaje?", "Continuar", "Salir");
 	Datos[playerid][jRopa] = (Datos[playerid][jSexo] == 1) ? 299 : 93;
-	save_account(playerid);
+	accountSave(playerid);
 	//ChosenPJ[playerid] = 0;
 	SpawnPlayer(playerid);
 	orm_char(playerid);
