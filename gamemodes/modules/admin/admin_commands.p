@@ -43,6 +43,7 @@ Dialog:D_PLACEHOLDER(playerid, response, listitem, inputtext[])
 Dialog:D_LISTAOBJETO(playerid, response, listitem, inputtext[]){
     new dlg[3000];
     new dlg_buff[96];
+    if(!response) return 1;
     switch(listitem){
         case 0:{
             for(new i = 1; i < sizeof(ObjetoInfo); i++){
@@ -157,20 +158,15 @@ Dialog:D_LISTAOBJETO(playerid, response, listitem, inputtext[]){
         }
     }
     Dialog_Show(playerid, D_PLACEHOLDER, DIALOG_STYLE_MSGBOX, "Objetos disponibles", dlg, "Aceptar", "");
-    return;
+    return 1;
 }
 flags:editattached(CMD_OWNER | CMD_ADMIN)
 CMD:editattached(playerid, params[]){
-    if(sscanf(params, "d", params[0])){
-        SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /editattached [Slot del PlayerAttachedObject]");
-        return;
-    }
-    if(!IsPlayerAttachedObjectSlotUsed(playerid, params[0])){
-        SendClientMessage(playerid, COLOR_DARKRED, "No hay ningun objeto en ese slot.");
-        return;
-    }
-    EditAttachedObject(playerid, params[0]);
+    if(sscanf(params, "d", params[0])) return SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /editattached [Slot del PlayerAttachedObject]");
+    if(!IsPlayerAttachedObjectSlotUsed(playerid, params[0])) return SendClientMessage(playerid, COLOR_DARKRED, "No hay ningun objeto en ese slot.");
     EditType[playerid] = 1337;
+    EditAttachedObject(playerid, params[0]);
+    return 1;
 }
 flags:listaobjetos(CMD_OWNER | CMD_ADMIN)
 CMD:listaobjetos(playerid)
@@ -191,6 +187,7 @@ CMD:listaobjetos(playerid)
         Objetos con utilidades\n\
         Contenedores (pueden almacenar objetos dentro)");
     Dialog_Show(playerid, D_LISTAOBJETO, DIALOG_STYLE_LIST, "Selecciona la categoría", dlg, "Seleccionar", "");
+    return 1;
 }
 flags:limpiarmanos(CMD_JR_OPERATOR | CMD_MOD)
 CMD:limpiarmanos(playerid, params[])
@@ -259,7 +256,7 @@ CMD:verstats(playerid, params[]){
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Puntos de rol: %d / %d", Datos[target][jPuntosRol], Datos[target][jPuntosRolNeg]);
     SendClientMessage(playerid, COLOR_GREEN, "Propiedades:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casas: %d — %d | Casa prestada: %d", Datos[target][jCasa][0], Datos[target][jCasa][1], Datos[target][jCasaLlaves]);
-    SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos: %d — %d | Vehículo prestado: %d", Datos[target][jCoche][0], Datos[target][jCoche][1], Datos[target][jCocheLlaves]);
+    SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Vehiculos prestados: %d | %d", Datos[target][jCocheLlaves][0], Datos[target][jCocheLlaves][1]);
     SendClientMessage(playerid, COLOR_GREEN, "Interiores:");
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casa: %d — Negocio: %d | Interior: %d — VirtualWorld: %d", DentroCasa[target], DentroNegocio[target], GetPlayerInterior(target), GetPlayerVirtualWorld(target));
     return 1;
@@ -440,12 +437,24 @@ CMD:darmod(playerid, params[]){
         }
     }
     mysql_format(SQLDB, query, sizeof(query), "SELECT `accounts`.`Administrador`, `accounts`.`Nombre`,`accounts`.`SQLID` FROM `accounts` WHERE `Nombre` = '%e' LIMIT 1", target);
-    mysql_tquery(SQLDB, query, "adminUpdate", "d", playerid);
+    mysql_tquery(SQLDB, query, "adminUpdate", "dsd", playerid, target, level);
     return 1;
 }
 
 flags:test_wound(CMD_OWNER)
 CMD:test_wound(playerid){
     Wound_HandleDamage(playerid, playerid, ObjetoInfo[Datos[playerid][jMano][0]][IDArma], 3, 40.0);
+    return 1;
+}
+
+
+flags:shutdown(CMD_OWNER)
+CMD:shutdown(playerid){
+    CallLocalFunction("serverShutdown");
+    return 1;
+}
+flags:trigger_autosave(CMD_OWNER | CMD_ADMIN)
+CMD:trigger_autosave(playerid){
+    CallLocalFunction("globalAutoSave");
     return 1;
 }

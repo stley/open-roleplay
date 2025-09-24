@@ -39,8 +39,10 @@ enum vehInfo
     //
     bool:veh_Engine,
     bool:veh_Trunk,
-    bool:veh_Hood
+    bool:veh_Hood,
+    veh_AutoSaveTimer
 }
+
 #define MAX_VEHICLE_INVENTORY_CACHE   (MAX_VEHICULOS*20)
 enum VehicleInventory{
     vehSQLID,

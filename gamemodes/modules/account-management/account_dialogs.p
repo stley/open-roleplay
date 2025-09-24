@@ -17,7 +17,6 @@ Dialog:D_REGISTRO(playerid, response, listitem, inputtext[])
 }
 
 
-
 Dialog:D_INGRESO(playerid, response, listitem, inputtext[])
 {
 	if(!response) return Kick(playerid);
@@ -37,12 +36,13 @@ Dialog:D_EMAIL(playerid, response, listitem, inputtext[])
 	strmid(Datos[playerid][jEmail], inputtext, 0, 101);
 	strmid(Datos[playerid][jNombre], username[playerid], 0, strlen(username[playerid]));
 	alm(Datos[playerid][FechaReg], FechaActual());
-	Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
-	orm_insert(Datos[playerid][ORMID]);
+	
+	orm_insert(Datos[playerid][ORMID], "onUserRegister", "d", playerid);
 	return 1;
 }
-Dialog:D_FINREG(playerid, response, listitem, inputtext[])
-{
+
+Dialog:D_FINREG(playerid, response, listitem, inputtext[]){
+	Datos[playerid][LoggedIn] = true;
 	return dialog_personajes(playerid);
 }
 
@@ -50,9 +50,11 @@ Dialog:D_REGPJ(playerid, response, listitem, inputtext[])
 {
 	if(!response) return dialog_personajes(playerid);
 	if(isnull(inputtext)) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "No ingresaste un nombre válido. Intentalo de nuevo.", "Continuar", "Cancelar");
+
 	if(strlen(inputtext) < 6 || strlen(inputtext) > 24) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "El nombre de tu personaje tiene que estar entre los 6 - 24 carácteres.\n Intentalo de nuevo.", "Continuar", "Cancelar");
-	if(!strcmp(inputtext, "user_none", true)) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "No ingresaste un nombre válido. Intentalo de nuevo.", "Continuar", "Cancelar"); 
+	if(!IsValidNickName(inputtext)) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "No ingresaste un nombre válido. Intentalo de nuevo.", "Continuar", "Cancelar"); 
 	if(strfind(inputtext, "_") == -1) return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "Ingresa un nombre para tu personaje, incluyendo el '_'. (Ejemplo: Pedro_Perez)", "Continuar", "Cancelar");
+
 	alm(Datos[playerid][jNombrePJ], inputtext);
 	Dialog_Show(playerid, D_EDAD, DIALOG_STYLE_INPUT, "Edad del Personaje", "¿Cuantos años tendrá tu personaje?", "Continuar", "Salir");
 	return 1;
@@ -113,21 +115,21 @@ dialog_personajes(playerid)
 
 DialogPages:character_dialog(playerid, response, listitem, inputtext[]){
 	if(!response) Kick(playerid);
-	cache_set_active(Datos[playerid][characterCache]);
+	cache_set_active(characterCache[playerid]);
 	if(listitem+1 > cache_num_rows()){
 		cache_unset_active();
-		cache_delete(Datos[playerid][characterCache]);
-		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
 		return Dialog_Show(playerid, D_REGPJ, DIALOG_STYLE_INPUT, "Crear Personaje", "Ingresa un nombre para tu personaje. (Ejemplo: Pedro_Perez)", "Continuar", "Cancelar");
 	}
 	else{
 		new charid;
 		cache_get_value_name_int(listitem, "SQLIDPJ", charid);
-		cache_delete(Datos[playerid][characterCache]);
-		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
 		orm_char(playerid);
 		new query[128];
-		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d", charid);
+		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d LIMIT 1", charid);
 		mysql_tquery(SQLDB, query, "accountOnCharFirstLoad", "d", playerid);
 		return 1;
 	}

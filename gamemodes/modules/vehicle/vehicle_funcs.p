@@ -12,6 +12,7 @@ forward vehiclesTrunk(idex);
 forward vehiclesHood(idex);
 forward vehiclesOnVehicleUpdate();
 
+forward vehicleAutoSave(index);
 forward OnCharacterVehicleLoad(playerid);
 forward vehicleInventory_Load();
 forward putPlayerInVeh(playerid, vehicleid, seat);
@@ -33,12 +34,6 @@ public vehiclesOnGameModeInit(){
     }
 }
 public vehiclesOnGameModeExit(){
-    for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_Tipo] || vehData[i][veh_Modelo]){
-            clear_vehiclevars(i);
-            continue;
-        }
-    }
     return 1;
 }
 
@@ -52,7 +47,7 @@ public CharVeh_Load(charid){
 	}
 	if(connected != INVALID_PLAYER_ID){
 		new query[256];
-        mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `Owner_ID` = %d", charid);
+        mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `vehicles` WHERE `Owner_ID` = %d OR `SQLID` = %d OR `SQLID` = %d", charid, Datos[connected][jCocheLlaves][0], Datos[connected][jCocheLlaves][1]);
         mysql_tquery(SQLDB, query, "OnCharacterVehicleLoad", "d", connected);
         return 1;
 	}
@@ -70,6 +65,10 @@ public OnCharacterVehicleLoad(playerid){
             for(new v; v < MAX_VEHICULOS; v++){
                 if(vehData[v][veh_SQLID] == curr_load){
                     SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ya fue cargado anteriormente, salteando...", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID]);
+                    save_vehicle(v);
+                    if(IsValidTimer(vehData[v][veh_AutoSaveTimer])) KillTimer(vehData[v][veh_AutoSaveTimer]);
+                    vehData[v][veh_AutoSaveTimer] = SetTimerEx("vehicleAutoSave", 600000, true, "d", v);
+                    if(IsValidTimer(vehTimer[v])) KillTimer(vehTimer[v]);
                     success = true;
                     break;
                 }
@@ -77,6 +76,9 @@ public OnCharacterVehicleLoad(playerid){
                     orm_vehicle(v);
                     orm_apply_cache(vehData[v][vehORM], i);
                     SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID]);
+                    if(IsValidTimer(vehData[v][veh_AutoSaveTimer])) KillTimer(vehData[v][veh_AutoSaveTimer]);
+                    vehData[v][veh_AutoSaveTimer] = SetTimerEx("vehicleAutoSave", 600000, true, "d", v);
+                    if(IsValidTimer(vehTimer[v])) KillTimer(vehTimer[v]);
                     success = true;
                     break;
                 }
@@ -245,11 +247,14 @@ public vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
 public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
     
     for(new i; i < MAX_VEHICULOS; i++){
-        if(vehData[i][veh_vID] == vehicleid){
-            GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
-            GetVehicleZAngle(vehData[i][veh_vID], vehData[i][veh_PosR]);
-            vehData[i][veh_Interior] = GetVehicleInterior(vehData[i][veh_vID]);
-            vehData[i][veh_VW] = GetVehicleVirtualWorld(vehData[i][veh_vID]); 
+        if(vehData[i][veh_vID] && vehData[i][veh_SQLID]){
+            if(vehData[i][veh_vID] == vehicleid){
+                GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
+                GetVehicleZAngle(vehData[i][veh_vID], vehData[i][veh_PosR]);
+                vehData[i][veh_Interior] = GetVehicleInterior(vehData[i][veh_vID]);
+                vehData[i][veh_VW] = GetVehicleVirtualWorld(vehData[i][veh_vID]);
+                save_vehicle(i);
+            }
         }
     }
     if(CinturonV[playerid]){
@@ -275,10 +280,10 @@ public vehiclesOnVehicleSpawn(vehicleid){
     GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
     if(i == -1) SetVehicleParamsEx(vehicleid, false, false, false, false, false, false, false);
     else SetVehicleParamsEx(vehicleid, false, false, false, vehData[i][veh_Bloqueo], false, false, false);
-    
     return 1;
 }
 public putPlayerInVeh(playerid, vehicleid, seat) return PutPlayerInVehicle(playerid, vehicleid, seat);
+
 public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2){
     SendClientMessage(creatorid, COLOR_LIGHTCYAN, "Creaste el vehiculo modelo %s para el ID %d (%s). SQLID: %d", modelGetName(modelid), ownerid, GetRPName(ownerid), vehData[index][veh_SQLID]);
     SendClientMessage(ownerid, COLOR_LIGHTCYAN, "%s creó el vehículo personal modelo %s (SQLID: %d)", GetRPName(creatorid), modelGetName(modelid), vehData[index][veh_SQLID]);
@@ -398,13 +403,8 @@ randomPlate(plate[], len)
 
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
-        
-        foreach(new i: Player){
-            if(vehData[index][veh_OwnerID] == Datos[i][jSQLIDP]){
-                return 1;
-            }
-            else continue;
-        }
+        new str[96];
+        formatt(str, "Liberando el vehículo %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
         save_vehicle(index);
         if(vehData[index][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[index][veh_vID]);
         vehData[index][veh_vID] = INVALID_VEHICLE_ID;
@@ -424,6 +424,7 @@ save_vehicle(index){
     }
     orm_update(vehData[index][vehORM]);
     save_veh_inventory(index);
+    return 1;
 }
 
 GetBootCapacity(modelid)
@@ -484,6 +485,7 @@ save_veh_inventory(index){
 
 clear_vehiclevars(index){
     
+    
     alm(vehData[index][veh_Owner], "-");
     vehData[index][veh_vID] = INVALID_VEHICLE_ID;
     vehData[index][veh_Vida] = 1000.0;
@@ -505,7 +507,7 @@ clear_vehiclevars(index){
     vehData[index][veh_DmgPuertas] = VEHICLE_DOOR_STATUS:0;
     vehData[index][veh_DmgLuces] = VEHICLE_LIGHT_STATUS:0;
     vehData[index][veh_DmgRuedas] = VEHICLE_TYRE_STATUS:0;
-    vehData[index][veh_EspacioMal] = 15;
+    vehData[index][veh_EspacioMal] = 0;
     vehData[index][veh_Guantera] = 0;
     vehData[index][veh_GuanteraCant] = 0;
     vehData[index][veh_GuanteraData] = 0;
@@ -532,4 +534,14 @@ clear_vehiclevars(index){
         vehData[index][vehORM] = MYSQL_INVALID_ORM;
     }
     return 1;
+}
+
+
+public vehicleAutoSave(index){
+    new str[64];
+	if(vehData[index][veh_SQLID]){
+        formatt(str, "Ejecutando autoguardado del vehículo %s", vehData[index][veh_Matricula]);
+        serverLogRegister(str);
+		save_vehicle(index);
+	}
 }

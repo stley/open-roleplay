@@ -2,17 +2,23 @@ forward accountPassHash(playerid, const password[], is_register);
 forward accountPassCheck(playerid, bool:success);
 forward accountOnCharFirstLoad(playerid);
 forward accountOnPlayerDisconnect(playerid, reason);
+forward accountAutoSave(playerid);
 forward accountOnUserDataSaved(playerid);
-forward accountOnCharDataSaved(playerid);
+forward accountOnCharDataSaved(playerid, type);
 forward accountLoadToys(playerid);
 forward accountOnPlayerConnect(playerid);
 forward accountOnGameModeExit();
+forward ClearPlayerVars(playerid);
 forward characterRespawn(playerid);
+forward onCharacterInventorySave(playerid);
 forward accountOnUserFirstLoad(playerid);
 forward accountOnPlayerRequestClass(playerid, classid);
 forward accountOnUserCharacterList(playerid);
 forward accountOnCharToyInsert(playerid);
 forward accountOnCharInserted(playerid);
+forward onUserRegister(playerid);
+
+
 forward updateToys(playerid);
 
 public OnDialogPerformed(playerid, const dialog[], response, success) {
@@ -64,7 +70,7 @@ public accountPassCheck(playerid, bool:success){
 			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
 			formatt(query_str, "%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]);
 			serverLogRegister(query_str);
-			SetTimerEx("Kick", 2000, false, "d", playerid);
+			playerDelayedKick(playerid, 2000);
 		}
 	}
 	return 1;
@@ -74,7 +80,7 @@ public accountOnUserCharacterList(playerid){
 	new dlg_buff[96];
 	new charname[MAX_PLAYER_NAME];
 	new charid;
-	Datos[playerid][characterCache] = cache_save();
+	characterCache[playerid] = cache_save();
 	if(cache_num_rows()){
 		for(new i; i < cache_num_rows(); i++){
 			cache_get_value_name_int(i, "SQLIDPJ", charid);
@@ -88,7 +94,7 @@ public accountOnUserCharacterList(playerid){
 		AddDialogListitem(playerid, "{C0C0C0}Crear otro personaje");
 	}
 	else if (!cache_num_rows()){
-		AddDialogListitem(playerid, "\n{C0C0C0}Crear un personaje");
+		AddDialogListitem(playerid, "{C0C0C0}Crear un personaje");
 	}
 	return ShowPlayerDialogPages(playerid, "character_dialog", DIALOG_STYLE_LIST, "Personajes disponibles", "Ingresar", "Salir", 12);
 }
@@ -109,6 +115,14 @@ public accountOnCharFirstLoad(playerid)
 	}
 }
 public accountOnCharInserted(playerid){
+	if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
+		new str[96];
+		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu personaje. Intenta de nuevo más tarde o contacta con administración.");
+		formatt(str, "ERROR AL CREAR EL PERSONAJE %s A %s (%d), (orm_errno no devolvio ERROR_OK!)", Datos[playerid][jNombrePJ], username[playerid], playerid);
+		serverLogRegister(str);
+		playerDelayedKick(playerid, 1000);
+		return 1;
+	}
 	new dslog[512];
 	format(dslog, sizeof(dslog), "La cuenta %s (SQLID %d) creó el personaje %s.", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
 	serverLogRegister(dslog);
@@ -117,24 +131,23 @@ public accountOnCharInserted(playerid){
 	save_char(playerid);
 	return 1;
 }
+
 public accountOnCharToyInsert(playerid){
+	if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
+		new str[96];
+		SendClientMessage(playerid, COLOR_DARKRED, "No se pudo crear la tabla de accesorios del personaje.");
+		playerDelayedKick(playerid, 1000);
+		formatt(str, "ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid);
+		serverLogRegister(str);
+		return 1;
+	}
 	new dslog[512];
 	format(dslog, sizeof(dslog), "Insertando tabla de objetos para el personaje %s (SQLID PJ: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
 	serverLogRegister(dslog);
 	orm_setkey(CharToys[playerid][ORM_toy], "character_id");
 	return 1;
 }
-/*bool:accountCheck(account_name[]){
-	new query[128], sqlid;
-	if(isnull(account_name)) return 0;
-	mysql_format(SQLDB, "SELECT `SQLID` FROM `accounts` WHERE `Nombre` = `%e` LIMIT 1", account_name);
-	new Cache:accountQuery;
-	accountQuery = mysql_query(SQLDB, query);
-	cache_set_active(accountQuery);
-	cache_get_value_name_int(0, "SQLID", sqlid);
-	cache_delete(accountQuery);
-	return sqlid;
-}*/
+
 
 
 characterTextDraws(playerid){
@@ -197,6 +210,10 @@ load_character(playerid)
 		muerto[playerid] = 0;
 		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
 		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
+	}
+	if(IsValidTimer(autosaveTimer[playerid])){
+		KillTimer(autosaveTimer[playerid]);
+		autosaveTimer[playerid] = SetTimerEx("accountAutoSave", 600000, true, "d", playerid);
 	}
 	return 1;
 }
@@ -279,16 +296,39 @@ public accountLoadToys(playerid){
 	return 1;
 }
 
-public  accountOnUserDataSaved(playerid) return 1;
-public  accountOnCharDataSaved(playerid) return 1;
-
-clear_chardata(playerid)
-{
-	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM){
-		orm_destroy(Datos[playerid][ORMPJ]);
-		Datos[playerid][ORMPJ] = MYSQL_INVALID_ORM;
+public accountOnUserDataSaved(playerid){
+	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
+		printf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]);
 	}
-	Datos[playerid][jSQLIDP] = 0;
+	else{
+		printf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]);
+	}
+	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
+	return 1;
+}
+public accountOnCharDataSaved(playerid, type){
+	switch(type){
+		case 1:{
+			if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
+				printf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			}
+			else{
+				printf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			}
+		}
+		case 2:{
+			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
+				printf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			}
+			else return 1;
+		}
+	}
+	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
+	return 1;
+}
+
+clear_chardata(playerid){
+	
 	Datos[playerid][EnChar] = false;
 	alm(Datos[playerid][jNombrePJ], "-");
 	Datos[playerid][jUsuario] = 0;
@@ -311,13 +351,11 @@ clear_chardata(playerid)
     }
 	Datos[playerid][jLicencias][0] = 0;
     Datos[playerid][jLicencias][1] = 0;
-	Datos[playerid][jCoche][0] = 0;
-	Datos[playerid][jCocheLlaves][0] = 0;
-    Datos[playerid][jCoche][1] = 0;
-	Datos[playerid][jCocheLlaves][1] = 0;
 	Datos[playerid][jCasa][0] = 0;
     Datos[playerid][jCasa][1] = 0;
     Datos[playerid][jCasaLlaves] = 0;
+	Datos[playerid][jCocheLlaves][0] = 0;
+	Datos[playerid][jCocheLlaves][1] = 0;
 	Datos[playerid][jNivel] = 0;
 	Datos[playerid][jExp] = 0;
 	Datos[playerid][jHoras] = 0;
@@ -344,10 +382,6 @@ clear_chardata(playerid)
 	Datos[playerid][jDiv2] = 0;
 	Datos[playerid][jDocumento] = 0;
 
-	if(CharToys[playerid][ORM_toy] != MYSQL_INVALID_ORM){
-		orm_destroy(CharToys[playerid][ORM_toy]);
-		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
-	}
 	//no guardables
 	DentroCasa[playerid] = 0;
 	DentroNegocio[playerid] = 0;
@@ -359,11 +393,27 @@ clear_chardata(playerid)
 	asesino[playerid] = "-";
 	checkpoints[playerid] = 0;
 	CinturonV[playerid] = 0;
-	/*CanRespawn[playerid] = false;
-	KillTimer(RespawnTime[playerid]);
-	KillTimer(SuccumbTime[playerid]);*/
-
-
+	CanRespawn[playerid] = false;
+	if(Datos[playerid][ORMPJ] != MYSQL_INVALID_ORM){
+		orm_destroy(Datos[playerid][ORMPJ]);
+		Datos[playerid][ORMPJ] = MYSQL_INVALID_ORM;
+	}
+	if(cache_is_valid(characterCache[playerid])){
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
+	}
+	if(CharToys[playerid][ORM_toy] != MYSQL_INVALID_ORM){
+		orm_clear_vars(CharToys[playerid][ORM_toy]);
+		orm_destroy(CharToys[playerid][ORM_toy]);
+		CharToys[playerid][ORM_toy] = MYSQL_INVALID_ORM;
+	}
+	if(Datos[playerid][inventoryORM] != MYSQL_INVALID_ORM){
+		orm_clear_vars(Datos[playerid][inventoryORM]);
+		orm_destroy(Datos[playerid][inventoryORM]);
+		Datos[playerid][inventoryORM] = MYSQL_INVALID_ORM;
+	}
+	Datos[playerid][jSQLIDP] = 0;
+	KillTimer(RespawnTimer[playerid]);
 }
 clear_account_data(playerid)
 {
@@ -383,12 +433,12 @@ clear_account_data(playerid)
 	Datos[playerid][jCreditos] = 0;
 	Datos[playerid][CharacterLimit] = DEFAULT_MAX_CHARACTERS;
 	Datos[playerid][LoggedIn] = false;
-	if(Datos[playerid][characterCache]){
-		cache_delete(Datos[playerid][characterCache]);
-		Datos[playerid][characterCache] = MYSQL_INVALID_CACHE;
+	if(characterCache[playerid]){
+		cache_delete(characterCache[playerid]);
+		characterCache[playerid] = MYSQL_INVALID_CACHE;
 	}
 }
-ClearPlayerVars(playerid)
+public ClearPlayerVars(playerid)
 {
 	clear_account_data(playerid);
 	clear_chardata(playerid);
@@ -399,7 +449,8 @@ save_account(playerid){
 	new dslog[512];
 	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
-	return orm_update(Datos[playerid][ORMID]);
+	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
+	return 1;
 }
 save_char(playerid)
 {
@@ -414,8 +465,41 @@ save_char(playerid)
 		format(dslog, sizeof(dslog), "ORMPJ playerid %d invalida", playerid);
 		serverLogRegister(dslog);
 	}
-	orm_update(CharToys[playerid][ORM_toy]);
-	return orm_update(Datos[playerid][ORMPJ]);
+	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
+	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
+	return 1;
+}
+
+saveCharacterInventory(playerid){
+	new dslog[96];
+	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
+		format(dslog, sizeof(dslog), "inventoryORM playerid %d invalida", playerid);
+		serverLogRegister(dslog);
+		return 1;
+	}
+	orm_update(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
+	return 1;
+}
+
+public onCharacterInventorySave(playerid){
+	new str[96];
+	if(orm_errno(Datos[playerid][inventoryORM]) != ERROR_OK){
+		formatt(str, "Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]);
+		return serverLogRegister(str);
+	}
+	formatt(str, "Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+	return serverLogRegister(str);
+}
+
+bool:hasDriverOnline(veh_idex, exclude){
+	foreach(new playerid: Player){
+		if(playerid == exclude) continue;
+		if(vehData[veh_idex][veh_OwnerID] == Datos[playerid][jSQLIDP]) return true;
+		for(new i; i < 2; i++){
+			if(vehData[veh_idex][veh_SQLID] == Datos[playerid][jCocheLlaves][i]) return true;
+		}
+	}
+	return false;
 }
 
 public accountOnPlayerDisconnect(playerid, reason)
@@ -429,28 +513,47 @@ public accountOnPlayerDisconnect(playerid, reason)
 		mysql_tquery(SQLDB, query);
 	}
 	for(new i; i < MAX_VEHICULOS; i++){
-		if(vehData[i][veh_SQLID] == Datos[playerid][jCoche][0] || vehData[i][veh_SQLID] == Datos[playerid][jCoche][1]){
-			if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
-			vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+		if(vehData[i][veh_SQLID]){
+
+			if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
+				if(IsValidTimer(savehTimer[i])) KillTimer(savehTimer[i]);
+				if(!hasDriverOnline(i, playerid)){
+					vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+				}
+			}
+			for(new v; v < 2; v++){
+				if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][v]){
+					if(!hasDriverOnline(i, playerid)){
+						vehTimer[i] = SetTimerEx("CharVeh_Free", 720000, false, "d", i);
+					}
+				}
+			}
 		}
 	}
 	if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);
-	ClearPlayerVars(playerid);
+	if(IsValidTimer(autosaveTimer[playerid])) KillTimer(autosaveTimer[playerid]);
+	return 1;
+}
+
+
+public accountAutoSave(playerid){
+	
+	if(Datos[playerid][LoggedIn] == true)
+	{
+		new str[128];
+		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
+		serverLogRegister(str);
+		save_account(playerid);
+		if(Datos[playerid][EnChar] == true){
+			formatt(str, "Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
+			serverLogRegister(str);
+			save_char(playerid);
+		}
+	}
 	return 1;
 }
 
 public accountOnGameModeExit(){
-	foreach(new i: Player){
-		if(IsPlayerConnected(i)){
-			if(Datos[i][EnChar] == true) save_char(i);
-			else if(Datos[i][LoggedIn] == true) save_account(i);
-			ClearPlayerVars(i);
-			//SetPlayerName(i, username[i]);
-			SetTimerEx("Kick", 2000, false, "d", i);
-			continue;
-		}
-		else continue;
-	}
 	return 1;
 }
 
@@ -474,5 +577,17 @@ public accountOnUserFirstLoad(playerid)
 		formatt(str, "Bienvenido %s.\nIngrese una contraseña para continuar.", username[playerid]);
 		Dialog_Show(playerid, D_REGISTRO, DIALOG_STYLE_PASSWORD, "Registro", str, "Continuar", "Salir");
 	}
+	return 1;
+}
+
+public onUserRegister(playerid){
+	new str[96];
+	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
+		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu cuenta. Intenta de nuevo más tarde o contacta a adminstración.");
+		formatt(str, "ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid);
+		serverLogRegister(str);
+		playerDelayedKick(playerid, 1000);
+	}
+	else return Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
 	return 1;
 }

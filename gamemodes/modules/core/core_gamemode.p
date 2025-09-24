@@ -1,3 +1,5 @@
+new g_AutoSave;
+forward globalAutoSave();
 
 public OnGameModeInit()
 {
@@ -12,13 +14,18 @@ public OnGameModeInit()
 		EnableCrashDetectLongCall();
 		SetCrashDetectLongCallTime(10000);
 	}
+	g_AutoSave = SetTimer("globalAutoSave", 60*60000, true);
     return 1;
 }
+#pragma unused g_AutoSave
+
 public OnGameModeExit()
 {
-    CallLocalFunction("databaseOnGameModeExit");
 	CallLocalFunction("accountOnGameModeExit");
 	CallLocalFunction("vehiclesOnGameModeExit");
+
+
+    CallLocalFunction("databaseOnGameModeExit"); //keep it last, so it saves everything, smh with my past myself
 	return 1;
 }
 //player
@@ -30,8 +37,8 @@ public OnPlayerConnect(playerid){
 }
 
 public OnPlayerDisconnect(playerid, reason){
-	CallLocalFunction("accountOnPlayerDisconnect", "dd", playerid, reason);
-	CallLocalFunction("playerOnPlayerDisconnect", "dd", playerid, reason);
+	accountOnPlayerDisconnect(playerid, reason);
+	playerOnPlayerDisconnect(playerid, reason);
 	return 1;
 }
 public OnPlayerRequestClass(playerid, classid){
@@ -63,6 +70,17 @@ public OnPlayerExitVehicle(playerid, vehicleid){
 	return 1;
 }
 
+public globalAutoSave(){
+	serverLogRegister("Ejecutando el autoguardado automático global...");
+	foreach(new playerid: Player){
+		CallLocalFunction("accountAutoSave", "d", playerid);
+	}
+	for(new v; v < MAX_VEHICULOS; v++){
+		CallLocalFunction("vehicleAutoSave", "d", v);
+		continue;
+	}
+	return 1;
+}
 
 //vehicle
 public OnVehicleSpawn(vehicleid){

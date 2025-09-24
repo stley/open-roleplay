@@ -26,17 +26,17 @@ CMD:aceptar(playerid){
         }
         case 2:{ //prestar vehiculo personal
             if(GetDistanceBetweenPlayers(playerid, solid) > 5.0) return SendClientMessage(solid, COLOR_DARKRED, "¡Estás muy lejos del jugador!");
-            new veh_slot = GetPVarInt(playerid, "prestar_veh_slot");
-            SendClientMessage(playerid, COLOR_GREEN, "Aceptaste las llaves de %s.", GetRPName(solid));
-            SendClientMessage(solid, COLOR_GREEN, "%s aceptó las llaves de tu %s.", GetRPName(playerid), modelGetName(vehData[FindVehIndxFromSQLID(Datos[solid][jCoche][veh_slot])][veh_Modelo]));
+            new veh_idex = GetPVarInt(solid, "prestar_veh_idex");
             for(new i; i < 2; i++){
-                if(Datos[playerid][jCocheLlaves][i]){
-                    Datos[playerid][jCocheLlaves][i] = Datos[solid][jCoche][veh_slot];
-                    DeletePVar(playerid, "prestar_veh_slot");
+                if(!Datos[playerid][jCocheLlaves][i]){
+                    Datos[playerid][jCocheLlaves][i] = vehData[veh_idex][veh_SQLID];
+                    SendClientMessage(playerid, COLOR_GREEN, "Aceptaste las llaves de %s.", GetRPName(solid));
+                    SendClientMessage(solid, COLOR_GREEN, "%s aceptó las llaves de tu %s.", GetRPName(playerid), modelGetName(vehData[veh_idex][veh_Modelo]));
+                    DeletePVar(solid, "prestar_veh_idex");
                     return 1;
                 }
             }
-            DeletePVar(playerid, "prestar_veh_slot");
+            DeletePVar(solid, "prestar_veh_idex");
             return SendClientMessage(playerid, COLOR_DARKRED, "ERROR: Ya tienes tus slots de vehiculos prestados ocupados.");
         }
     }
@@ -57,7 +57,7 @@ CMD:rechazar(playerid){
     SendClientMessage(playerid, COLOR_DARKRED, "Rechazaste la solicitud de %s.", GetRPName(playerid));
     switch(solicitud_tipo[playerid]){
         case 2:{
-            DeletePVar(solid, "prestar_veh_slot");
+            DeletePVar(solid, "prestar_veh_idex");
             return 1;
         }
     }

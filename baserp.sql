@@ -45,7 +45,7 @@ CREATE TABLE `accounts` (
   `mPremium` int(11) NOT NULL,
   `aPremium` int(11) NOT NULL,
   `CharacterLimit` int(11) NOT NULL DEFAULT 3,
-  `online` tinyint(1) NOT NULL
+  `online` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 --
 -- Volcado de datos para la tabla `accounts`

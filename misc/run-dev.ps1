@@ -65,7 +65,7 @@ Copy-Item $Amx.FullName (Join-Path $Gm "main.amx") -Force
 Write-Host "Instalado gamemodes\main.amx desde '$NombreArtefacto'."
 
 # Desplegar components/, plugins/ y libs/ si existen en el artefacto
-foreach ($d in 'components','plugins','libs') {
+foreach ($d in 'components','plugins','libs', 'models') {
   $src = Join-Path $Unz $d
   if (Test-Path $src) {
     $dst = Join-Path $Raiz $d

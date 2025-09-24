@@ -45,7 +45,7 @@ Copy-Item $Amx.FullName (Join-Path $Gm "main.amx") -Force
 Write-Host "Instalado gamemodes\main.amx desde '$Nombre'."
 
 # Desplegar components/, plugins/ y libs/ si existen en el artefacto
-foreach ($d in 'components','plugins','libs') {
+foreach ($d in 'components','plugins','libs', 'models') {
   $src = Join-Path $Unz $d
   if (Test-Path $src) {
     $dst = Join-Path $Raiz $d
@@ -59,10 +59,10 @@ foreach ($d in 'components','plugins','libs') {
 
     Write-Host "Copiado '$d/' (se eliminaron .so)"
   } else {
-    Write-Host "No se encontró '$d/' en el artefacto. Omitido."
+    Write-Host "No se encontrï¿½ '$d/' en el artefacto. Omitido."
   }
 }
-# Mover run-offline.ps1 y run-offline.bat desde misc/ a la raíz ($Raiz)
+# Mover run-offline.ps1 y run-offline.bat desde misc/ a la raï¿½z ($Raiz)
 $misc = Join-Path $Unz 'misc'
 if (Test-Path $misc) {
   foreach ($f in 'run-offline.ps1','run-offline.bat') {

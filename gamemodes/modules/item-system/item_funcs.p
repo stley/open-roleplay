@@ -1,7 +1,7 @@
 #include "modules/account-management/account_vars.p"
-
 forward update_manos(playerid);
 forward update_torso(playerid);
+
 tirar_objeto(sueloid){
     new ObjetoID = EnSuelo[sueloid][floor_ObjetoID];
     if(!ObjetoID) return 1;
@@ -44,9 +44,9 @@ ColocarObjeto(playerid, slot, objeto)
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
             if(IsPlayerAttachedObjectSlotUsed(playerid, 0)) RemovePlayerAttachedObject(playerid, 0);
             switch(modelo){
-                case 19995: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
-                case -1024: SetPlayerAttachedObject(playerid, 0, modelo, 6, 0.08);
-                default: SetPlayerAttachedObject(playerid, 0, modelo, 6);
+                case 19995: SetPlayerAttachedObject(playerid, slot, modelo, 6, 0.08);
+                case -1024: SetPlayerAttachedObject(playerid, slot, modelo, 6, 0.08);
+                default: SetPlayerAttachedObject(playerid, slot, modelo, 6);
             }
         }
         case 1: //Mano Izquierda
@@ -71,46 +71,46 @@ ColocarObjeto(playerid, slot, objeto)
                     default: SetPlayerAttachedObject(playerid, 1, modelo, 5);
                 }
             }
-            else if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, 0, modelo, 5, 0.08);
-            else SetPlayerAttachedObject(playerid, 1, modelo, 5);
+            else if(modelo == 19995 || modelo == -1024) SetPlayerAttachedObject(playerid, slot, modelo, 5, 0.08);
+            else SetPlayerAttachedObject(playerid, slot, modelo, 5, 0.138999, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
         }
         case 2:{
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
             switch(ObjetoInfo[objeto][IDArma]){
-                case 22: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.133999, -0.051000, -0.129000, -178.700073, 139.699966, 0.000000, 1.000000, 1.000000, 1.000000); //colt45 - Taser
-                case 23: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.047000, -0.095999, -0.157998, -174.600128, 143.799514, -14.100011, 1.000000, 1.000000, 1.000000); // silenced - Glocks 19-17
-                case 24: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.063999, -0.083999, -0.184000, -8.799997, 44.500000, -174.200042, 1.000000, 1.000000, 1.000000); //DEAGLE - .38 y 1911
-                case 25: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.220000, -0.135998, 0.113000, -1.900013, 161.699951, 8.599991, 1.000000, 1.000000, 1.000000); //- Escopeta
-				case 28: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.120001, -0.091000, -0.120000, 10.099695, 40.400428, 167.399795, 1.000000, 1.000000, 1.000000); // UZI - GLOCK 18
-                case 29: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.205000, -0.136998, 0.156000, -1.500012, 152.599945, 5.399990, 1.000000, 1.000000, 1.000000); //- MP5K
-				case 30: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.251000, -0.130998, 0.135999, -1.500012, 152.599945, 5.399990, 1.000000, 1.000000, 1.000000); //- AK47
-				case 31: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.251000, -0.130998, 0.135999, -1.500012, 152.599945, 5.399990, 1.000000, 1.000000, 1.000000); //- M4
-				case 32: SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.230000, -0.156000, 0.092999, 0.799999, 158.100021, 0.100001, 1.000000, 1.000000, 1.000000); // TEC9
-                case 33: SetPlayerAttachedObject(playerid, 2, modelo, 1, -0.050000, -0.133999, 0.026000, -2.100004, 32.799995, 1.899993, 1.000000, 1.000000, 1.000000); //- Rifle de caza
-				case 34: SetPlayerAttachedObject(playerid, 2, modelo, 1, -0.089000, -0.172999, 0.000000, -11.200003, 32.799995, 9.599994, 1.000000, 1.000000, 1.000000); //- Rifle de francotirador
-                default: SetPlayerAttachedObject(playerid, 2, modelo, 1, -0.116, 0.189, 0.088, 0.0, 44.5, 0.0, 1.000000, 1.000000, 1.000000);
+                case 22: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.133999, -0.051000, -0.129000, -178.700073, 139.699966, 0.000000, 1.000000, 1.000000, 1.000000); //colt45 - Taser
+                case 23: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.047000, -0.095999, -0.157998, -174.600128, 143.799514, -14.100011, 1.000000, 1.000000, 1.000000); // silenced - Glocks 19-17
+                case 24: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.063999, -0.083999, -0.184000, -8.799997, 44.500000, -174.200042, 1.000000, 1.000000, 1.000000); //DEAGLE - .38 y 1911
+                case 25: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.220000, -0.135998, 0.113000, -1.900013, 161.699951, 8.599991, 1.000000, 1.000000, 1.000000); //- Escopeta
+				case 28: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.120001, -0.091000, -0.120000, 10.099695, 40.400428, 167.399795, 1.000000, 1.000000, 1.000000); // UZI - GLOCK 18
+                case 29: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.205000, -0.136998, 0.156000, -1.500012, 152.599945, 5.399990, 1.000000, 1.000000, 1.000000); //- MP5K
+				case 30: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.251000, -0.130998, 0.135999, -1.500012, 152.599945, 5.399990, 1.000000, 1.000000, 1.000000); //- AK47
+				case 31: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.251000, -0.130998, 0.135999, -1.500012, 152.599945, 5.399990, 1.000000, 1.000000, 1.000000); //- M4
+				case 32: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.230000, -0.156000, 0.092999, 0.799999, 158.100021, 0.100001, 1.000000, 1.000000, 1.000000); // TEC9
+                case 33: SetPlayerAttachedObject(playerid, slot, modelo, 1, -0.050000, -0.133999, 0.026000, -2.100004, 32.799995, 1.899993, 1.000000, 1.000000, 1.000000); //- Rifle de caza
+				case 34: SetPlayerAttachedObject(playerid, slot, modelo, 1, -0.089000, -0.172999, 0.000000, -11.200003, 32.799995, 9.599994, 1.000000, 1.000000, 1.000000); //- Rifle de francotirador
+                default: SetPlayerAttachedObject(playerid, slot, modelo, 1, -0.116, 0.189, 0.088, 0.0, 44.5, 0.0, 1.000000, 1.000000, 1.000000);
             }
-            if(strcmp(ObjetoInfo[objeto][NombreObjeto], "Mochila") == 0) SetPlayerAttachedObject(playerid, 2, modelo, 1, 0.028999, -0.129997, -0.004999, -1.900012, 90.000000, 4.299992, 1.000000, 1.000000, 1.000000);
+            if(modelo == 371) SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.028999, -0.129997, -0.004999, -1.900012, 90.000000, 4.299992, 1.000000, 1.000000, 1.000000);
         }
         case 3:{
             new modelo = ObjetoInfo[objeto][ModeloObjeto];
             if(ObjetoInfo[objeto][Tipo] == 5){
                     switch(ObjetoInfo[objeto][IDArma]){
-                    case 22: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.147000, 0.209000, -0.113000, 177.199859, 159.599990, 0.000000, 1.000000, 1.000000, 1.000000); //colt45 - taser
-                    case 23: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.178000, 0.164000, -0.137000, 0.199999, 39.900104, 168.000015, 1.000000, 1.000000, 1.000000); // silenced - Glocks 19-17
-                    case 24: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.186999, 0.125999, -0.132999, 1.199998, 25.200027, 162.899612, 1.000000, 1.000000, 1.000000); //DEAGLE - .38 y 1911
-                    case 25: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.234999, 0.162998, -0.160000, -181.900009, 161.699951, -9.300038, 1.000000, 1.000000, 1.000000); //- Escopeta
-			    	case 28: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.199000, 0.171000, -0.156000, 6.199996, 42.800209, 165.099060, 1.000000, 1.000000, 1.000000); // UZI - GLOCK 18
-                    case 29: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.168999, 0.154998, -0.156000, -181.500015, 152.599945, -10.700008, 1.000000, 1.000000, 1.000000); //- MP5K
-			    	case 30: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.194999, 0.163997, -0.167999, -181.500015, 152.599945, -6.599994, 1.000000, 1.000000, 1.000000); //- AK47
-			    	case 31: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.212000, 0.152998, -0.164999, -181.500015, 152.599945, -12.300017, 1.000000, 1.000000, 1.000000); //- M4
-                    case 32: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.211001, 0.175000, -0.129998, -174.600128, 144.199874, -14.100011, 1.000000, 1.000000, 1.000000); // TEC9
-			    	case 33: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.193001, 0.163999, -0.130000, 3.499947, 32.799995, 166.599609, 1.000000, 1.000000, 1.000000); //- Rifle de caza
-			    	case 34: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.172999, 0.166999, -0.175000, -177.100234, 152.799865, -15.399977, 1.000000, 1.000000, 1.000000); //- Rifle de francotirador
-                    default: SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.116, -0.189, -0.088, 0.0, -135.5, 0.0, 1.000000, 1.000000, 1.000000);
+                    case 22: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.147000, 0.209000, -0.113000, 177.199859, 159.599990, 0.000000, 1.000000, 1.000000, 1.000000); //colt45 - taser
+                    case 23: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.178000, 0.164000, -0.137000, 0.199999, 39.900104, 168.000015, 1.000000, 1.000000, 1.000000); // silenced - Glocks 19-17
+                    case 24: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.186999, 0.125999, -0.132999, 1.199998, 25.200027, 162.899612, 1.000000, 1.000000, 1.000000); //DEAGLE - .38 y 1911
+                    case 25: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.234999, 0.162998, -0.160000, -181.900009, 161.699951, -9.300038, 1.000000, 1.000000, 1.000000); //- Escopeta
+			    	case 28: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.199000, 0.171000, -0.156000, 6.199996, 42.800209, 165.099060, 1.000000, 1.000000, 1.000000); // UZI - GLOCK 18
+                    case 29: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.168999, 0.154998, -0.156000, -181.500015, 152.599945, -10.700008, 1.000000, 1.000000, 1.000000); //- MP5K
+			    	case 30: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.194999, 0.163997, -0.167999, -181.500015, 152.599945, -6.599994, 1.000000, 1.000000, 1.000000); //- AK47
+			    	case 31: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.212000, 0.152998, -0.164999, -181.500015, 152.599945, -12.300017, 1.000000, 1.000000, 1.000000); //- M4
+                    case 32: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.211001, 0.175000, -0.129998, -174.600128, 144.199874, -14.100011, 1.000000, 1.000000, 1.000000); // TEC9
+			    	case 33: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.193001, 0.163999, -0.130000, 3.499947, 32.799995, 166.599609, 1.000000, 1.000000, 1.000000); //- Rifle de caza
+			    	case 34: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.172999, 0.166999, -0.175000, -177.100234, 152.799865, -15.399977, 1.000000, 1.000000, 1.000000); //- Rifle de francotirador
+                    default: SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.116, -0.189, -0.088, 0.0, -135.5, 0.0, 1.000000, 1.000000, 1.000000);
                 }
             }
-            if(strcmp(ObjetoInfo[objeto][NombreObjeto], "Mochila") == 0) SetPlayerAttachedObject(playerid, 3, modelo, 1, 0.029999, 0.135997, -0.001999, -179.900009, 90.000000, 2.199994, 1.000000, 1.000000, 1.000000);
+            if(modelo == 371) SetPlayerAttachedObject(playerid, slot, modelo, 1, 0.029999, 0.135997, -0.001999, -179.900009, 90.000000, 2.199994, 1.000000, 1.000000, 1.000000);
         }
     }
     return 1;
@@ -208,8 +208,7 @@ public update_manos(playerid)
         Datos[playerid][jManoData][1] = 0;
     }
     if(manoder){
-        if(ObjetoInfo[manoder][IDArma])
-        {
+        if(ObjetoInfo[manoder][IDArma]){
             new idArma = ObjetoInfo[manoder][IDArma];
             new Balas = Datos[playerid][jManoCant][0];
             ResetPlayerWeapons(playerid);
@@ -235,13 +234,10 @@ public update_manos(playerid)
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][1]);
                 if(Datos[playerid][jManoCant][0] == -1) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
             }
-            if(ObjetoInfo[manoder][IDArma] == 30) SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 999);
-            if(ObjetoInfo[manoder][ModeloObjeto] == -1024){
-                SetPlayerSkillLevel(playerid, WEAPONSKILL_AK47, 0);
-            }
             ColocarObjeto(playerid, 0, manoder);
         }
         else{
+            ResetPlayerWeapons(playerid);
             ColocarObjeto(playerid, 0, manoder);
             PlayerTextDrawHide(playerid, Gun_Hud[playerid][0]);
             PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);

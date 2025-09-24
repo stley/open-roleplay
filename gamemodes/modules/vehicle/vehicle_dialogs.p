@@ -27,18 +27,40 @@ DialogPages:vehPanelDialog(playerid, response, listitem, inputtext[]){
 
 DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
     new idex = GetPVarInt(playerid, "veh_mal");
-    DeletePVar(playerid, "veh_mal");
     if(!idex) return 0;
     idex--;
     if(!response){
         vehData[idex][veh_Trunk] = false;
         SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
         vehiclesTrunk(idex);
+        foreach(new invplayer: Player){
+            if(GetPVarType(invplayer, "veh_mal")){
+                if(GetPVarInt(invplayer, "veh_mal") == GetPVarInt(playerid, "veh_mal")){
+                    SendClientMessage(invplayer, COLOR_DARKRED, "El maletero del vehículo fue cerrado.");
+                    Dialog_Close(invplayer);
+                    DeletePVar(invplayer, "veh_mal");
+                }  
+            }
+        }
         return 1;
     }
-    new espacio = vehData[idex][veh_EspacioMal];
-    new slot;
-    new bool:success;
+    new
+        Float:veh_X,
+        Float:veh_Y,
+        Float:veh_Z,
+        vehVW,
+        vehInt,
+        espacio = vehData[idex][veh_EspacioMal],
+        slot,
+        bool:success
+    ;
+    if(vehData[idex][veh_vID]){
+        GetVehiclePos(vehData[idex][veh_vID], veh_X, veh_Y, veh_Z);
+        vehInt = GetVehicleInterior(vehData[idex][veh_vID]);
+        vehVW = GetVehicleVirtualWorld(vehData[idex][veh_VW]);
+    }
+    else return 1;
+    if(!IsPlayerInRangeOfPoint(playerid, 6.8, veh_X, veh_Y, veh_Z) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
     if(listitem > espacio-1){
         if(listitem != espacio){
             if(listitem == espacio+1){
@@ -62,6 +84,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     Datos[playerid][jManoData][0] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
+                                    saveCharacterInventory(playerid);
+                                    save_vehicle(idex);
                                     success = true;
                                     return 1;
                                 }
@@ -79,6 +103,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][0];
                             Datos[playerid][jManoData][0] = 0;
                             update_manos(playerid);
+                            saveCharacterInventory(playerid);
+                            save_vehicle(idex);
                             success = true;
                             return 1;
                         }
@@ -108,6 +134,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     Datos[playerid][jManoData][1] = 0;
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
+                                    saveCharacterInventory(playerid);
+                                    save_vehicle(idex);
                                     success = true;
                                     return 1;
                                 }
@@ -125,6 +153,8 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][1];
                             Datos[playerid][jManoData][1] = 0;
                             update_manos(playerid);
+                            saveCharacterInventory(playerid);
+                            save_vehicle(idex);
                             success = true;
                             return 1;
                         }
@@ -153,6 +183,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
             update_manos(playerid);
             formatt(query, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
             accion_player(playerid, 1, query);
+            saveCharacterInventory(playerid);
             return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
         }
         Datos[playerid][jMano][0] = vehicleInventory[slot][veh_Maletero];
@@ -167,9 +198,10 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         mysql_tquery(SQLDB, query);
         formatt(query, "saca un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
         accion_player(playerid, 1, query);
+        saveCharacterInventory(playerid);
         return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
     }
-    
+    if(GetPVarType(playerid, "veh_mal")) DeletePVar(playerid, "veh_mal");
     return 1;
 }
 
