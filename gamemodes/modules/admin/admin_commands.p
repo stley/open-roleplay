@@ -326,6 +326,7 @@ CMD:setplayer(playerid, params[]){
     SetPlayerInterior(playerid, intid);
     return 1;
 }
+flags:fixveh(CMD_JR_MOD)
 CMD:fixveh(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehículo.");
     for(new i; i < MAX_VEHICULOS; i++){
@@ -338,9 +339,12 @@ CMD:fixveh(playerid){
             vehData[i][veh_DmgRuedas] = VEHICLE_TYRE_STATUS_NONE;
             SendClientMessage(playerid, COLOR_GREEN, "Reparaste el vehículo ID %d.", vehData[i][veh_vID]);
             new bool:alarm, bool:lights;
-            GetVehicleParamsEx(vehData[i][veh_vID], bool:vehData[i][veh_Engine], lights, alarm, bool:vehData[i][veh_Bloqueo], bool:vehData[i][veh_Hood], bool:vehData[i][veh_Trunk]);
+            SetVehicleParamsEx(vehData[i][veh_vID], bool:vehData[i][veh_Engine], lights, alarm, bool:vehData[i][veh_Bloqueo], bool:vehData[i][veh_Hood], bool:vehData[i][veh_Trunk]);
+            serverLogRegister(sprintf("[AdmCMD] %s (%s) reparó el vehículo modelo %s ID %d (SQLID %d).", username[playerid], GetName(playerid), modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_vID], vehData[i][veh_SQLID]));
+            return 1;
         }
     }
+    RepairVehicle(GetPlayerVehicleID(playerid));
     return 1;
 }
 flags:traerveh(CMD_JR_MOD)

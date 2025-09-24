@@ -35,5 +35,10 @@ IPacket:packetInCar(playerid, BitStream:bs){
 		serverLogRegister(sprintf("RakNet: %s (playerid %d) envió un paquete InCarSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, inCarData[PR_weaponId], ObjetoInfo[manoder][IDArma]));
 		inCarData[PR_weaponId] = ObjetoInfo[manoder][IDArma];
 	}
+	if(inCarData[PR_weaponId] && GetPlayerVehicleSeat(playerid) == 0){
+		SetPlayerArmedWeapon(playerid, WEAPON:0);
+		inCarData[PR_weaponId] = 0;
+	}
+	BS_WriteInCarSync(bs, inCarData);
 	return 1;
 }
