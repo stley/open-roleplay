@@ -453,7 +453,6 @@ accountSave(playerid){
 	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
 	serverLogRegister(dslog);
 	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
-	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
 characterSave(playerid)
@@ -473,7 +472,6 @@ characterSave(playerid)
 	
 	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
 	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
-	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
 }
 
