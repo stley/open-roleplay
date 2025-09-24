@@ -251,6 +251,7 @@ public vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
 }
 
 public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
+    update_manos(playerid);
     new i = FindVehIndxFromVehID(vehicleid);
     if(i == -1) return 1; 
     if(vehData[i][veh_vID] && vehData[i][veh_SQLID]){

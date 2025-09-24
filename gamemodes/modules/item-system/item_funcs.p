@@ -209,6 +209,8 @@ public update_manos(playerid)
     }
     if(manoder){
         if(ObjetoInfo[manoder][IDArma]){
+            if(IsPlayerInAnyVehicle(playerid))
+                if(GetPlayerVehicleSeat(playerid) == 0) ResetPlayerWeapons(playerid);            
             new idArma = ObjetoInfo[manoder][IDArma];
             new Balas = Datos[playerid][jManoCant][0];
             ResetPlayerWeapons(playerid);
