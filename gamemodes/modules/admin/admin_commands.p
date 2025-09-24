@@ -432,7 +432,7 @@ CMD:darmod(playerid, params[]){
             formatt(query, "%s (%s) le cedió el rango administrativo nivel %d a %s (%s).", username[playerid], Name_sin(GetName(playerid)), level, username[i], Name_sin(GetName(i)));
             serverLogRegister(query);
             Datos[i][jAdmin] = level;
-            save_account(i);
+            accountSave(i);
             return 1;
         }
     }
@@ -448,13 +448,14 @@ CMD:test_wound(playerid){
 }
 
 
-flags:shutdown(CMD_OWNER)
+flags:server_shutdown(CMD_OWNER)
 CMD:shutdown(playerid){
     CallLocalFunction("serverShutdown");
     return 1;
 }
-flags:trigger_autosave(CMD_OWNER | CMD_ADMIN)
+flags:trigger_autosave(CMD_OWNER)
 CMD:trigger_autosave(playerid){
     CallLocalFunction("globalAutoSave");
     return 1;
 }
+

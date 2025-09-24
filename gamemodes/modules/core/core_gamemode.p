@@ -1,23 +1,18 @@
-new g_AutoSave;
-forward globalAutoSave();
+stock g_AutoSave = INVALID_TIMER;
 
 public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
 	DisableInteriorEnterExits();
+	pp_use_funcidx(true);
     CallLocalFunction("databaseOnGameModeInit");
     CallLocalFunction("Models_OnGameModeInit");
 	CallLocalFunction("vehiclesOnGameModeInit");
 	CallLocalFunction("discordOnGameModeInit");
-	if(IsCrashDetectPresent()){
-		printf("CrashDetect encontrado en la lista de plugins.");
-		EnableCrashDetectLongCall();
-		SetCrashDetectLongCallTime(10000);
-	}
+	if(IsCrashDetectPresent()) printf("CrashDetect encontrado en la lista de plugins.");
 	g_AutoSave = SetTimer("globalAutoSave", 60*60000, true);
     return 1;
 }
-#pragma unused g_AutoSave
 
 public OnGameModeExit()
 {
@@ -70,17 +65,7 @@ public OnPlayerExitVehicle(playerid, vehicleid){
 	return 1;
 }
 
-public globalAutoSave(){
-	serverLogRegister("Ejecutando el autoguardado automático global...");
-	foreach(new playerid: Player){
-		CallLocalFunction("accountAutoSave", "d", playerid);
-	}
-	for(new v; v < MAX_VEHICULOS; v++){
-		CallLocalFunction("vehicleAutoSave", "d", v);
-		continue;
-	}
-	return 1;
-}
+
 
 //vehicle
 public OnVehicleSpawn(vehicleid){

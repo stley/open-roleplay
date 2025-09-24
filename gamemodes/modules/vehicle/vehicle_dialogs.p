@@ -85,7 +85,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
                                     saveCharacterInventory(playerid);
-                                    save_vehicle(idex);
+                                    vehicleSave(idex);
                                     success = true;
                                     return 1;
                                 }
@@ -104,7 +104,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             Datos[playerid][jManoData][0] = 0;
                             update_manos(playerid);
                             saveCharacterInventory(playerid);
-                            save_vehicle(idex);
+                            vehicleSave(idex);
                             success = true;
                             return 1;
                         }
@@ -135,7 +135,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                                     alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
                                     update_manos(playerid);
                                     saveCharacterInventory(playerid);
-                                    save_vehicle(idex);
+                                    vehicleSave(idex);
                                     success = true;
                                     return 1;
                                 }
@@ -154,7 +154,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                             Datos[playerid][jManoData][1] = 0;
                             update_manos(playerid);
                             saveCharacterInventory(playerid);
-                            save_vehicle(idex);
+                            vehicleSave(idex);
                             success = true;
                             return 1;
                         }
@@ -214,7 +214,7 @@ Dialog:CharVeh_Op(playerid, response, listitem, inputtext[]){
         case 0:{
             if(vehData[idex][veh_vID] != INVALID_VEHICLE_ID && !IsValidTimer(savehTimer[idex])){
                 SendClientMessage(playerid, COLOR_GREEN, "Tu vehículo se guardará dentro de ocho minutos.");
-                save_vehicle(idex);
+                vehicleSave(idex);
                 savehTimer[idex] = SetTimerEx("CharVeh_Unspawn", 480000, false, "d", idex);
             }
             else if(IsValidTimer(savehTimer[idex])){
