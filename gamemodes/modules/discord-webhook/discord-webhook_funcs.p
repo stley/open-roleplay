@@ -11,9 +11,9 @@ forward discordOnSendMessage(Requests:id, E_HTTP_STATUS:status, Node:node);
 webhookLinux(url[]){
     while (strlen(url) > 0)
     {
-        new last = str[strlen(str) - 1];
+        new last = url[strlen(url) - 1];
         if (last == '\r' || last == '\n' || last == ' ')
-            str[strlen(str) - 1] = '\0';
+            url[strlen(url) - 1] = '\0';
         else
             break;
     }
@@ -24,11 +24,11 @@ public discordOnGameModeInit(){
     new File:filehandle = fopen("webhook.ini", io_read);
     if(!filehandle) return serverLogRegister("ERROR: No se encontro \"scriptfiles/webhook.ini\"");
     if(filehandle) fread(filehandle, webhook_url, sizeof(webhook_url), false);
-    webhookLinux(webhook_url);
     if(!strlen(webhook_url)) return serverLogRegister("ERROR: NO SE ENCONTRÓ EL URL DEL WEBHOOK en \"webhook.ini\", ABORTANDO...");
+    webhookLinux(webhook_url);
     LOG_CHANNEL = RequestsClient(webhook_url);
     if(IsValidRequestsClient(LOG_CHANNEL)) discordSendMessage("Conectado al webhook de Discord.");
-    else discordSendMessage("Conexión al webhook de Discord fallida!");
+    else serverLogRegister("Conexión al webhook de Discord fallida!");
     return 1;
 }
 
