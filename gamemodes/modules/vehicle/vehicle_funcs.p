@@ -407,7 +407,7 @@ randomPlate(plate[], len)
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
         new str[96];
-        formatt(str, "Liberando el vehículo %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
+        formatt(str, "Liberando el vehículo SQLID %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
         vehicleSave(index);
         if(vehData[index][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[index][veh_vID]);
         vehData[index][veh_vID] = INVALID_VEHICLE_ID;
@@ -419,7 +419,7 @@ public CharVeh_Free(index){
 vehicleSave(index){
     if(!vehData[index][veh_SQLID]) return 1;
     new strlog[96];
-    formatt(strlog, "Guardando los datos del vehículo %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
+    formatt(strlog, "Guardando los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
     serverLogRegister(strlog);
     if(vehData[index][veh_vID] != INVALID_VEHICLE_ID){
         GetVehiclePos(vehData[index][veh_vID], vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ]);
@@ -437,9 +437,9 @@ vehicleSave(index){
 public vehicleOnSave(index){
     new str[128];
     if(orm_errno(vehData[index][vehORM]) != ERROR_OK){
-        formatt(str, "Ocurrió un error al guardar los datos del vehículo %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
+        formatt(str, "Ocurrió un error al guardar los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
     }
-    else formatt(str, "Guardados los datos del vehículo %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
+    else formatt(str, "Guardados los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
     serverLogRegister(str);
     return 1;
 }

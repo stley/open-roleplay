@@ -15,7 +15,7 @@ IPacket:packetFoot(playerid, BitStream:bs)
 	{
 		ResetPlayerWeapons(playerid);
 		update_manos(playerid);
-		printf("RakNet: %s (playerid %d) envió un paquete OnFootSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, footdata[PR_weaponId], ObjetoInfo[manoder][IDArma]);
+		serverLogRegister(sprintf("RakNet: %s (playerid %d) envió un paquete OnFootSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, footdata[PR_weaponId], ObjetoInfo[manoder][IDArma]));
 		footdata[PR_weaponId] = ObjetoInfo[manoder][IDArma];
 		BS_WriteOnFootSync(bs, footdata);
 	}
@@ -32,7 +32,7 @@ IPacket:packetInCar(playerid, BitStream:bs){
 	if(inCarData[PR_weaponId] != 0 && inCarData[PR_weaponId] != ObjetoInfo[manoder][IDArma]){
 		ResetPlayerWeapons(playerid);
 		update_manos(playerid);
-		printf("RakNet: %s (playerid %d) envió un paquete InCarSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, inCarData[PR_weaponId], ObjetoInfo[manoder][IDArma]);
+		serverLogRegister(sprintf("RakNet: %s (playerid %d) envió un paquete InCarSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, inCarData[PR_weaponId], ObjetoInfo[manoder][IDArma]));
 		inCarData[PR_weaponId] = ObjetoInfo[manoder][IDArma];
 	}
 	return 1;
