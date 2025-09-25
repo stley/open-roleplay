@@ -23,6 +23,7 @@ public OnGameModeExit()
 
     CallLocalFunction("databaseOnGameModeExit");
 	CallLocalFunction("serverLogExit");
+	delay(2000);
 	CallLocalFunction("discordOnGameModeExit");
 	return 1;
 }
