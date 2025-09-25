@@ -19,12 +19,16 @@ public databaseOnGameModeInit()
 	{
 		new error[150];
 		mysql_error(error, sizeof(error));
-		format(error, sizeof(error), "[MySQL] No se pudo conectar a la base de datos. ERROR: %s", error);
-		serverLogRegister(error);
+		serverLogRegister(sprintf("[MySQL] No se pudo conectar a la base de datos. ERROR: %s", error));
 		SendRconCommand("exit");
 	}
 	else serverLogRegister("[MySQL] Conectado a la base de datos.");
-	mysql_log(ALL);
+	#if defined BUILD_DEBUG
+		mysql_log(ALL);
+	#endif
+	#if defined BUILD_PRODUCTION
+		mysql_log(ERROR | WARNING);
+	#endif
 	return 1;
 }
 

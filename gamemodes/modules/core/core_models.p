@@ -42,7 +42,7 @@ forward Models_OnGameModeInit();
 public Models_OnGameModeInit()
 {
     //SKINS
-    print("Adding character models");
+    serverLogRegister("Adding character models");
     AddCharModel(280, 20001, "skins/police/lapd1.dff", "skins/police/lapd1.txd");
     AddCharModel(267, 20002, "skins/police/hern.dff", "skins/police/hern.txd");
     AddCharModel(284, 20003, "skins/police/lapdm1.dff", "skins/police/lapdm1.txd");
@@ -51,7 +51,7 @@ public Models_OnGameModeInit()
     AddCharModel(265, 20006, "skins/police/tenpen.dff", "skins/police/tenpen.txd");
     AddCharModel(306, 20007, "skins/police/wfyclpd.dff", "skins/police/wfyclpd.txd");
     //GUNS
-    print("Adding object models");
+    serverLogRegister("Adding object models");
     AddSimpleModel(-1, 11747, -1000, "gun/taser.dff", "gun/taser.txd"); // TASER
     AddSimpleModel(-1, 11747, -1001, "gun/glock18.dff", "gun/glock18.txd"); // GLOCK 18
     AddSimpleModel(-1, 11747, -1002, "gun/glock17.dff", "gun/glock17.txd"); // GLOCK 17

@@ -60,7 +60,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         vehVW = GetVehicleVirtualWorld(vehData[idex][veh_VW]);
     }
     else return 1;
-    if(!IsPlayerInRangeOfPoint(playerid, 6.8, veh_X, veh_Y, veh_Z) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
+    if(!IsPlayerInRangeOfPoint(playerid, 4.0, veh_X, veh_Y, veh_Z) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
     if(listitem > espacio-1){
         if(listitem != espacio){
             if(listitem == espacio+1){

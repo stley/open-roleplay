@@ -209,6 +209,8 @@ public update_manos(playerid)
     }
     if(manoder){
         if(ObjetoInfo[manoder][IDArma]){
+            if(IsPlayerInAnyVehicle(playerid))
+                if(GetPlayerVehicleSeat(playerid) == 0) ResetPlayerWeapons(playerid);            
             new idArma = ObjetoInfo[manoder][IDArma];
             new Balas = Datos[playerid][jManoCant][0];
             ResetPlayerWeapons(playerid);
@@ -232,7 +234,7 @@ public update_manos(playerid)
                 PlayerTextDrawSetString(playerid, Gun_Hud[playerid][1], "%d/%d", Balas, ObjetoInfo[manoder][Capacidad]);
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][0]);
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][1]);
-                if(Datos[playerid][jManoCant][0] == -1) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
+                if(Datos[playerid][jManoCant][0] < 0) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
             }
             ColocarObjeto(playerid, 0, manoder);
         }

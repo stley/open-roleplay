@@ -13,8 +13,7 @@
     },
     "logo": "",
     "discord": {
-        "invite": "",
-        "bot_token": ""
+        "invite": ""
     },
     "chat_input_filter": true,
     "enable_query": true,
@@ -95,7 +94,8 @@
             "streamer",
             "samp_bcrypt",
             "pawn-memory",
-            "PawnPlus"
+            "PawnPlus",
+            "requests"
         ],
         "main_scripts": [
             "main"

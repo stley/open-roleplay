@@ -6,15 +6,16 @@
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
-#include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
 #include <samp_bcrypt>
 #include <ndialog-pages>
 #include <foreach>
+#include <requests>
 #define PP_SYNTAX_AWAIT
 #define PP_SYNTAX_YIELD
 #include <PawnPlus>
+
 #pragma dynamic 7000
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (500)
@@ -26,7 +27,7 @@
 
 //Módulos
 #include "modules/misc/misc_header.p" // Misceláneos
-#include "modules/discord-bot/discord-bot_header.p" // Conexión con bot de discord!
+#include "modules/discord-webhook/discord-webhook_header.p" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header.p"
 #include "modules/core/core_header.p" //Funciones core del servidor.
 //#include "modules/shared/shared_header.p"
@@ -39,17 +40,10 @@
 #include "modules/rptools/rptools.p"
 #include "modules/player/player_header.p"
 #include "modules/commands/commands_header.p" // Comandos (Pawn.CMD)
-#include "modules/anticheat/anticheat_header.p" // (Pawn.RakNet)
+#include "modules/raknet/raknet_header.p" // (Pawn.RakNet)
 
 main(){
-    printf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time);
-    if(LOG_CHANNEL != DCC_INVALID_CHANNEL){
-        new buff[164];
-        new logutf[164];
-        format(buff, sizeof(buff), "\"%s\" INICIADO - %s\nSERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __file, FechaActual(), __date, __time);
-        Cp1252ToUtf8(logutf, sizeof(logutf), buff);
-        DCC_SendChannelMessage(LOG_CHANNEL, logutf);
-    }
+    serverLogRegister(sprintf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time));
 }
 
 // Directivas
