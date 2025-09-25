@@ -54,7 +54,7 @@
         "log_queries": false,
         "log_sqlite": false,
         "log_sqlite_queries": false,
-        "timestamp_format": "[%Y-%m-%dT%H:%M:%S%z]",
+        "timestamp_format": "[%Y-%m-%d - %H:%M:%S%z]",
         "use_prefix": true,
         "use_timestamp": true
     },
