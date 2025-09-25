@@ -1722,8 +1722,10 @@ stock sprintf(const fmat[], {Float, _}:...) {
 	static output[STRLIB_RETURN_SIZE], frm_header[3], heap;
 	
 	const output_size = sizeof(output);
-	if(strlen(fmat) > output_size) printf("sprintf: Format input string is larger than output size");
-
+	if(strlen(fmat) > output_size){
+		printf("sprintf: Format input string is larger than output size");
+		print(fmat);
+	}
 	if (ispacked(fmat)) {
 		heap = CopyArgumentToHeap(0);
 	} else {
