@@ -6,6 +6,7 @@ public OnGameModeInit()
 	DisableInteriorEnterExits();
 	
 	CallLocalFunction("discordOnGameModeInit");
+	delay(1000);
 	CallLocalFunction("serverLogInit");
     CallLocalFunction("databaseOnGameModeInit");
     CallLocalFunction("Models_OnGameModeInit");
