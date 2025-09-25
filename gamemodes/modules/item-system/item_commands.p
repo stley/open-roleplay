@@ -1150,7 +1150,7 @@ CMD:recargar(playerid){
             }
             else if(ObjetoInfo[manoizq][Tipo] != 6) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes un cargador en tu mano izquierda.");
             if(cargador != manoizq) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes un cargador para esta arma.");
-            if(Datos[playerid][jManoCant][0] == -1){
+            if(Datos[playerid][jManoCant][0] < 0){
                 Datos[playerid][jManoCant][0] = Datos[playerid][jManoCant][1];
                 Datos[playerid][jManoCant][1] = 0;
                 Datos[playerid][jMano][1] = 0;

@@ -234,7 +234,7 @@ public update_manos(playerid)
                 PlayerTextDrawSetString(playerid, Gun_Hud[playerid][1], "%d/%d", Balas, ObjetoInfo[manoder][Capacidad]);
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][0]);
                 PlayerTextDrawShow(playerid, Gun_Hud[playerid][1]);
-                if(Datos[playerid][jManoCant][0] == -1) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
+                if(Datos[playerid][jManoCant][0] < 0) PlayerTextDrawHide(playerid, Gun_Hud[playerid][1]);
             }
             ColocarObjeto(playerid, 0, manoder);
         }
