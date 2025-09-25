@@ -80,7 +80,7 @@ public OnCharacterVehicleLoad(playerid){
                     orm_apply_cache(vehData[v][vehORM], i);
                     if(curr_load != vehData[v][veh_SQLID]) serverLogRegister(sprintf("[OnCharacterVehicleLoad] ATENCIÓN: curr_load NO ES IGUAL al SQLID del vehículo cargado!! (curr_load %d) - (SQLID %d)", curr_load, vehData[v][veh_SQLID]));
                     SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID]);
-                    serverLogRegister(sprintf("Vehículo %s SQLID %d fue cargado desde la base de datos (callback de %s)", modelGetName(vehData[v][veh_Modelo]), curr_load, GetName(playerid)));
+                    serverLogRegister(sprintf("Vehículo %s SQLID %d (%s) fue cargado desde la base de datos (callback de %s)", modelGetName(vehData[v][veh_Modelo]), curr_load, vehData[v][veh_Matricula], GetName(playerid)));
                     if(IsValidTimer(vehData[v][veh_AutoSaveTimer])) KillTimer(vehData[v][veh_AutoSaveTimer]);
                     vehData[v][veh_AutoSaveTimer] = SetTimerEx("vehicleAutoSave", 600000, true, "d", v);
                     if(IsValidTimer(vehTimer[v])) KillTimer(vehTimer[v]);
