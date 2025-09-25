@@ -97,9 +97,7 @@ Dialog:D_FINREGPJ(playerid, response, listitem, inputtext[])
 	alm(Datos[playerid][jFechaCreacion], FechaActual());
 	Datos[playerid][jVida] = 100.0;
 	characterTextDraws(playerid);
-	new dslog[512];
-	format(dslog, sizeof(dslog), "%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]);
-	serverLogRegister(dslog);
+	serverLogRegister(sprintf("%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]));
 	orm_insert(Datos[playerid][ORMPJ], "accountOnCharInserted", "d", playerid);
 	CallLocalFunction("adminRefresh", "d", playerid);
 	return 1;
@@ -148,9 +146,7 @@ Dialog:D_INGPJ(playerid, response, listitem, inputtext[])
 			SetPlayerName(playerid, Datos[playerid][jNombrePJ]);
 			SpawnPlayer(playerid);
 			load_character(playerid);
-			new dslog[512];
-			format(dslog, sizeof(dslog), "%s (SQLID %d | IP %s | playerid %d) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), playerid, Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-			serverLogRegister(dslog);
+			serverLogRegister(sprintf("%s (SQLID %d | IP %s | playerid %d) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), playerid, Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
 			CallLocalFunction("adminRefresh", "d", playerid);
 		}
 		case 1:

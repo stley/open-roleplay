@@ -379,9 +379,7 @@ public plateCheck(playerid, nuevodueno, modelo, index, color1, color2){
         return get_plate(playerid, nuevodueno, modelo, index, color1, color2);
     }
     else{
-        new dslog[256];
-        format(dslog, sizeof(dslog), "Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", index, vehData[index][veh_Matricula], modelGetName(vehData[index][veh_Modelo]), vehData[index][veh_Modelo], vehData[index][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]);
-        serverLogRegister(dslog);
+        serverLogRegister(sprintf("Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", index, vehData[index][veh_Matricula], modelGetName(vehData[index][veh_Modelo]), vehData[index][veh_Modelo], vehData[index][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]));
         orm_insert(vehData[index][vehORM], "vehiclesOnCharVehicleCreated", "dddddd", playerid, nuevodueno, modelo, index, color1, color2);
     }
     return 1;
@@ -423,9 +421,7 @@ public CharVeh_Free(index){
 
 vehicleSave(index){
     if(!vehData[index][veh_SQLID]) return 1;
-    new strlog[96];
-    formatt(strlog, "Guardando los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
-    serverLogRegister(strlog);
+    serverLogRegister(sprintf("Guardando los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
     if(vehData[index][veh_vID] != INVALID_VEHICLE_ID){
         GetVehiclePos(vehData[index][veh_vID], vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ]);
         GetVehicleZAngle(vehData[index][veh_vID], vehData[index][veh_PosR]);
@@ -440,12 +436,10 @@ vehicleSave(index){
 }
 
 public vehicleOnSave(index){
-    new str[128];
-    if(orm_errno(vehData[index][vehORM]) != ERROR_OK){
-        formatt(str, "Ocurrió un error al guardar los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
-    }
-    else formatt(str, "Guardados los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
-    serverLogRegister(str);
+    if(orm_errno(vehData[index][vehORM]) != ERROR_OK)
+        serverLogRegister(sprintf("Ocurrió un error al guardar los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
+    else
+        serverLogRegister(sprintf("Guardados los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
     return 1;
 }
 
@@ -572,10 +566,8 @@ public vehicleGlobalAutoSave(){
 }
 
 public vehicleAutoSave(index){
-    new str[96];
 	if(vehData[index][veh_SQLID]){
-        formatt(str, "Ejecutando autoguardado del vehículo SQLID %d Matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
-        serverLogRegister(str);
+        serverLogRegister(sprintf("Ejecutando autoguardado del vehículo SQLID %d Matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
 		vehicleSave(index);
 	}
     return 1;

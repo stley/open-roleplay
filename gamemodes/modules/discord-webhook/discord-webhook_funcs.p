@@ -25,13 +25,17 @@ public discordOnGameModeInit(){
     if(!filehandle) return serverLogRegister("ERROR: No se encontro \"scriptfiles/webhook.ini\"");
     if(filehandle) fread(filehandle, webhook_url, sizeof(webhook_url), false);
     if(!strlen(webhook_url)) return serverLogRegister("ERROR: NO SE ENCONTRÓ EL URL DEL WEBHOOK en \"webhook.ini\", ABORTANDO...");
+    fclose(filehandle);
     webhookLinux(webhook_url);
     LOG_CHANNEL = RequestsClient(webhook_url);
     if(IsValidRequestsClient(LOG_CHANNEL)) discordSendMessage("Conectado al webhook de Discord.");
-    else serverLogRegister("Conexión al webhook de Discord fallida!");
+    else{
+        serverLogRegister("Conexión al webhook de Discord fallida!");
+        isChannelWorking = false;
+        SetTimer("discordOnGameModeInit", 300000, false);
+    }
     return 1;
 }
-
 
 
 public discordOnGameModeExit(){
@@ -59,7 +63,7 @@ public discordOnSendMessage(Requests:id, E_HTTP_STATUS:status, Node:node){
         return 1;
     }
     else{
-        serverLogRegister("No se pudo enviar el mensaje al webhook, a partir de ahora no se enviarán más logs al Discord.");
+        serverLogRegister("No se pudo enviar el mensaje al webhook. Reintentando en 5 minutos.");
         isChannelWorking = false;
     }
     return 1;

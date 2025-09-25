@@ -437,20 +437,15 @@ accountSave(playerid){
 		serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
 		return 1;
 	}
-	new dslog[256];
-	format(dslog, sizeof(dslog), "Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid);
-	serverLogRegister(dslog);
+	serverLogRegister(sprintf("Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid));
 	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
 	return 1;
 }
 characterSave(playerid)
 {
-	new dslog[256];
-	format(dslog, sizeof(dslog), "Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid);
-	serverLogRegister(dslog);
+	serverLogRegister(sprintf("Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid));
 	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM){
-		format(dslog, sizeof(dslog), "[characterSave] ORMPJ playerid %d invalida", playerid);
-		serverLogRegister(dslog);
+		serverLogRegister(sprintf("[characterSave] ORMPJ playerid %d invalida", playerid));
 		return 1;
 	}
 	GetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
@@ -464,10 +459,8 @@ characterSave(playerid)
 }
 
 saveCharacterInventory(playerid){
-	new str[96];
 	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
-		format(str, sizeof(str), "inventoryORM playerid %d invalida", playerid);
-		serverLogRegister(str);
+		serverLogRegister(sprintf("inventoryORM playerid %d invalida", playerid));
 		return 1;
 	}
 	orm_update(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
@@ -475,13 +468,10 @@ saveCharacterInventory(playerid){
 }
 
 public onCharacterInventorySave(playerid){
-	new str[96];
-	if(orm_errno(Datos[playerid][inventoryORM]) != ERROR_OK){
-		formatt(str, "Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]);
-		return serverLogRegister(str);
-	}
-	formatt(str, "Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-	return serverLogRegister(str);
+	if(orm_errno(Datos[playerid][inventoryORM]) != ERROR_OK)
+		return serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]));
+	else
+		return serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
 }
 
 bool:hasDriverOnline(veh_idex, exclude){
@@ -559,11 +549,9 @@ public accountOnUserFirstLoad(playerid)
 }
 
 public onUserRegister(playerid){
-	new str[96];
 	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu cuenta. Intenta de nuevo más tarde o contacta a adminstración.");
-		formatt(str, "ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid);
-		serverLogRegister(str);
+		serverLogRegister(sprintf("ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid));
 		playerDelayedKick(playerid, 1000);
 	}
 	else return Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
@@ -585,12 +573,10 @@ public accountGlobalAutoSave(){
 public accountAutoSave(playerid){
 	if(Datos[playerid][LoggedIn] == true)
 	{
-		new str[128];
-		formatt(str, "Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]);
-		serverLogRegister(str);
+		
+		serverLogRegister(sprintf("Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]));
 		if(Datos[playerid][EnChar] == true){
-			formatt(str, "Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]);
-			serverLogRegister(str);
+			serverLogRegister(sprintf("Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
 			characterSave(playerid);
 		}
 		accountSave(playerid);

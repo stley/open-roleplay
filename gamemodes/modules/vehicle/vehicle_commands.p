@@ -304,7 +304,7 @@ CMD:mal(playerid, params[]){
     ;
     if(IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes hacer eso estando dentro de un vehículo.");
     sscanf(params, "S()[24]", params);
-    SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /mal [abrir | cerrar | (dejar en blanco para abrir y ver el maletero)]");
+    if(isnull(params)) SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /mal [abrir | cerrar | (dejar en blanco para abrir y ver el maletero)]");
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_SQLID]){
             if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
@@ -409,8 +409,10 @@ CMD:mal(playerid, params[]){
                 vehiclesTrunk(idex);
             }
             ShowPlayerDialogPages(playerid, "vehicle_trunk", DIALOG_STYLE_LIST, "Maletero del vehículo", "Seleccionar", "Cerrar", vehData[idex][veh_EspacioMal]+4);
+            
         }
         SetPVarInt(playerid, "veh_mal", idex+1);
+        return 1;
     }
     return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
 }

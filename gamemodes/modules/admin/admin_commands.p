@@ -16,9 +16,7 @@ CMD:crearobjeto(playerid, params[])
             if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
             else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
             update_manos(playerid);
-            new dslog[512];
-            format(dslog, sizeof(dslog), "%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
-            serverLogRegister(dslog);
+            serverLogRegister(sprintf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]));
             return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %d)", ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
         }
     }
@@ -28,13 +26,12 @@ CMD:crearobjeto(playerid, params[])
         if(cantidad < ObjetoInfo[objetoid][Capacidad]) Datos[playerid][jManoCant][mano] = cantidad;
         else Datos[playerid][jManoCant][mano] = ObjetoInfo[objetoid][Capacidad];
         update_manos(playerid);
-        new dslog[512];
-        format(dslog, sizeof(dslog), "%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
-        serverLogRegister(dslog);
+        serverLogRegister(sprintf("%s (%s) creó un objeto: %s (cant: %d)", Datos[playerid][jNombrePJ], username[playerid], ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]));
         return SendClientMessage(playerid, COLOR_LIGHTRED,"AdmCmd: Creaste un objeto \"%s\" (cantidad: %d)", ObjetoInfo[objetoid][NombreObjeto], Datos[playerid][jManoCant][mano]);
     }
     return 1;
 }
+
 Dialog:D_PLACEHOLDER(playerid, response, listitem, inputtext[])
 {
     if(!response) return 1;
@@ -194,18 +191,13 @@ CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
     if(sscanf(params, "r", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
-    new dslog[512];
-    format(dslog, sizeof(dslog), "AdmCmd: %s (%s) limpió las manos de %s (%s).\n\tTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
-    serverLogRegister(dslog);
-    if(Datos[objetivo][jMano][0]){
-        format(dslog, sizeof(dslog), "Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]);
-        serverLogRegister(dslog);
-    }
-    if(Datos[objetivo][jMano][1]){
-        format(dslog, sizeof(dslog), "Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]);
-        serverLogRegister(dslog);
-    }
-    if(Datos[objetivo][jMano])
+    serverLogRegister(sprintf("AdmCmd: %s (%s) limpió las manos de %s (%s).\n\tTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]));
+    
+    if(Datos[objetivo][jMano][0])
+        serverLogRegister(sprintf("Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]));
+    if(Datos[objetivo][jMano][1])
+        serverLogRegister(sprintf("Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]));
+
     Datos[objetivo][jMano][0] = 0;
     Datos[objetivo][jManoCant][0] = 0;
     Datos[objetivo][jManoData][0] = 0;
@@ -221,10 +213,8 @@ flags:darskin(CMD_JR_MOD)
 CMD:darskin(playerid, params[]){
     if(sscanf(params, "rd", params[0], params[1])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /darskin [ID/Nombre] [ID Skin]");
     if(!IsPlayerConnected(params[0])) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario seleccionado no esta conectado.");
-
-    new dslog[512];
-    format(dslog, sizeof(dslog), "%s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
-    serverLogRegister(dslog);
+    
+    serverLogRegister(sprintf("%s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]));
     SendClientMessage(params[0], COLOR_LIGHTRED, "AdmCmd: %s (%s) cambió la skin de %s de %d a %d.", Datos[playerid][jNombrePJ], username[playerid], Datos[params[0]][jNombrePJ], Datos[params[0]][jRopa], params[1]);
     SetPlayerSkin(params[0], params[1]);
     Datos[params[0]][jRopa] = params[1];
@@ -429,12 +419,11 @@ CMD:darmod(playerid, params[]){
     //if(!accountCheck(target)) return SendClientMessage(playerid, COLOR_DARKRED, "¡La cuenta %s no existe!");
     new query[256];
     foreach(new i: Player){
-        if(strcmp(target, username[i], true) == 0){
+        if(strequal(target, username[i], true)){
             if(Datos[i][jAdmin] >= Datos[playerid][jAdmin]) return SendClientMessage(playerid, COLOR_DARKRED, "¡No puedes cambiar el rango de un superior o un usuario de tu mismo rango!");
             SendClientMessage(playerid, COLOR_LIGHTBLUE, "Le cediste el rango administrativo nivel %d a %s (%s)", level, username[i], Name_sin(GetName(i)));
             SendClientMessage(i, COLOR_LIGHTBLUE, "%s (%s) te cedió el rango administrativo nivel %d.", username[playerid], Name_sin(GetName(playerid)), level);
-            formatt(query, "%s (%s) le cedió el rango administrativo nivel %d a %s (%s).", username[playerid], Name_sin(GetName(playerid)), level, username[i], Name_sin(GetName(i)));
-            serverLogRegister(query);
+            serverLogRegister(sprintf("%s (%s) le cedió el rango administrativo nivel %d a %s (%s).", username[playerid], Name_sin(GetName(playerid)), level, username[i], Name_sin(GetName(i))));
             Datos[i][jAdmin] = level;
             accountSave(i);
             return 1;
