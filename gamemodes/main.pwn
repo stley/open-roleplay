@@ -6,7 +6,6 @@
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
 #include <easyDialog>
-//#include <discord-connector>
 #include <YSI_Core/y_utils>
 #include <YSI_Game/y_vehicledata>
 #include <samp_bcrypt>
