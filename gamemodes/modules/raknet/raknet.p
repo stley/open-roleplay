@@ -24,18 +24,11 @@ IPacket:packetFoot(playerid, BitStream:bs)
 
 IPacket:packetInCar(playerid, BitStream:bs){
 	new inCarData[PR_InCarSync];
-	new manoder = Datos[playerid][jMano][0];
 	BS_IgnoreBits(bs, 8);
 	BS_ReadInCarSync(bs, inCarData);
 	if(inCarData[PR_weaponId]){
 		ResetPlayerWeapons(playerid);
 		inCarData[PR_weaponId] = 0;
-	}
-	if(inCarData[PR_weaponId] != 0 && inCarData[PR_weaponId] != ObjetoInfo[manoder][IDArma]){
-		ResetPlayerWeapons(playerid);
-		update_manos(playerid);
-		serverLogRegister(sprintf("RakNet: %s (playerid %d) envió un paquete InCarSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, inCarData[PR_weaponId], ObjetoInfo[manoder][IDArma]));
-		inCarData[PR_weaponId] = ObjetoInfo[manoder][IDArma];
 	}	
 	BS_WriteInCarSync(bs, inCarData);
 	return 1;

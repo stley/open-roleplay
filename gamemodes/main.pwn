@@ -41,7 +41,7 @@
 #include "modules/rptools/rptools.p"
 #include "modules/player/player_header.p"
 #include "modules/commands/commands_header.p" // Comandos (Pawn.CMD)
-#include "modules/anticheat/anticheat_header.p" // (Pawn.RakNet)
+#include "modules/raknet/raknet_header.p" // (Pawn.RakNet)
 
 main(){
     serverLogRegister(sprintf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time));
