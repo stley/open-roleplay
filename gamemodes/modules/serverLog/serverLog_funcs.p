@@ -54,7 +54,7 @@ public serverLogExit(){
     new exit_str[96];
     if(strlen(serverLogBuffer)) discordSendMessage(serverLogBuffer);
     delay(1000);
-    formatt(exit_str, "# **[%02d/%02d/%04d %02d:%02d:%02d]** - Deteniendo *serverLog*...", day, month, year, hour, minute, second);
+    formatt(exit_str, "# **[%02d/%02d/%04d %02d:%02d:%02d] - Deteniendo** ***serverLog***...", day, month, year, hour, minute, second);
     discordSendMessage(exit_str);
     return 1;
 }

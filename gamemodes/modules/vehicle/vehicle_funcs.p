@@ -143,8 +143,8 @@ public vehicleInventory_Load(){
 }
 stock modelGetName(modelid){
     new string[32];
-    //formatt(string, "%s", VehiclesName[modelid-400]);
-    Model_GetName(modelid, string);
+    formatt(string, "%s", VehiclesName[modelid-400]);
+    //Model_GetName(modelid, string);
     return string;
 }
 
@@ -446,7 +446,7 @@ public vehicleOnSave(index){
 
 GetBootCapacity(modelid)
 {
-    if (!Model_IsValid(modelid)) return 0;
+    /*if (!Model_IsValid(modelid)) return 0;
 
     // non-land first
     if (Model_IsBike(modelid))         return 0;
@@ -472,11 +472,87 @@ GetBootCapacity(modelid)
      || Model_IsTransport(modelid))    return 24;
 
     // defaults
-    if (Model_IsCar(modelid))          return 8;
+    if (Model_IsCar(modelid))          return 8;*/
 
     // catch-all
+    #pragma unused modelid
     return 8;
 }
+
+Vehicle_IsBike(vehicleid){
+    if(IsValidVehicle(vehicleid))
+        return Model_IsBike(GetVehicleModel(vehicleid));
+    else return 0;
+}
+
+Vehicle_IsBoat(vehicleid){
+    if(!IsValidVehicle(vehicleid)) return 0;
+    new model = GetVehicleModel(vehicleid);
+    new boats[] ={
+        472,
+        473,
+        493,
+        595,
+        484,
+        430,
+        453,
+        452,
+        446,
+        454
+    };
+    for(new i; i < sizeof(boats); i++){
+        if(model == boats[i]) return 1;
+        else continue;
+    }
+    return 0;
+}
+
+Model_IsBike(modelid){
+    new bikes[] = {
+        581,
+        509,
+        481,
+        462,
+        521,
+        463,
+        510,
+        522,
+        461,
+        448,
+        468,
+        586
+    };
+    for(new i; i < sizeof(bikes); i++){
+        if(modelid == bikes[i]) return 1;
+        else continue;
+    }
+    #pragma unused modelid
+    return 0;
+}
+Model_IsPolice(modelid){
+    new police[] = {
+        433,
+        427,
+        490,
+        528,
+        470,
+        596,
+        598,
+        599,
+        597,
+        601
+    };
+    for(new i; i < sizeof(police); i++){
+        if(modelid == police[i]) return 1;
+        else continue;
+    }
+    #pragma unused modelid
+    return 0;
+}
+
+Vehicle_IsFlowerpot(vehicleid) return (IsValidVehicle(vehicleid) && GetVehicleModel(vehicleid) == 594);
+
+
 
 vehicleInventorySave(index){
     if(index < 0) return 1;

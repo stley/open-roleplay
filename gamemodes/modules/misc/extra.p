@@ -70,7 +70,7 @@ FechaActual()
 	else if(horas < 12) format(thetime, sizeof(thetime), "%s %d de %s de %d [%02d:%02d AM]", GetWeekDay(), Day, GetMonth(Month), Year, (horas == 0) ? (12) : (horas), mins);
 	return thetime;
 }
-/*stock IsNumeric(const string[])//By Jan "DracoBlue" Schütze (edited by Gabriel "Larcius" Cordes
+stock IsNumeric(const string[])//By Jan "DracoBlue" Schütze (edited by Gabriel "Larcius" Cordes
 {
 	new j = strlen(string);
 	if(j == 0) return 0;
@@ -80,7 +80,7 @@ FechaActual()
 		if(string[i] > '9' || string[i] < '0') return 0;
 	}
 	return 1;
-}*/
+}
 stock IsValidEmail(const email[]) //By Jan "DracoBlue" Schütze
 {
 	new len=strlen(email);

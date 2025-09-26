@@ -1,35 +1,161 @@
 
-DialogPages:vehPanelDialog(playerid, response, listitem, inputtext[]){
-    if(!response) return 1;
-    new cantidad = GetPVarInt(playerid, "vehicle_listsize");
-    if(cantidad) DeletePVar(playerid, "vehicle_listsize");
-    if(listitem < 0 || listitem >= cantidad) return 1;
-    new key[18];
-    formatt(key, "veh_list_%d", listitem);
-    new v = GetPVarInt(playerid, key);
-    for (new p = 0; p < cantidad; p++) {
-        new k[18];
-        format(k, sizeof k, "veh_list_%d", p);
-        if (GetPVarType(playerid, k)) DeletePVar(playerid, k);
+
+
+dialog_vehiculos(playerid){
+    list_clear(DialogData[playerid]);
+    new cantidad;
+    for(new i; i < MAX_VEHICULOS; i++){
+        new buffer[128];
+        if (vehData[i][veh_SQLID]){
+            if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
+                formatt(buffer, "[%d]\t%s\t%s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                AddPaginatedDialogRow(DialogData[playerid], buffer, i);
+                cantidad++;
+                continue;
+            }
+            for(new x; x < 2; x++){
+                if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
+                    formatt(buffer, "Prestado %d : [%d]\t%s\t%s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                    AddPaginatedDialogRow(DialogData[playerid], buffer, i);
+                    cantidad++;
+                    continue;
+                }
+            }
+        }
+        continue;
     }
-    new title[64],
-    opts[120];
+    if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
+    yield 1;
+    new response[DIALOG_RESPONSE];
+    await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 10, "Tus vehículos", DialogData[playerid], "Seleccionar", "Cancelar", "ID\tModelo\tMatrícula");
+    if(!response[DIALOG_RESPONSE_RESPONSE]) return false;
+    if(!cantidad) return false;
+    if(response[DIALOG_RESPONSE_LISTITEM] < 0 || response[DIALOG_RESPONSE_LISTITEM] >= cantidad) return 1;
+    new v = response[DIALOG_RESPONSE_EXTRAID];
+    new
+        title[64],
+        opts[120]
+    ;
     formatt(title, "%s [%d] - %s", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID], vehData[v][veh_Matricula]);
     if(vehData[v][veh_vID] == INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Sacar vehículo");
     else if(!IsValidTimer(savehTimer[v])) formatt(opts, "{FF0000}Guardar vehículo\n{FFFFFF}Ubicación");
     else if(IsValidTimer(savehTimer[v]) && vehData[v][veh_vID] != INVALID_VEHICLE_ID) formatt(opts, "{00FF00}Cancelar guardado\n{FFFFFF}Ubicación");
-    Dialog_Show(playerid, CharVeh_Op, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "Salir");
-    SetPVarInt(playerid, "op_veh", v);
+    
+    await_arr(response) ShowAsyncDialog(playerid, DIALOG_STYLE_LIST, title, opts, "Seleccionar", "Salir");
+    if(!response[DIALOG_RESPONSE_RESPONSE]) return dialog_vehiculos(playerid);
+    new idex = v;
+    switch(response[DIALOG_RESPONSE_LISTITEM]){
+        case 0:{
+            if(vehData[idex][veh_vID] != INVALID_VEHICLE_ID && !IsValidTimer(savehTimer[idex])){
+                SendClientMessage(playerid, COLOR_GREEN, "Tu vehículo se guardará dentro de ocho minutos.");
+                vehicleSave(idex);
+                savehTimer[idex] = SetTimerEx("CharVeh_Unspawn", 480000, false, "d", idex);
+            }
+            else if(IsValidTimer(savehTimer[idex])){
+                KillTimer(savehTimer[idex]);
+                SendClientMessage(playerid, COLOR_GREEN, "Cancelaste el guardado de tu vehiculo.");
+            }
+            else{
+                
+                savehTimer[idex] = SetTimerEx("CharVeh_Spawn", 500, false, "d", idex);
+                SendClientMessage(playerid, COLOR_GREEN, "Tu vehículo ha sido spawneado en el último lugar donde lo guardaste/estacionaste.");
+            }
+        }
+        case 1:{
+            if(vehData[idex][veh_Deposito]){
+                SendClientMessage(playerid, COLOR_YELLOW, "Tu vehículo se encuentra confiscado. No puedes localizarlo.");
+                return 1;
+            }
+            else if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID){
+                SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error localizando tu vehículo. Notifica a un administrador. (INVALID_VEHICLE_ID)");
+                return 1;
+            }
+            if(GetVehicleVirtualWorld(vehData[idex][veh_vID]) != 0) SendClientMessage(playerid, COLOR_GREEN, "((Localizamos tu vehículo en otra dimensión. Contacta a un staff si no es posible que puedas recuperar tu vehículo.))");
+            new zonename[MAX_MAP_ZONE_NAME];
+            if(GetVehicleMapZone(vehData[idex][veh_vID]) == INVALID_MAP_ZONE_ID) formatt(zonename, "San Andreas");
+            else GetMapZoneName(GetVehicleMapZone3D(vehData[idex][veh_vID]), zonename);
+            SendClientMessage(playerid, COLOR_GREEN, "Localizamos tu vehículo cerca de %s.", zonename);
+            SetPlayerCheckpoint(playerid, vehData[idex][veh_PosX], vehData[idex][veh_PosY], vehData[idex][veh_PosZ], 10.0);
+            checkpoints[playerid] = 1;
+        }
+    }
     return 1;
 }
 
-
-
-DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
+dialog_maletero(playerid){
+    yield 1;
     new idex = GetPVarInt(playerid, "veh_mal");
     if(!idex) return 0;
+    DeletePVar(playerid, "veh_mal");
     idex--;
-    if(!response){
+    list_clear(DialogData[playerid]);
+    new response[DIALOG_RESPONSE];
+    new has_keys = hasVehicleKeys(playerid, idex);
+    if(vehData[idex][veh_Trunk] != false){
+        new dlg_buff[136];
+        for(new x; x < vehData[idex][veh_EspacioMal]; x++){
+            new slot;
+            slot = vehicleFetchInventorySlot(idex, x);
+            if(slot != -1){
+                if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d]\t%s\t(%d)\t[%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
+                else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
+                AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+                continue;
+            }
+            else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
+            AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+            continue;
+        }
+        
+        AddPaginatedDialogRow(DialogData[playerid], "—————————————————");
+        if(Datos[playerid][jMano][0]){
+            formatt(dlg_buff, "Mano derecha:\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
+        }
+        else formatt(dlg_buff, "Mano derecha:\tNada\t\t");
+        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+        if(Datos[playerid][jMano][1]){
+            formatt(dlg_buff, "Mano izquierda:\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
+        }
+        else formatt(dlg_buff, "Mano izquierda:\tNada\t\t");
+        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+        if(!vehData[idex][veh_Trunk]){
+            vehData[idex][veh_Trunk] = true;
+            vehiclesTrunk(idex);
+        }       
+        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+4, "Maletero", DialogData[playerid], "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
+    }
+    else{
+        if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este vehículo (%s - %d).", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_vID]);
+        new dlg_buff[136];
+        for(new x; x < vehData[idex][veh_EspacioMal]; x++){
+            new slot= vehicleFetchInventorySlot(idex, x);
+            if(slot != -1){
+                if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d]\t%s\t(%d)\t[%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
+                else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
+                AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+                continue;
+            }
+            else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
+            AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+            continue;
+        }
+        
+        AddPaginatedDialogRow(DialogData[playerid], "—————————————————");
+        if(Datos[playerid][jMano][0]) formatt(dlg_buff, "Mano derecha\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
+        else formatt(dlg_buff, "Mano derecha:\tNada\t\t");
+        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+        if(Datos[playerid][jMano][1]) formatt(dlg_buff, "Mano izquierda\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
+        else formatt(dlg_buff, "Mano izquierda:\tNada\t\t");
+        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+        if(!vehData[idex][veh_Trunk]){
+            vehData[idex][veh_Trunk] = true;
+            vehiclesTrunk(idex);
+        }
+        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+4, "Maletero", DialogData[playerid], "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");    
+    }
+
+    //dialog response
+    if(!response[DIALOG_RESPONSE_RESPONSE]){
         vehData[idex][veh_Trunk] = false;
         SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
         vehiclesTrunk(idex);
@@ -42,7 +168,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                 }  
             }
         }
-        return 1;
+        return true;
     }
     new
         Float:veh_X,
@@ -59,11 +185,11 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         vehInt = GetVehicleInterior(vehData[idex][veh_vID]);
         vehVW = GetVehicleVirtualWorld(vehData[idex][veh_VW]);
     }
-    else return 1;
+    else return false;
     if(!IsPlayerInRangeOfPoint(playerid, 4.0, veh_X, veh_Y, veh_Z) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
-    if(listitem > espacio-1){
-        if(listitem != espacio){
-            if(listitem == espacio+1){
+    if(response[DIALOG_RESPONSE_LISTITEM] > espacio-1){
+        if(response[DIALOG_RESPONSE_LISTITEM] != espacio){
+            if(response[DIALOG_RESPONSE_LISTITEM] == espacio+1){
                 if(Datos[playerid][jMano][0]){
                     for(new i; i < vehData[idex][veh_EspacioMal]; i++){
                         slot = vehicleFetchInventorySlot(idex, i);
@@ -113,7 +239,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
                 else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano derecha.");
                 if(!success) return SendClientMessage(playerid, COLOR_DARKRED, "No hay más espacio en este maletero.");
             }
-            else if(listitem == espacio+2){
+            else if(response[DIALOG_RESPONSE_LISTITEM] == espacio+2){
                 if(Datos[playerid][jMano][1]){
                     for(new i; i < vehData[idex][veh_EspacioMal]; i++){
                         slot = vehicleFetchInventorySlot(idex, i);
@@ -166,7 +292,7 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         }
     }
     else{
-        slot = vehicleFetchInventorySlot(idex, listitem);
+        slot = vehicleFetchInventorySlot(idex, response[DIALOG_RESPONSE_LISTITEM]);
         if(slot == -1 || !vehicleInventory[slot][veh_Maletero]) return SendClientMessage(playerid, COLOR_DARKRED, "Ese hueco está vacío.");
         if(Datos[playerid][jMano][0]){
             if(Datos[playerid][jMano][1]) return SendClientMessage(playerid, COLOR_DARKRED, "Tienes ambas manos ocupadas. Tira algun objeto o guardalo en tu bolsillo.");
@@ -201,49 +327,5 @@ DialogPages:vehicle_trunk(playerid, response, listitem, inputtext[]){
         saveCharacterInventory(playerid);
         return SendClientMessage(playerid, COLOR_DARKGREEN, "Sacas un %s del maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
     }
-    if(GetPVarType(playerid, "veh_mal")) DeletePVar(playerid, "veh_mal");
-    return 1;
-}
-
-
-Dialog:CharVeh_Op(playerid, response, listitem, inputtext[]){
-    if(!response) return dialog_vehiculos(playerid);
-    new idex = GetPVarInt(playerid, "op_veh");
-    DeletePVar(playerid, "op_veh");
-    switch(listitem){
-        case 0:{
-            if(vehData[idex][veh_vID] != INVALID_VEHICLE_ID && !IsValidTimer(savehTimer[idex])){
-                SendClientMessage(playerid, COLOR_GREEN, "Tu vehículo se guardará dentro de ocho minutos.");
-                vehicleSave(idex);
-                savehTimer[idex] = SetTimerEx("CharVeh_Unspawn", 480000, false, "d", idex);
-            }
-            else if(IsValidTimer(savehTimer[idex])){
-                KillTimer(savehTimer[idex]);
-                SendClientMessage(playerid, COLOR_GREEN, "Cancelaste el guardado de tu vehiculo.");
-            }
-            else{
-                
-                savehTimer[idex] = SetTimerEx("CharVeh_Spawn", 500, false, "d", idex);
-                SendClientMessage(playerid, COLOR_GREEN, "Tu vehículo ha sido spawneado en el último lugar donde lo guardaste/estacionaste.");
-            }
-        }
-        case 1:{
-            if(vehData[idex][veh_Deposito]){
-                SendClientMessage(playerid, COLOR_YELLOW, "Tu vehículo se encuentra confiscado. No puedes localizarlo.");
-                return 1;
-            }
-            else if(vehData[idex][veh_vID] == INVALID_VEHICLE_ID){
-                SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error localizando tu vehículo. Notifica a un administrador. (INVALID_VEHICLE_ID)");
-                return 1;
-            }
-            if(GetVehicleVirtualWorld(vehData[idex][veh_vID]) != 0) SendClientMessage(playerid, COLOR_GREEN, "((Localizamos tu vehículo en otra dimensión. Contacta a un staff si no es posible que puedas recuperar tu vehículo.))");
-            new zonename[MAX_MAP_ZONE_NAME];
-            if(GetVehicleMapZone(vehData[idex][veh_vID]) == INVALID_MAP_ZONE_ID) formatt(zonename, "San Andreas");
-            else GetMapZoneName(GetVehicleMapZone3D(vehData[idex][veh_vID]), zonename);
-            SendClientMessage(playerid, COLOR_GREEN, "Localizamos tu vehículo cerca de %s.", zonename);
-            SetPlayerCheckpoint(playerid, vehData[idex][veh_PosX], vehData[idex][veh_PosY], vehData[idex][veh_PosZ], 10.0);
-            checkpoints[playerid] = 1;
-        }
-    }
-    return 1;
+    return false;
 }

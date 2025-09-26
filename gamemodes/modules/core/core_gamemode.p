@@ -46,7 +46,7 @@ public OnPlayerRequestClass(playerid, classid){
 		SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
 		playerDelayedKick(playerid, 2000);
 	}
-	return 1;
+	return 0;
 }
 
 public OnPlayerEnterCheckpoint(playerid){
@@ -91,3 +91,6 @@ enum (<<= 1)
 };
 new a_perms[MAX_PLAYERS];
 
+public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]){
+	return 1;
+}
