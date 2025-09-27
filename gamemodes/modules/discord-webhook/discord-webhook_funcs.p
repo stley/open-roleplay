@@ -36,7 +36,7 @@ public discordOnGameModeInit(){
         ;
         getdate(year, month, day);
         gettime(hour, minute, second);
-        discordSendMessage(sprintf("# **[%02d/%02d/%04d %02d:%02d:%02d]** - Conectado al webhook de Discord.", day, month, year, hour, minute, second));
+        discordSendMessage(sprintf(" **[%02d/%02d/%04d %02d:%02d:%02d] - Conectado al webhook de Discord.**", day, month, year, hour, minute, second));
     }
     else{
         serverLogRegister("Conexión al webhook de Discord fallida!");
@@ -54,7 +54,7 @@ public discordOnGameModeExit(){
     ;
     getdate(year, month, day);
     gettime(hour, minute, second);
-    discordSendMessage(sprintf("# **[%02d/%02d/%04d %02d:%02d:%02d]** - Apagando servidor...", day, month, year, hour, minute, second));
+    discordSendMessage(sprintf("**[%02d/%02d/%04d %02d:%02d:%02d] - Apagando servidor...**", day, month, year, hour, minute, second));
     return 1;
 }
 

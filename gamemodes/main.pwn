@@ -3,18 +3,19 @@
 #include <a_mysql>
 #include <sscanf2>
 #include <streamer>
+#include <foreach>
 #include <Pawn.CMD>
 #include <Pawn.RakNet>
-#include <easyDialog>
-#include <YSI_Core/y_utils>
-#include <YSI_Game/y_vehicledata>
 #include <samp_bcrypt>
-#include <ndialog-pages>
-#include <foreach>
 #include <requests>
+#include <VehiclePartPosition>
+
 #define PP_SYNTAX_AWAIT
 #define PP_SYNTAX_YIELD
 #include <PawnPlus>
+#include <pp-mysql>
+#include <tdialogs>
+
 
 #pragma dynamic 7000
 #undef MAX_PLAYERS
@@ -30,7 +31,7 @@
 #include "modules/discord-webhook/discord-webhook_header.p" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header.p"
 #include "modules/core/core_header.p" //Funciones core del servidor.
-//#include "modules/shared/shared_header.p"
+#include "modules/shared/shared_header.p"
 #include "modules/database/database_header.p" // Conexión a la base de datos
 #include "modules/item-system/item_header.p" // Objetos
 #include "modules/admin/admin_header.p" // Admin

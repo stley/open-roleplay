@@ -3,6 +3,7 @@
 	#include <Pawn.RakNet>
 #endif
 const packetInCar = 200;
+const packetPassenger = 211;
 const packetFoot = 207;
 IPacket:packetFoot(playerid, BitStream:bs)
 {
@@ -31,5 +32,12 @@ IPacket:packetInCar(playerid, BitStream:bs){
 		inCarData[PR_weaponId] = 0;
 	}	
 	BS_WriteInCarSync(bs, inCarData);
-	return 1;
+	return CallLocalFunction("OnVehicleUpdate", "d", inCarData[PR_vehicleId]);
+}
+
+IPacket:packetPassenger(playerid, BitStream:bs){
+	new passengerData[PR_PassengerSync];
+	BS_IgnoreBits(bs, 8);
+	BS_ReadPassengerSync(bs,passengerData);
+	return CallLocalFunction("OnVehicleUpdate", "d", passengerData[PR_vehicleId]);
 }

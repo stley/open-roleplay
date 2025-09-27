@@ -10,8 +10,13 @@ public OnORMTaskUpdate(Task:t, ORM:id){
     return 1;
 }
 
-Task:orm_update_s(ORM:id){
+stock Task:orm_update_s(ORM:id){
     new Task:t = task_new();
     orm_update(id, "OnORMTaskUpdate", "d", _:t);
     return t;
+}
+
+Dialog_Close(playerid){
+    yield 1;
+    ShowPlayerDialog(playerid, -1, DIALOG_STYLE_MSGBOX, "", "", "", "");
 }

@@ -1,5 +1,7 @@
 stock g_AutoSave = INVALID_TIMER;
 
+forward OnVehicleUpdate(vehicleid);
+
 public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
@@ -46,7 +48,7 @@ public OnPlayerRequestClass(playerid, classid){
 		SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
 		playerDelayedKick(playerid, 2000);
 	}
-	return 1;
+	return 0;
 }
 
 public OnPlayerEnterCheckpoint(playerid){
@@ -69,25 +71,20 @@ public OnPlayerExitVehicle(playerid, vehicleid){
 	return 1;
 }
 
-
+public OnVehicleUpdate(vehicleid)
+{
+	CallLocalFunction("vehiclesOnVehicleUpdate", "d", vehicleid);
+    
+    return 1;
+}
 
 //vehicle
 public OnVehicleSpawn(vehicleid){
 	CallLocalFunction("vehiclesOnVehicleSpawn", "d", vehicleid);
 	return 1;
 }
-enum (<<= 1)
-{
-	CMD_OWNER = 1,
-	CMD_ADMIN,
-	CMD_OPERATOR,
-	CMD_JR_OPERATOR,
-	CMD_MOD,
-	CMD_JR_MOD,
 
-	CMD_STAFF_MANAGER,
-	CMD_FACTION_MANAGER,
-	CMD_PROPERTY_MANAGER
-};
-new a_perms[MAX_PLAYERS];
 
+public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]){
+	return 1;
+}

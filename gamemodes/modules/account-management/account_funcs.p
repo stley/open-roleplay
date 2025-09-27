@@ -21,9 +21,7 @@ forward onUserRegister(playerid);
 
 forward updateToys(playerid);
 
-public OnDialogPerformed(playerid, const dialog[], response, success) {
-    return 1;
-}
+
 
 public accountOnPlayerConnect(playerid)
 {
@@ -39,9 +37,8 @@ public accountOnPlayerConnect(playerid)
 
 public accountPassHash(playerid, const password[], is_register){
 	if(is_register){
-		Dialog_Show(playerid, D_EMAIL, DIALOG_STYLE_INPUT, "Correo Electrónico", "¡Perfecto! Ingresa tu correo electrónico.", "Continuar", "Salir");
 		bcrypt_get_hash(Datos[playerid][jClave]);
-		return 1;
+		return dialog_email(playerid);
 	}
 	else bcrypt_verify(playerid, "accountPassCheck", password, Datos[playerid][jClave]);
 	return 1;
@@ -50,11 +47,11 @@ public accountPassCheck(playerid, bool:success){
 	new query_str[128];
 	if(success){
 		Datos[playerid][LoggedIn] = true;
-		dialog_personajes(playerid);
 		alm(Datos[playerid][jIP], GetPIP(playerid));
 		mysql_format(SQLDB, query_str, sizeof(query_str), "UPDATE `accounts` SET `online` = 1 WHERE `SQLID` = %d", Datos[playerid][jSQLID]);
 		mysql_tquery(SQLDB, query_str);
 		serverLogRegister(sprintf("%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]));
+		return dialog_personajes(playerid);
 	}
 	else
 	{
@@ -62,7 +59,8 @@ public accountPassCheck(playerid, bool:success){
 		{
 			serverLogRegister(sprintf("%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]));
 			IntentosLogin[playerid]++;
-			return Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", "\tIngresaste una contraseña incorrecta.\n\tIntenta de nuevo.", "Ingresar", "Salir");
+			SendClientMessage(playerid, COLOR_DARKRED, "Ingresaste una contraseña incorrecta, intenta de nuevo.");
+			return dialog_ingreso(playerid);
 		}
 		else
 		{
@@ -74,36 +72,13 @@ public accountPassCheck(playerid, bool:success){
 	return 1;
 }
 
-public accountOnUserCharacterList(playerid){
-	new dlg_buff[96];
-	new charname[MAX_PLAYER_NAME];
-	new charid;
-	characterCache[playerid] = cache_save();
-	if(cache_num_rows()){
-		for(new i; i < cache_num_rows(); i++){
-			cache_get_value_name_int(i, "SQLIDPJ", charid);
-			cache_get_value_name(i, "NombrePJ", charname);
-			formatt(dlg_buff, "%s [%d]", charname, charid);
-			AddDialogListitem(playerid, dlg_buff);
-		}
-	}
-
-	if(cache_num_rows() && cache_num_rows() < Datos[playerid][CharacterLimit]){
-		AddDialogListitem(playerid, "{C0C0C0}Crear otro personaje");
-	}
-	else if (!cache_num_rows()){
-		AddDialogListitem(playerid, "{C0C0C0}Crear un personaje");
-	}
-	return ShowPlayerDialogPages(playerid, "character_dialog", DIALOG_STYLE_LIST, "Personajes disponibles", "Ingresar", "Salir", 12);
-}
 
 
-
-public accountOnCharFirstLoad(playerid)
+/*public accountOnCharFirstLoad(playerid)
 {
 	if(cache_num_rows()){
 		orm_apply_cache(Datos[playerid][ORMPJ], 0);
-		return Dialog_Show(playerid, D_INGPJ, DIALOG_STYLE_LIST, Datos[playerid][jNombrePJ], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
+		return dialogIngresar_Personaje(playerid);
 	}
 	else
 	{
@@ -111,7 +86,7 @@ public accountOnCharFirstLoad(playerid)
 		accountSave(playerid);
 		return dialog_personajes(playerid);
 	}
-}
+}*/
 public accountOnCharInserted(playerid){
 	if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu personaje. Intenta de nuevo más tarde o contacta con administración.");
@@ -162,7 +137,7 @@ characterTextDraws(playerid){
     PlayerTextDrawSetProportional(playerid, Gun_Hud[playerid][1], true);
 }
 
-load_character(playerid)
+loadCharacter(playerid)
 {
 	Datos[playerid][EnChar] = true;
 	
@@ -410,12 +385,12 @@ clear_account_data(playerid)
 		Datos[playerid][ORMID] = MYSQL_INVALID_ORM;
 	}
 	a_perms[playerid] = 0;
-	alm(Datos[playerid][jNombre], "-");
-	alm(Datos[playerid][jEmail], "-");
-	alm(Datos[playerid][FechaReg], "-");
-	alm(Datos[playerid][UltimaConexion], "-");
-	alm(Datos[playerid][jClave], "-");
-	alm(Datos[playerid][jIP], "-");
+	Datos[playerid][jNombre][0] = EOS;
+	Datos[playerid][jEmail][0] = EOS;
+	Datos[playerid][FechaReg][0] = EOS;
+	Datos[playerid][UltimaConexion][0] = EOS;
+	Datos[playerid][jClave][0] = EOS;
+	Datos[playerid][jIP][0] = EOS;
 	Datos[playerid][jSQLID] = 0;
 	Datos[playerid][jAdmin] = 0;
 	Datos[playerid][jCreditos] = 0;
@@ -527,35 +502,34 @@ public accountOnGameModeExit(){
 
 public accountOnPlayerRequestClass(playerid, classid)
 {
-	Dialog_Show(playerid, D_USERNAME, DIALOG_STYLE_INPUT, "¡Bienvenido!", "Ingresa tu nombre de usuario para continuar:", "Ingresar", "Salir");
+	if(!Datos[playerid][LoggedIn])
+		return dialog_username(playerid);	
 	return 1;
 }
 
 public accountOnUserFirstLoad(playerid)
 {
-	new str[150];
-	if(cache_num_rows())
-	{
-		orm_apply_cache(Datos[playerid][ORMID], 0);
-		formatt(str, "Bienvenido %s.\nIngresa tu contraseña para continuar.", username[playerid]);
-		Dialog_Show(playerid, D_INGRESO, DIALOG_STYLE_PASSWORD, "Ingreso", str, "Ingresar", "Salir");
-	}
-	else
-	{
-		formatt(str, "Bienvenido %s.\nIngrese una contraseña para continuar.", username[playerid]);
-		Dialog_Show(playerid, D_REGISTRO, DIALOG_STYLE_PASSWORD, "Registro", str, "Continuar", "Salir");
-	}
+	
 	return 1;
 }
 
 public onUserRegister(playerid){
 	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
+		yield 1;
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu cuenta. Intenta de nuevo más tarde o contacta a adminstración.");
 		serverLogRegister(sprintf("ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid));
 		playerDelayedKick(playerid, 1000);
 	}
-	else return Dialog_Show(playerid, D_FINREG, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
-	return 1;
+	new response[DIALOG_RESPONSE];
+	await_arr(response) ShowAsyncDialog(playerid, DIALOG_STYLE_MSGBOX, "¡Enhorabuena!", "Tu cuenta ha sido creada correctamente.", "Continuar", "");
+	if(!response[DIALOG_RESPONSE_RESPONSE]){
+		Datos[playerid][LoggedIn] = true;
+		return dialog_personajes(playerid);
+	}
+	else{
+		Datos[playerid][LoggedIn] = true;
+		return dialog_personajes(playerid);
+	}
 }
 
 public accountGlobalAutoSave(){

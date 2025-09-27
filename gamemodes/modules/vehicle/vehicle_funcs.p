@@ -1,7 +1,6 @@
 forward vehiclesOnGameModeInit();
 forward vehiclesOnGameModeExit();
 
-forward OnVehicleUpdate();
 
 forward vehiclesOnPlayerExitVehicle(playerid, vehicleid);
 
@@ -10,7 +9,7 @@ forward vehiclesLock(idex);
 forward vehiclesLights(vehicleid);
 forward vehiclesTrunk(idex);
 forward vehiclesHood(idex);
-forward vehiclesOnVehicleUpdate();
+forward vehiclesOnVehicleUpdate(vehicleid);
 
 forward vehicleGlobalAutoSave();
 forward vehicleAutoSave(index);
@@ -30,7 +29,6 @@ forward vehicleOnSave(index);
 
 
 public vehiclesOnGameModeInit(){
-    SetTimer("OnVehicleUpdate", 6000, true);
     for(new i; i < MAX_VEHICULOS; i++){
         vehData[i][veh_vID] = INVALID_VEHICLE_ID;
         continue;
@@ -143,9 +141,44 @@ public vehicleInventory_Load(){
 }
 stock modelGetName(modelid){
     new string[32];
-    //formatt(string, "%s", VehiclesName[modelid-400]);
-    Model_GetName(modelid, string);
+    formatt(string, "%s", VehiclesName[modelid-400]);
+    //Model_GetName(modelid, string);
     return string;
+}
+
+public vehiclesOnVehicleUpdate(vehicleid){
+    new Float: vHealth;
+	new idex = -1;
+	for(new i; i < MAX_VEHICULOS; i++){
+		if(vehicleid == vehData[i][veh_vID]){
+			idex = i;
+			break;
+		}
+		continue;
+	}
+    GetVehicleHealth(vehicleid, vHealth);
+    if(vHealth <= 250){
+		if(idex != -1){
+			SetVehicleHealth(vehicleid, 260.0);
+        	vehData[idex][veh_Engine] = false;
+        	vehData[idex][veh_Vida] = 260.0;
+        	vehiclesEngine(idex);
+        	if(IsVehicleOccupied(vehicleid)){
+        	    vehiclesLock(idex);
+        	    foreach(new x: Player){
+        	        if(IsPlayerConnected(x) && IsPlayerInVehicle(x, vehicleid)) GameTextForPlayer(x, "~r~VEHICULO DESTRUIDO!", 3000, 4);
+        	        else continue;
+        	    }
+        	}
+		}
+		else{
+            Veh_Engine(vehicleid);
+            foreach(new x: Player){
+        	    if(IsPlayerConnected(x) && IsPlayerInVehicle(x, vehicleid)) GameTextForPlayer(x, "~r~VEHICULO DESTRUIDO!", 3000, 4);
+        	    else continue;
+        	}
+        }
+    } 
 }
 
 public vehiclesEngine(idex){
@@ -200,30 +233,7 @@ public vehiclesHood(idex){
 }
 
 
-public OnVehicleUpdate()
-{
-    for(new i; i < MAX_VEHICULOS; i++)
-    {
-        if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
-            new Float: vHealth;
-            GetVehicleHealth(vehData[i][veh_vID], vHealth);
-            if(vHealth <= 250){
-                SetVehicleHealth(vehData[i][veh_vID], 260.0);
-                vehData[i][veh_Engine] = false;
-                vehData[i][veh_Vida] = 260.0;
-                vehiclesEngine(i);
-                if(IsVehicleOccupied(vehData[i][veh_vID])){
-                    vehiclesLock(i);
-                    foreach(new x: Player){
-                        if(IsPlayerConnected(x) && IsPlayerInVehicle(x, vehData[i][veh_vID])) GameTextForPlayer(x, "~r~VEHICULO DESTRUIDO!", 3000, 4);
-                        else continue;
-                    }
-                }
-            } 
-        } 
-    }
-    return 1;
-}
+
 
 public vehiclesOnPlayerEnterCheckpoint(playerid){
     
@@ -409,8 +419,7 @@ randomPlate(plate[], len)
 
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
-        new str[96];
-        formatt(str, "Liberando el vehículo SQLID %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]);
+        serverLogRegister(sprintf( "Liberando el vehículo SQLID %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
         vehicleSave(index);
         if(vehData[index][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[index][veh_vID]);
         vehData[index][veh_vID] = INVALID_VEHICLE_ID;
@@ -446,7 +455,7 @@ public vehicleOnSave(index){
 
 GetBootCapacity(modelid)
 {
-    if (!Model_IsValid(modelid)) return 0;
+    /*if (!Model_IsValid(modelid)) return 0;
 
     // non-land first
     if (Model_IsBike(modelid))         return 0;
@@ -472,11 +481,87 @@ GetBootCapacity(modelid)
      || Model_IsTransport(modelid))    return 24;
 
     // defaults
-    if (Model_IsCar(modelid))          return 8;
+    if (Model_IsCar(modelid))          return 8;*/
 
     // catch-all
+    #pragma unused modelid
     return 8;
 }
+
+Vehicle_IsBike(vehicleid){
+    if(IsValidVehicle(vehicleid))
+        return Model_IsBike(GetVehicleModel(vehicleid));
+    else return 0;
+}
+
+Vehicle_IsBoat(vehicleid){
+    if(!IsValidVehicle(vehicleid)) return 0;
+    new model = GetVehicleModel(vehicleid);
+    new boats[] ={
+        472,
+        473,
+        493,
+        595,
+        484,
+        430,
+        453,
+        452,
+        446,
+        454
+    };
+    for(new i; i < sizeof(boats); i++){
+        if(model == boats[i]) return 1;
+        else continue;
+    }
+    return 0;
+}
+
+Model_IsBike(modelid){
+    new bikes[] = {
+        581,
+        509,
+        481,
+        462,
+        521,
+        463,
+        510,
+        522,
+        461,
+        448,
+        468,
+        586
+    };
+    for(new i; i < sizeof(bikes); i++){
+        if(modelid == bikes[i]) return 1;
+        else continue;
+    }
+    #pragma unused modelid
+    return 0;
+}
+Model_IsPolice(modelid){
+    new police[] = {
+        433,
+        427,
+        490,
+        528,
+        470,
+        596,
+        598,
+        599,
+        597,
+        601
+    };
+    for(new i; i < sizeof(police); i++){
+        if(modelid == police[i]) return 1;
+        else continue;
+    }
+    #pragma unused modelid
+    return 0;
+}
+
+Vehicle_IsFlowerpot(vehicleid) return (IsValidVehicle(vehicleid) && GetVehicleModel(vehicleid) == 594);
+
+
 
 vehicleInventorySave(index){
     if(index < 0) return 1;

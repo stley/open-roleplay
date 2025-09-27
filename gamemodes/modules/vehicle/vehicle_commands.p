@@ -1,53 +1,22 @@
+
+
 CMD:miscoches(playerid){
     if(!IsPlayerConnected(playerid)) return 1;
     if(Datos[playerid][EnChar]) dialog_vehiculos(playerid);
     return 1;
 }
 
-dialog_vehiculos(playerid){
-    new cantidad;
-    
-    for(new i; i < MAX_VEHICULOS; i++){
-        new buffer[128];
-        new key[18];
-        if (vehData[i][veh_SQLID]){
-            if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
-                formatt(buffer, "[%d] %s — %s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
-                format(key, sizeof key, "veh_list_%d", cantidad);
-                SetPVarInt(playerid, key, i); // mapear posición -> índice en vehData
-                AddDialogListitem(playerid, buffer);
-                cantidad++;
-                continue;
-            }
-            for(new x; x < 2; x++){
-                if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
-                    formatt(buffer, "Prestado %d : [%d] %s — %s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
-                    format(key, sizeof key, "veh_list_%d", cantidad);
-                    SetPVarInt(playerid, key, i);
-                    AddDialogListitem(playerid, buffer);
-                    cantidad++;
-                    continue;
-                }
-            }
-        }
-        continue;
-    }
-    if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
-    SetPVarInt(playerid, "vehicle_listsize", cantidad);
-    ShowPlayerDialogPages(playerid, "vehPanelDialog", DIALOG_STYLE_LIST, "Tus vehículos", "Seleccionar", "Cancelar", 12);
-    return 1;
-}
 
-bool:hasVehicleKeys(playerid, veh_index){
+hasVehicleKeys(playerid, veh_index){
     if(vehData[veh_index][veh_Tipo] == 1){ // Si es un vehículo personal:
-        if(vehData[veh_index][veh_OwnerID] == Datos[playerid][jSQLIDP]) return true;
+        if(vehData[veh_index][veh_OwnerID] == Datos[playerid][jSQLIDP]) return 1;
         for(new i; i < 2; i++){
-            if(vehData[veh_index][veh_SQLID] == Datos[playerid][jCocheLlaves][i]) return true;
+            if(vehData[veh_index][veh_SQLID] == Datos[playerid][jCocheLlaves][i]) return 1;
             else continue;
         }
-        return false;
+        return 1;
     }
-    return false;
+    return 0;
 }
 
 CMD:motor(playerid){
@@ -55,7 +24,7 @@ CMD:motor(playerid){
     if(GetPlayerVehicleSeat(playerid) != 0) return SendClientMessage(playerid, COLOR_DARKRED, "No eres el conductor del vehículo.");
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_vID] != INVALID_VEHICLE_ID && IsPlayerInVehicle(playerid, vehData[i][veh_vID])){
-            new bool:has_keys = hasVehicleKeys(playerid, i);
+            new has_keys = hasVehicleKeys(playerid, i);
             if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este vehículo.");
             if(vehData[i][veh_Gasolina] < 1) return SendClientMessage(playerid, COLOR_DARKRED, "Intentas encender el vehículo, pero te percatas de que no tiene gasolina.");
             if(vehData[i][veh_Vida] < 260.1) return SendClientMessage(playerid, COLOR_DARKRED, "Intentas encender el vehículo, pero este está muy dañado como para funcionar.");
@@ -82,6 +51,7 @@ CMD:motor(playerid){
 
 CMD:cinturon(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehículo.");
+    if(GetPlayerState(playerid) == PLAYER_STATE_EXIT_VEHICLE) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes ponerte el cinturón mientras bajas del vehículo.");
     new playerveh = GetPlayerVehicleID(playerid);
     if(Vehicle_IsBoat(playerveh) || Vehicle_IsBike(playerveh) || Vehicle_IsFlowerpot(playerveh)) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene cinturón de seguridad.");
     
@@ -108,7 +78,7 @@ CMD:lock(playerid){
         Float:veh_pos[3],
         idex = -1,
         Float:currdist = 30.0,
-        bool:has_keys
+        has_keys
     ;
     for(new i; i < MAX_VEHICULOS; i++){
         if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
@@ -211,7 +181,7 @@ CMD:grack(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehiculo.");
     new veh = GetPlayerVehicleID(playerid);
     if(veh == INVALID_VEHICLE_ID) return 1;
-    if(Model_IsBike(veh) || !Model_IsPolice(veh)) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
+    if(Model_IsBike(GetVehicleModel(veh)) || !Model_IsPolice(GetVehicleModel(veh))) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
     if(GetPlayerVehicleSeat(playerid) > 1) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes acceder al gunrack desde allí.");
     new idex = FindVehIndxFromVehID(veh);
     new mano = -1;
@@ -261,7 +231,7 @@ CMD:vergrack(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehiculo.");
     new veh = GetPlayerVehicleID(playerid);
     if(veh == INVALID_VEHICLE_ID) return 1;
-    if(Model_IsBike(veh) || !Model_IsPolice(veh)) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
+    if(Model_IsBike(GetVehicleModel(veh)) || !Model_IsPolice(GetVehicleModel(veh))) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
     if(GetPlayerVehicleSeat(playerid) > 1) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes acceder al gunrack desde allí.");
     new idex = FindVehIndxFromVehID(veh);
     if(vehData[idex][veh_Gunrack]) return SendClientMessage(playerid, COLOR_SEAGREEN, "Encuentras en el gunrack: %s (%d) [%d]", ObjetoInfo[vehData[idex][veh_Gunrack]][NombreObjeto], vehData[idex][veh_GunrackCant], vehData[idex][veh_GunrackData]);
@@ -300,7 +270,7 @@ CMD:mal(playerid, params[]){
         Float:veh_pos[3],
         idex = -1,
         Float:currdist = 7.0,
-        bool:has_keys
+        has_keys
     ;
     if(IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes hacer eso estando dentro de un vehículo.");
     sscanf(params, "S()[24]", params);
@@ -310,9 +280,9 @@ CMD:mal(playerid, params[]){
             if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
                 if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
                     if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
-                        GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
-                        if(GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]) < currdist){
+                        if(IsPlayerNearVehiclePart(playerid, vehData[i][veh_vID], VEH_PART_TRUNK, 2.0)){
                             idex = i;
+                            GetPosNearVehiclePart(vehData[i][veh_vID], VEH_PART_TRUNK, veh_pos[0], veh_pos[1], veh_pos[2], 0);
                             currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
                             continue;
                         }
@@ -348,70 +318,8 @@ CMD:mal(playerid, params[]){
             }
             return 1;
         }
-        if(vehData[idex][veh_Trunk] != false){
-            new dlg_buff[136];
-            for(new x; x < vehData[idex][veh_EspacioMal]; x++){
-                new slot;
-                slot = vehicleFetchInventorySlot(idex, x);
-                if(slot != -1){
-                    if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d] %s (%d) [%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
-                    else formatt(dlg_buff, "[%d] Vacío", x);
-                    AddDialogListitem(playerid, dlg_buff);
-                    continue;
-                }
-                else formatt(dlg_buff, "[%d] Vacío", x);
-                AddDialogListitem(playerid, dlg_buff);
-                continue;
-            }
-            
-            AddDialogListitem(playerid, "—————————————————");
-            if(Datos[playerid][jMano][0]){
-                formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
-            }
-            else formatt(dlg_buff, "Mano derecha: Nada");
-            AddDialogListitem(playerid, dlg_buff);
-            if(Datos[playerid][jMano][1]){
-                formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
-            }
-            else formatt(dlg_buff, "Mano izquierda: Nada");
-            AddDialogListitem(playerid, dlg_buff);
-            if(!vehData[idex][veh_Trunk]){
-                vehData[idex][veh_Trunk] = true;
-                vehiclesTrunk(idex);
-            }       
-            ShowPlayerDialogPages(playerid, "vehicle_trunk", DIALOG_STYLE_LIST, "Maletero del vehículo", "Seleccionar", "Cerrar", vehData[idex][veh_EspacioMal]+4);
-        }
-        else{
-            if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este vehículo (%s - %d).", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_vID]);
-            new dlg_buff[136];
-            for(new x; x < vehData[idex][veh_EspacioMal]; x++){
-                new slot= vehicleFetchInventorySlot(idex, x);
-                if(slot != -1){
-                    if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d] %s (%d) [%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
-                    else formatt(dlg_buff, "[%d] Vacío", x);
-                    AddDialogListitem(playerid, dlg_buff);
-                    continue;
-                }
-                else formatt(dlg_buff, "[%d] Vacío", x);
-                AddDialogListitem(playerid, dlg_buff);
-                continue;
-            }
-            
-            AddDialogListitem(playerid, "—————————————————");
-            if(Datos[playerid][jMano][0]) formatt(dlg_buff, "Mano derecha: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
-            else formatt(dlg_buff, "Mano derecha: Nada");
-            AddDialogListitem(playerid, dlg_buff);
-            if(Datos[playerid][jMano][1]) formatt(dlg_buff, "Mano izquierda: %s (%d) [%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
-            else formatt(dlg_buff, "Mano izquierda: Nada");
-            AddDialogListitem(playerid, dlg_buff);
-            if(!vehData[idex][veh_Trunk]){
-                vehData[idex][veh_Trunk] = true;
-                vehiclesTrunk(idex);
-            }
-            ShowPlayerDialogPages(playerid, "vehicle_trunk", DIALOG_STYLE_LIST, "Maletero del vehículo", "Seleccionar", "Cerrar", vehData[idex][veh_EspacioMal]+4);
-            
-        }
         SetPVarInt(playerid, "veh_mal", idex+1);
+        dialog_maletero(playerid);
         return 1;
     }
     return SendClientMessage(playerid, COLOR_DARKRED, "No encontramos un vehículo que puedas abrir.");
