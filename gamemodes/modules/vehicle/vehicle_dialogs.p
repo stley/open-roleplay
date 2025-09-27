@@ -8,14 +8,14 @@ dialog_vehiculos(playerid){
         new buffer[128];
         if (vehData[i][veh_SQLID]){
             if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
-                formatt(buffer, "[%d]\t%s\t%s", vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                formatt(buffer, "%s\t%s\t%d", vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
                 AddPaginatedDialogRow(DialogData[playerid], buffer, i);
                 cantidad++;
                 continue;
             }
             for(new x; x < 2; x++){
                 if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
-                    formatt(buffer, "Prestado %d : [%d]\t%s\t%s", x+1, vehData[i][veh_SQLID], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_Matricula]);
+                    formatt(buffer, "%s\t%s (prestado)\t%d", vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
                     AddPaginatedDialogRow(DialogData[playerid], buffer, i);
                     cantidad++;
                     continue;
@@ -27,7 +27,7 @@ dialog_vehiculos(playerid){
     if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
     yield 1;
     new response[DIALOG_RESPONSE];
-    await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 10, "Tus vehículos", DialogData[playerid], "Seleccionar", "Cancelar", "ID\tModelo\tMatrícula");
+    await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 10, "Tus vehículos", DialogData[playerid], "Seleccionar", "Cancelar", "Matrícula\tModelo\tID");
     if(!response[DIALOG_RESPONSE_RESPONSE]) return false;
     if(!cantidad) return false;
     if(response[DIALOG_RESPONSE_LISTITEM] < 0 || response[DIALOG_RESPONSE_LISTITEM] >= cantidad) return 1;
@@ -91,7 +91,13 @@ dialog_maletero(playerid){
     list_clear(DialogData[playerid]);
     new response[DIALOG_RESPONSE];
     new has_keys = hasVehicleKeys(playerid, idex);
-    if(vehData[idex][veh_Trunk] != false){
+    if(vehData[idex][veh_Trunk] != false || has_keys){
+        if(!vehData[idex][veh_Trunk]){
+            SendClientMessage(playerid, COLOR_DARKGREEN, "Abriste el maletero del vehículo.");
+            vehData[idex][veh_Trunk] = true;
+            vehiclesTrunk(idex);
+        }
+        else if(!vehData[idex][veh_Trunk] && !has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes las llaves para este vehículo.");
         new dlg_buff[136];
         for(new x; x < vehData[idex][veh_EspacioMal]; x++){
             new slot;
@@ -107,7 +113,7 @@ dialog_maletero(playerid){
             continue;
         }
         
-        AddPaginatedDialogRow(DialogData[playerid], "—————————————————");
+        //AddPaginatedDialogRow(DialogData[playerid], "—————————————————");
         if(Datos[playerid][jMano][0]){
             formatt(dlg_buff, "Mano derecha:\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
         }
@@ -117,59 +123,11 @@ dialog_maletero(playerid){
             formatt(dlg_buff, "Mano izquierda:\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
         }
         else formatt(dlg_buff, "Mano izquierda:\tNada\t\t");
-        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
-        if(!vehData[idex][veh_Trunk]){
-            vehData[idex][veh_Trunk] = true;
-            vehiclesTrunk(idex);
-        }       
-        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+4, "Maletero", DialogData[playerid], "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
+        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);       
+        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+3, "Maletero", DialogData[playerid], "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
     }
-    else{
-        if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este vehículo (%s - %d).", modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_vID]);
-        new dlg_buff[136];
-        for(new x; x < vehData[idex][veh_EspacioMal]; x++){
-            new slot= vehicleFetchInventorySlot(idex, x);
-            if(slot != -1){
-                if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d]\t%s\t(%d)\t[%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
-                else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
-                AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
-                continue;
-            }
-            else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
-            AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
-            continue;
-        }
-        
-        AddPaginatedDialogRow(DialogData[playerid], "—————————————————");
-        if(Datos[playerid][jMano][0]) formatt(dlg_buff, "Mano derecha\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
-        else formatt(dlg_buff, "Mano derecha:\tNada\t\t");
-        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
-        if(Datos[playerid][jMano][1]) formatt(dlg_buff, "Mano izquierda\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
-        else formatt(dlg_buff, "Mano izquierda:\tNada\t\t");
-        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
-        if(!vehData[idex][veh_Trunk]){
-            vehData[idex][veh_Trunk] = true;
-            vehiclesTrunk(idex);
-        }
-        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+4, "Maletero", DialogData[playerid], "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");    
-    }
-
     //dialog response
-    if(!response[DIALOG_RESPONSE_RESPONSE]){
-        vehData[idex][veh_Trunk] = false;
-        SendClientMessage(playerid, COLOR_DARKGREEN, "Cerraste el maletero del vehículo.");
-        vehiclesTrunk(idex);
-        foreach(new invplayer: Player){
-            if(GetPVarType(invplayer, "veh_mal")){
-                if(GetPVarInt(invplayer, "veh_mal") == GetPVarInt(playerid, "veh_mal")){
-                    SendClientMessage(invplayer, COLOR_DARKRED, "El maletero del vehículo fue cerrado.");
-                    Dialog_Close(invplayer);
-                    DeletePVar(invplayer, "veh_mal");
-                }  
-            }
-        }
-        return true;
-    }
+    if(!response[DIALOG_RESPONSE_RESPONSE]) return true;
     new
         Float:veh_X,
         Float:veh_Y,
@@ -187,109 +145,106 @@ dialog_maletero(playerid){
     }
     else return false;
     if(!IsPlayerInRangeOfPoint(playerid, 4.0, veh_X, veh_Y, veh_Z) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
-    if(response[DIALOG_RESPONSE_LISTITEM] > espacio-1){
-        if(response[DIALOG_RESPONSE_LISTITEM] != espacio){
-            if(response[DIALOG_RESPONSE_LISTITEM] == espacio+1){
-                if(Datos[playerid][jMano][0]){
-                    for(new i; i < vehData[idex][veh_EspacioMal]; i++){
-                        slot = vehicleFetchInventorySlot(idex, i);
-                        if(slot == -1){
-                            for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
-                                if(!vehicleInventory[arr][vehSQLID]){
-                                    SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
-                                    new action[64];
-                                    formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
-                                    accion_player(playerid, 1, action);
-                                    vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
-                                    vehicleInventory[arr][veh_Slot] = i;
-                                    vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
-                                    Datos[playerid][jMano][0] = 0;
-                                    vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
-                                    Datos[playerid][jManoCant][0] = 0;
-                                    vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
-                                    Datos[playerid][jManoData][0] = 0;
-                                    alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
-                                    update_manos(playerid);
-                                    saveCharacterInventory(playerid);
-                                    vehicleSave(idex);
-                                    success = true;
-                                    return 1;
-                                }
+    if(response[DIALOG_RESPONSE_LISTITEM] >= espacio){
+        if(response[DIALOG_RESPONSE_LISTITEM] == espacio){
+            if(Datos[playerid][jMano][0]){
+                for(new i; i < vehData[idex][veh_EspacioMal]; i++){
+                    slot = vehicleFetchInventorySlot(idex, i);
+                    if(slot == -1){
+                        for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
+                            if(!vehicleInventory[arr][vehSQLID]){
+                                SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                                new action[64];
+                                formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                                accion_player(playerid, 1, action);
+                                vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
+                                vehicleInventory[arr][veh_Slot] = i;
+                                vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][0];
+                                Datos[playerid][jMano][0] = 0;
+                                vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
+                                Datos[playerid][jManoCant][0] = 0;
+                                vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][0];
+                                Datos[playerid][jManoData][0] = 0;
+                                alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
+                                update_manos(playerid);
+                                saveCharacterInventory(playerid);
+                                vehicleSave(idex);
+                                success = true;
+                                return 1;
                             }
                         }
-                        else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
-                            SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
-                            new action[64];
-                            formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
-                            accion_player(playerid, 1, action);
-                            vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][0];
-                            Datos[playerid][jMano][0] = 0;
-                            vehicleInventory[slot][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
-                            Datos[playerid][jManoCant][0] = 0;
-                            vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][0];
-                            Datos[playerid][jManoData][0] = 0;
-                            update_manos(playerid);
-                            saveCharacterInventory(playerid);
-                            vehicleSave(idex);
-                            success = true;
-                            return 1;
-                        }
+                    }
+                    else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
+                        SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                        new action[64];
+                        formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                        accion_player(playerid, 1, action);
+                        vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][0];
+                        Datos[playerid][jMano][0] = 0;
+                        vehicleInventory[slot][veh_MaleteroCant] = Datos[playerid][jManoCant][0];
+                        Datos[playerid][jManoCant][0] = 0;
+                        vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][0];
+                        Datos[playerid][jManoData][0] = 0;
+                        update_manos(playerid);
+                        saveCharacterInventory(playerid);
+                        vehicleSave(idex);
+                        success = true;
+                        return 1;
                     }
                 }
-                else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano derecha.");
-                if(!success) return SendClientMessage(playerid, COLOR_DARKRED, "No hay más espacio en este maletero.");
             }
-            else if(response[DIALOG_RESPONSE_LISTITEM] == espacio+2){
-                if(Datos[playerid][jMano][1]){
-                    for(new i; i < vehData[idex][veh_EspacioMal]; i++){
-                        slot = vehicleFetchInventorySlot(idex, i);
-                        if(slot == -1){
-                            for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
-                                if(!vehicleInventory[arr][vehSQLID]){
-                                    SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
-                                    new action[64];
-                                    formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
-                                    accion_player(playerid, 1, action);
-                                    vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
-                                    vehicleInventory[arr][veh_Slot] = i;
-                                    vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][1];
-                                    Datos[playerid][jMano][1] = 0;
-                                    vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
-                                    Datos[playerid][jManoCant][1] = 0;
-                                    vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][1];
-                                    Datos[playerid][jManoData][1] = 0;
-                                    alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
-                                    update_manos(playerid);
-                                    saveCharacterInventory(playerid);
-                                    vehicleSave(idex);
-                                    success = true;
-                                    return 1;
-                                }
-                            }
-                        }
-                        else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
-                            SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
-                            new action[64];
-                            formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
-                            accion_player(playerid, 1, action);
-                            vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][1];
-                            Datos[playerid][jMano][1] = 0;
-                            vehicleInventory[slot][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
-                            Datos[playerid][jManoCant][1] = 0;
-                            vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][1];
-                            Datos[playerid][jManoData][1] = 0;
-                            update_manos(playerid);
-                            saveCharacterInventory(playerid);
-                            vehicleSave(idex);
-                            success = true;
-                            return 1;
-                        }
-                    }
-                }
-                else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano izquierda.");
-                if(!success) return SendClientMessage(playerid, COLOR_DARKRED, "No hay más espacio en este maletero.");
-            }
+            else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano derecha.");
         }
+        else if(response[DIALOG_RESPONSE_LISTITEM] == espacio+1){
+            if(Datos[playerid][jMano][1]){
+                for(new i; i < vehData[idex][veh_EspacioMal]; i++){
+                    slot = vehicleFetchInventorySlot(idex, i);
+                    if(slot == -1){
+                        for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
+                            if(!vehicleInventory[arr][vehSQLID]){
+                                SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                                new action[64];
+                                formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                                accion_player(playerid, 1, action);
+                                vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
+                                vehicleInventory[arr][veh_Slot] = i;
+                                vehicleInventory[arr][veh_Maletero] = Datos[playerid][jMano][1];
+                                Datos[playerid][jMano][1] = 0;
+                                vehicleInventory[arr][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
+                                Datos[playerid][jManoCant][1] = 0;
+                                vehicleInventory[arr][veh_MaleteroData] = Datos[playerid][jManoData][1];
+                                Datos[playerid][jManoData][1] = 0;
+                                alm(vehicleInventory[arr][veh_Huellas], GetName(playerid));
+                                update_manos(playerid);
+                                saveCharacterInventory(playerid);
+                                vehicleSave(idex);
+                                success = true;
+                                return 1;
+                            }
+                        }
+                    }
+                    else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
+                        SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
+                        new action[64];
+                        formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
+                        accion_player(playerid, 1, action);
+                        vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][1];
+                        Datos[playerid][jMano][1] = 0;
+                        vehicleInventory[slot][veh_MaleteroCant] = Datos[playerid][jManoCant][1];
+                        Datos[playerid][jManoCant][1] = 0;
+                        vehicleInventory[slot][veh_MaleteroData] = Datos[playerid][jManoData][1];
+                        Datos[playerid][jManoData][1] = 0;
+                        update_manos(playerid);
+                        saveCharacterInventory(playerid);
+                        vehicleSave(idex);
+                        success = true;
+                        return 1;
+                    }
+                }
+            }
+            else return SendClientMessage(playerid, COLOR_DARKRED, "No tienes nada en tu mano izquierda.");   
+        }
+        if(!success) return SendClientMessage(playerid, COLOR_DARKRED, "No hay más espacio en este maletero.");
     }
     else{
         slot = vehicleFetchInventorySlot(idex, response[DIALOG_RESPONSE_LISTITEM]);

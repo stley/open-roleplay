@@ -51,6 +51,7 @@ CMD:motor(playerid){
 
 CMD:cinturon(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehículo.");
+    if(GetPlayerState(playerid) == PLAYER_STATE_EXIT_VEHICLE) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes ponerte el cinturón mientras bajas del vehículo.");
     new playerveh = GetPlayerVehicleID(playerid);
     if(Vehicle_IsBoat(playerveh) || Vehicle_IsBike(playerveh) || Vehicle_IsFlowerpot(playerveh)) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene cinturón de seguridad.");
     
@@ -180,7 +181,7 @@ CMD:grack(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehiculo.");
     new veh = GetPlayerVehicleID(playerid);
     if(veh == INVALID_VEHICLE_ID) return 1;
-    if(Model_IsBike(veh) || !Model_IsPolice(veh)) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
+    if(Model_IsBike(GetVehicleModel(veh)) || !Model_IsPolice(GetVehicleModel(veh))) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
     if(GetPlayerVehicleSeat(playerid) > 1) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes acceder al gunrack desde allí.");
     new idex = FindVehIndxFromVehID(veh);
     new mano = -1;
@@ -230,7 +231,7 @@ CMD:vergrack(playerid){
     if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_DARKRED, "No estás en ningun vehiculo.");
     new veh = GetPlayerVehicleID(playerid);
     if(veh == INVALID_VEHICLE_ID) return 1;
-    if(Model_IsBike(veh) || !Model_IsPolice(veh)) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
+    if(Model_IsBike(GetVehicleModel(veh)) || !Model_IsPolice(GetVehicleModel(veh))) return SendClientMessage(playerid, COLOR_DARKRED, "Este vehículo no tiene una gunrack.");
     if(GetPlayerVehicleSeat(playerid) > 1) return SendClientMessage(playerid, COLOR_DARKRED, "No puedes acceder al gunrack desde allí.");
     new idex = FindVehIndxFromVehID(veh);
     if(vehData[idex][veh_Gunrack]) return SendClientMessage(playerid, COLOR_SEAGREEN, "Encuentras en el gunrack: %s (%d) [%d]", ObjetoInfo[vehData[idex][veh_Gunrack]][NombreObjeto], vehData[idex][veh_GunrackCant], vehData[idex][veh_GunrackData]);

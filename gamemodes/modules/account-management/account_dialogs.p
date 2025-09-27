@@ -121,6 +121,7 @@ dialog_sexo_personaje(playerid){
 }
 
 dialog_personajes(playerid){
+	list_clear(DialogData[playerid]);
 	yield 1;
 	new query[128];
 	mysql_format(SQLDB, query, sizeof(query), "SELECT `Usuario`, `SQLIDPJ`, `NombrePJ` FROM `characters` WHERE `Usuario` = %d LIMIT %d", Datos[playerid][jSQLID], Datos[playerid][CharacterLimit]);
@@ -128,7 +129,6 @@ dialog_personajes(playerid){
 	new dlg_buff[96];
 	new charname[MAX_PLAYER_NAME];
 	new charid;
-	list_clear(DialogData[playerid]);
 	if(cache_num_rows()){
 		for(new i; i < cache_num_rows(); i++){
 			cache_get_value_name_int(i, "SQLIDPJ", charid);

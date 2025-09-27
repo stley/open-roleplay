@@ -22,6 +22,7 @@ dialog_listaobjetos(playerid){
     if(!response[DIALOG_RESPONSE_RESPONSE]) return true;
     
     new dlg_buff[96];
+    dlg[0] = EOS;
     switch(response[DIALOG_RESPONSE_LISTITEM]){
         case 0:{
             for(new i = 1; i < sizeof(ObjetoInfo); i++){

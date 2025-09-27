@@ -1,5 +1,7 @@
 stock g_AutoSave = INVALID_TIMER;
 
+forward OnVehicleUpdate(vehicleid);
+
 public OnGameModeInit()
 {
 	ManualVehicleEngineAndLights();
@@ -69,27 +71,19 @@ public OnPlayerExitVehicle(playerid, vehicleid){
 	return 1;
 }
 
-
+public OnVehicleUpdate(vehicleid)
+{
+	CallLocalFunction("vehiclesOnVehicleUpdate", "d", vehicleid);
+    
+    return 1;
+}
 
 //vehicle
 public OnVehicleSpawn(vehicleid){
 	CallLocalFunction("vehiclesOnVehicleSpawn", "d", vehicleid);
 	return 1;
 }
-enum (<<= 1)
-{
-	CMD_OWNER = 1,
-	CMD_ADMIN,
-	CMD_OPERATOR,
-	CMD_JR_OPERATOR,
-	CMD_MOD,
-	CMD_JR_MOD,
 
-	CMD_STAFF_MANAGER,
-	CMD_FACTION_MANAGER,
-	CMD_PROPERTY_MANAGER
-};
-new a_perms[MAX_PLAYERS];
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]){
 	return 1;

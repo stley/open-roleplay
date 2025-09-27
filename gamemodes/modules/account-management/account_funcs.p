@@ -72,10 +72,6 @@ public accountPassCheck(playerid, bool:success){
 	return 1;
 }
 
-public accountOnUserCharacterList(playerid){
-	
-}
-
 
 
 public accountOnCharFirstLoad(playerid)

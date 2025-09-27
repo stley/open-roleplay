@@ -8,5 +8,14 @@
     "editor.fontLigatures": false,
     "editor.fontFamily": "'JetBrains Mono'",
     "editor.fontSize": 12,
-    "pawn.language.allowFunction": true
+    "pawn.language.allowFunction": true,
+    "vscord.status.buttons.button1.active.enabled": false,
+    "vscord.status.problems.text": "- {problems_count} problemas encontrados",
+    "vscord.status.details.text.editing": "{workspace}",
+    "vscord.status.state.text.editing": "{file_name}{file_extension}",
+    "vscord.status.details.text.viewing": "{workspace} {problems}",
+    "vscord.status.state.text.viewing": "Viendo {file_name}{file_extension}",
+    "vscord.status.image.large.viewing.text": "Viendo un archivo {LANG}",
+    "vscord.behaviour.statusBarAlignment": "Right",
+    "vscord.status.image.large.editing.text": "Editando un archivo {LANG}"
 }
