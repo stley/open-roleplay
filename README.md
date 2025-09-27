@@ -19,5 +19,5 @@ Tambien se incluye el compilador utilizado en Windows, y sus includes.
 [foreach (v 2.2.7)](https://github.com/Open-GTO/foreach)\
 [samp-bcrypt (v 0.4.1)](https://github.com/Sreyas-Sreelal/samp-bcrypt)\
 [PawnPlus (v 1.5.1)](https://github.com/IS4Code/PawnPlus)\
-[tdialogs (v 1.1.1)](https://github.com/TommyB123/tdialogs)\
+[tdialogs (v 1.2.0) (stley fork)](https://github.com/stley/tdialogs)\
 [pawn-plus-mysql (v 1.0.3)](https://github.com/AGraber/pawn-plus-mysql)
