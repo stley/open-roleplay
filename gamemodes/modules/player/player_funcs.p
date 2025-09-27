@@ -23,7 +23,7 @@ teleportPlayer(playerid, Float:pos_x, Float:pos_y, Float:pos_z, interior, virtua
 public OnPlayerTakeDamage(playerid, issuerid, Float:amount, WEAPON:weaponid, bodypart){
     SetPlayerHealth(playerid, Datos[playerid][jVida]);
     SetPlayerArmour(playerid, Datos[playerid][jChaleco]);
-    Wound_HandleDamage(playerid, issuerid, weaponid, bodypart, Float:amount);
+    woundHandleDamage(playerid, issuerid, weaponid, bodypart, Float:amount);
 }
 
 stock playerspendMoney(playerid, quantity){

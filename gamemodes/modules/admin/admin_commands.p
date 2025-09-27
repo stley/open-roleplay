@@ -296,7 +296,7 @@ CMD:darmod(playerid, params[]){
 
 flags:test_wound(CMD_OWNER)
 CMD:test_wound(playerid){
-    Wound_HandleDamage(playerid, playerid, ObjetoInfo[Datos[playerid][jMano][0]][IDArma], 3, 40.0);
+    woundHandleDamage(playerid, playerid, ObjetoInfo[Datos[playerid][jMano][0]][IDArma], 3, 40.0);
     return 1;
 }
 

@@ -157,12 +157,12 @@ loadCharacter(playerid)
 	SetTimerEx("CharVeh_Load", 1500, false, "d", Datos[playerid][jSQLIDP]);
 	if(muerto[playerid] == 1){
 		muerto[playerid] = 0;
-		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
+		woundHandleDamage(playerid, playerid, 0, 3, 100);
 	}
 	else if(muerto[playerid] == 2){
 		muerto[playerid] = 0;
-		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
-		Wound_HandleDamage(playerid, playerid, 0, 3, 100);
+		woundHandleDamage(playerid, playerid, 0, 3, 100);
+		woundHandleDamage(playerid, playerid, 0, 3, 100);
 	}
 	if(IsValidTimer(autosaveTimer[playerid])){
 		KillTimer(autosaveTimer[playerid]);
