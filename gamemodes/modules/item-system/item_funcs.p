@@ -302,9 +302,9 @@ find_mag(objectid){
     }
     for(new i; i < sizeof(ObjetoInfo); i++){
         if(ObjetoInfo[i][Tipo] == 6){
-            if(strfind(ObjetoInfo[i][NombreObjeto], ObjetoInfo[objectid][NombreObjeto]) != -1){
+            if(strequal(ObjetoInfo[objectid][NombreObjeto], "HK MP5K")) return find_mag(59);
+            if(strfind(ObjetoInfo[i][NombreObjeto], ObjetoInfo[objectid][NombreObjeto]) != -1)
                 return i;
-            }
             else continue;
         }
         else continue;

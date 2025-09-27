@@ -57,7 +57,7 @@ public Models_OnGameModeInit()
     AddSimpleModel(-1, 11747, -1002, "gun/glock17.dff", "gun/glock17.txd"); // GLOCK 17
     AddSimpleModel(-1, 11747, -1003, "gun/glock19.dff", "gun/glock19.txd"); // GLOCK 19
     AddSimpleModel(-1, 11747, -1004, "gun/870.dff", "gun/870.txd"); // REMINGTON 870
-    AddSimpleModel(-1, 11747, -1005, "gun/870.dff", "gun/870beanbag.txd"); //REMINGTON BEANBAG
+    AddSimpleModel(-1, 11747, -1005, "gun/870.dff", "gun/870bb.txd"); //REMINGTON BEANBAG
     AddSimpleModel(-1, 11747, -1006, "gun/scout.dff", "gun/scout.txd"); //STEYR SCOUT
     AddSimpleModel(-1, 11747, -1007, "gun/hkmp5.dff", "gun/hkmp5.txd"); //HK MP5
     AddSimpleModel(-1, 11747, -1008, "gun/hk416.dff", "gun/hk416.txd"); //HK 416
@@ -77,5 +77,6 @@ public Models_OnGameModeInit()
     AddSimpleModel(-1, 11747, -1022, "gun/kriss.dff", "gun/kriss.txd"); //Vector
     AddSimpleModel(-1, 11747, -1023, "gun/patriot.dff", "gun/patriot.txd"); //MGS3 Patriot
     AddSimpleModel(-1, 19995, -1024, "gun/magazine.dff", "gun/m4a1.txd"); //cargadores de arma larga
+    AddSimpleModel(-1, 19995, -1025, "gun/hkmp5k.dff", "gun/hkmp5k.txd"); //cargadores de arma larga
     return 1;
 }

@@ -281,17 +281,20 @@ CMD:mal(playerid, params[]){
                 if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
                     if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
                         if(IsPlayerNearVehiclePart(playerid, vehData[i][veh_vID], VEH_PART_TRUNK, 2.0)){
-                            idex = i;
                             GetPosNearVehiclePart(vehData[i][veh_vID], VEH_PART_TRUNK, veh_pos[0], veh_pos[1], veh_pos[2], 0);
-                            currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
-                            continue;
+                            if(currdist > GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2])){
+                                idex = i;
+                                currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
+                                continue;
+                            }
+                            else continue;
                         }
                     }
                 }
             }
         }
     }
-    if(idex != -1 && currdist < 4.0){
+    if(idex != -1){
         has_keys = hasVehicleKeys(playerid, idex);
         if(strcmp(params, "abrir", true) == 0 && !isnull(params)){
             if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este maletero.");
