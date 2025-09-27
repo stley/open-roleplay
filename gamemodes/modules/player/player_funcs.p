@@ -10,11 +10,6 @@ public TimeOutRequest(playerid){
 }
 
 public playerOnPlayerDisconnect(playerid, reason){
-    new idex = GetPVarInt(playerid, "veh_mal");
-    if(idex){
-        vehData[idex-1][veh_Trunk] = false;
-        vehiclesTrunk(idex-1);
-    }
     return 1;
 }
 
