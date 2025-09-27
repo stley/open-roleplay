@@ -153,20 +153,32 @@ dialog_personajes(playerid){
 	}
 	if(response[DIALOG_RESPONSE_EXTRAID] == -1) return dialog_REGPJ(playerid);
 	else{
+		yield 1;
 		orm_char(playerid);
+		printf("USER SELECTED A VALID CHARACTER? LISTITEM %d, EXTRAID %d", response[DIALOG_RESPONSE_LISTITEM], response[DIALOG_RESPONSE_EXTRAID]);
 		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d LIMIT 1", response[DIALOG_RESPONSE_EXTRAID]);
-		mysql_tquery(SQLDB, query, "accountOnCharFirstLoad", "d", playerid);
-		return 1;
+		await mysql_aquery(SQLDB, query);
+		if(cache_num_rows()){
+			orm_apply_cache(Datos[playerid][ORMPJ], 0);
+			return dialogIngresar_Personaje(playerid);
+		}
+		else{
+			clear_chardata(playerid);
+			accountSave(playerid);
+			return dialog_personajes(playerid);
+		}
 	}
 }
 
 
 dialogIngresar_Personaje(playerid){
+	list_clear(DialogData[playerid]);
 	yield 1;
 	new listitem = await ShowAsyncListitemIndexDialog(playerid, DIALOG_STYLE_LIST, Datos[playerid][jNombrePJ], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
 	if(listitem == -1){
 		clear_chardata(playerid);
-		dialog_personajes(playerid);
+		printf("User pressed ESC, returning to character dialog.");
+		return dialog_personajes(playerid);
 	}
 	switch(listitem)
 	{
@@ -174,14 +186,16 @@ dialogIngresar_Personaje(playerid){
 		{
 			SetPlayerName(playerid, Datos[playerid][jNombrePJ]);
 			SpawnPlayer(playerid);
-			load_character(playerid);
+			loadCharacter(playerid);
 			serverLogRegister(sprintf("%s (SQLID %d | IP %s | playerid %d) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), playerid, Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
 			CallLocalFunction("adminRefresh", "d", playerid);
 		}
 		case 1:
 		{
 			clear_chardata(playerid);
-			dialog_personajes(playerid);
+			list_clear(DialogData[playerid]);
+			printf("User selected blocked option, returning to character dialog.");
+			return dialog_personajes(playerid);
 		}
 	}
 	return 1;

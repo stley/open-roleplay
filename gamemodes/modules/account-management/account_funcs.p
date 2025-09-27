@@ -74,7 +74,7 @@ public accountPassCheck(playerid, bool:success){
 
 
 
-public accountOnCharFirstLoad(playerid)
+/*public accountOnCharFirstLoad(playerid)
 {
 	if(cache_num_rows()){
 		orm_apply_cache(Datos[playerid][ORMPJ], 0);
@@ -86,7 +86,7 @@ public accountOnCharFirstLoad(playerid)
 		accountSave(playerid);
 		return dialog_personajes(playerid);
 	}
-}
+}*/
 public accountOnCharInserted(playerid){
 	if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu personaje. Intenta de nuevo más tarde o contacta con administración.");
@@ -137,7 +137,7 @@ characterTextDraws(playerid){
     PlayerTextDrawSetProportional(playerid, Gun_Hud[playerid][1], true);
 }
 
-load_character(playerid)
+loadCharacter(playerid)
 {
 	Datos[playerid][EnChar] = true;
 	
