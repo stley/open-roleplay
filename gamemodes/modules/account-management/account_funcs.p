@@ -74,19 +74,6 @@ public accountPassCheck(playerid, bool:success){
 
 
 
-/*public accountOnCharFirstLoad(playerid)
-{
-	if(cache_num_rows()){
-		orm_apply_cache(Datos[playerid][ORMPJ], 0);
-		return dialogIngresar_Personaje(playerid);
-	}
-	else
-	{
-		clear_chardata(playerid);
-		accountSave(playerid);
-		return dialog_personajes(playerid);
-	}
-}*/
 public accountOnCharInserted(playerid){
 	if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu personaje. Intenta de nuevo más tarde o contacta con administración.");

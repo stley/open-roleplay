@@ -124,7 +124,7 @@ dialog_maletero(playerid){
         }
         else formatt(dlg_buff, "Mano izquierda:\tNada\t\t");
         AddPaginatedDialogRow(playerid, dlg_buff);       
-        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+3, "Maletero", "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
+        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 18, "Maletero", "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
     }
     //dialog response
     if(!response[DIALOG_RESPONSE_RESPONSE]) return true;
@@ -139,12 +139,13 @@ dialog_maletero(playerid){
         bool:success
     ;
     if(vehData[idex][veh_vID]){
-        GetVehiclePos(vehData[idex][veh_vID], veh_X, veh_Y, veh_Z);
+        GetVehiclePartPos(vehData[idex][veh_vID], VEH_PART_TRUNK, veh_X, veh_Y, veh_Z);
         vehInt = GetVehicleInterior(vehData[idex][veh_vID]);
-        vehVW = GetVehicleVirtualWorld(vehData[idex][veh_VW]);
+        vehVW = GetVehicleVirtualWorld(vehData[idex][veh_vID]);
     }
     else return false;
-    if(!IsPlayerInRangeOfPoint(playerid, 4.0, veh_X, veh_Y, veh_Z) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
+    if(vehInt != GetPlayerInterior(playerid) || vehVW != GetPlayerVirtualWorld(playerid)) return false;
+    if(!IsPlayerNearVehiclePart(playerid, vehData[idex][veh_vID], VEH_PART_TRUNK, 2.0) || GetPlayerVirtualWorld(playerid) != vehVW || GetPlayerInterior(playerid) != vehInt) return SendClientMessage(playerid, COLOR_DARKRED, "El vehículo se alejó demasiado.");
     if(response[DIALOG_RESPONSE_LISTITEM] >= espacio){
         if(response[DIALOG_RESPONSE_LISTITEM] == espacio){
             if(Datos[playerid][jMano][0]){
