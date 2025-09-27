@@ -8,6 +8,7 @@
 #include <Pawn.RakNet>
 #include <samp_bcrypt>
 #include <requests>
+#include <VehiclePartPosition>
 
 #define PP_SYNTAX_AWAIT
 #define PP_SYNTAX_YIELD

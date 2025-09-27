@@ -280,9 +280,9 @@ CMD:mal(playerid, params[]){
             if(vehData[i][veh_vID] != INVALID_VEHICLE_ID){
                 if(GetPlayerVirtualWorld(playerid) == GetVehicleVirtualWorld(vehData[i][veh_vID])){
                     if(GetPlayerInterior(playerid) == GetVehicleInterior(vehData[i][veh_vID])){
-                        GetVehiclePos(vehData[i][veh_vID], veh_pos[0], veh_pos[1], veh_pos[2]);
-                        if(GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]) < currdist){
+                        if(IsPlayerNearVehiclePart(playerid, vehData[i][veh_vID], VEH_PART_TRUNK, 2.0)){
                             idex = i;
+                            GetPosNearVehiclePart(vehData[i][veh_vID], VEH_PART_TRUNK, veh_pos[0], veh_pos[1], veh_pos[2], 0);
                             currdist = GetPlayerDistanceFromPoint(playerid, veh_pos[0], veh_pos[1], veh_pos[2]);
                             continue;
                         }
