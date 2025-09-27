@@ -121,7 +121,7 @@ dialog_sexo_personaje(playerid){
 }
 
 dialog_personajes(playerid){
-	list_clear(DialogData[playerid]);
+	
 	yield 1;
 	new query[128];
 	mysql_format(SQLDB, query, sizeof(query), "SELECT `Usuario`, `SQLIDPJ`, `NombrePJ` FROM `characters` WHERE `Usuario` = %d LIMIT %d", Datos[playerid][jSQLID], Datos[playerid][CharacterLimit]);
@@ -134,18 +134,18 @@ dialog_personajes(playerid){
 			cache_get_value_name_int(i, "SQLIDPJ", charid);
 			cache_get_value_name(i, "NombrePJ", charname);
 			formatt(dlg_buff, "%s\t%d", charname, charid);
-			AddPaginatedDialogRow(DialogData[playerid], dlg_buff, charid);
+			AddPaginatedDialogRow(playerid, dlg_buff, charid);
 		}
 	}
 	if(cache_num_rows() && cache_num_rows() < Datos[playerid][CharacterLimit]){
-		AddPaginatedDialogRow(DialogData[playerid], "{C0C0C0}Crear otro personaje\t", -1);
+		AddPaginatedDialogRow(playerid, "{C0C0C0}Crear otro personaje\t", -1);
 	}
 	else if (!cache_num_rows()){
-		AddPaginatedDialogRow(DialogData[playerid], "{C0C0C0}Crear un personaje\t", -1);
+		AddPaginatedDialogRow(playerid, "{C0C0C0}Crear un personaje\t", -1);
 	}
 
 	new response[DIALOG_RESPONSE];
-	await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 12, "Personajes disponibles", DialogData[playerid], "Ingresar", "Salir", "Nombre\tID");
+	await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 12, "Personajes disponibles", "Ingresar", "Salir", "Nombre\tID");
 	
 	if(!response[DIALOG_RESPONSE_RESPONSE]){
 		Kick(playerid);
@@ -172,7 +172,7 @@ dialog_personajes(playerid){
 
 
 dialogIngresar_Personaje(playerid){
-	list_clear(DialogData[playerid]);
+	
 	yield 1;
 	new listitem = await ShowAsyncListitemIndexDialog(playerid, DIALOG_STYLE_LIST, Datos[playerid][jNombrePJ], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
 	if(listitem == -1){
@@ -193,7 +193,7 @@ dialogIngresar_Personaje(playerid){
 		case 1:
 		{
 			clear_chardata(playerid);
-			list_clear(DialogData[playerid]);
+			
 			printf("User selected blocked option, returning to character dialog.");
 			return dialog_personajes(playerid);
 		}

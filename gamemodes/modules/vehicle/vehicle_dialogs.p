@@ -2,21 +2,21 @@
 
 
 dialog_vehiculos(playerid){
-    list_clear(DialogData[playerid]);
+    
     new cantidad;
     for(new i; i < MAX_VEHICULOS; i++){
         new buffer[128];
         if (vehData[i][veh_SQLID]){
             if(vehData[i][veh_OwnerID] == Datos[playerid][jSQLIDP]){
                 formatt(buffer, "%s\t%s\t%d", vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
-                AddPaginatedDialogRow(DialogData[playerid], buffer, i);
+                AddPaginatedDialogRow(playerid, buffer, i);
                 cantidad++;
                 continue;
             }
             for(new x; x < 2; x++){
                 if(vehData[i][veh_SQLID] == Datos[playerid][jCocheLlaves][x]){
                     formatt(buffer, "%s\t%s (prestado)\t%d", vehData[i][veh_Matricula], modelGetName(vehData[i][veh_Modelo]), vehData[i][veh_SQLID]);
-                    AddPaginatedDialogRow(DialogData[playerid], buffer, i);
+                    AddPaginatedDialogRow(playerid, buffer, i);
                     cantidad++;
                     continue;
                 }
@@ -27,7 +27,7 @@ dialog_vehiculos(playerid){
     if(!cantidad) return SendClientMessage(playerid, COLOR_DARKRED, "¡No tienes ningun vehículo!");
     yield 1;
     new response[DIALOG_RESPONSE];
-    await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 10, "Tus vehículos", DialogData[playerid], "Seleccionar", "Cancelar", "Matrícula\tModelo\tID");
+    await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, 10, "Tus vehículos", "Seleccionar", "Cancelar", "Matrícula\tModelo\tID");
     if(!response[DIALOG_RESPONSE_RESPONSE]) return false;
     if(!cantidad) return false;
     if(response[DIALOG_RESPONSE_LISTITEM] < 0 || response[DIALOG_RESPONSE_LISTITEM] >= cantidad) return 1;
@@ -88,7 +88,7 @@ dialog_maletero(playerid){
     if(!idex) return 0;
     DeletePVar(playerid, "veh_mal");
     idex--;
-    list_clear(DialogData[playerid]);
+    
     new response[DIALOG_RESPONSE];
     new has_keys = hasVehicleKeys(playerid, idex);
     if(vehData[idex][veh_Trunk] != false || has_keys){
@@ -105,26 +105,26 @@ dialog_maletero(playerid){
             if(slot != -1){
                 if(vehicleInventory[slot][veh_Maletero]) formatt(dlg_buff, "[%d]\t%s\t(%d)\t[%d]", x, ObjetoInfo[vehicleInventory[slot][veh_Maletero]][NombreObjeto], vehicleInventory[slot][veh_MaleteroCant], vehicleInventory[slot][veh_MaleteroData]);
                 else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
-                AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+                AddPaginatedDialogRow(playerid, dlg_buff);
                 continue;
             }
             else formatt(dlg_buff, "[%d]\tVacío\t\t", x);
-            AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+            AddPaginatedDialogRow(playerid, dlg_buff);
             continue;
         }
         
-        //AddPaginatedDialogRow(DialogData[playerid], "—————————————————");
+        //AddPaginatedDialogRow(playerid, "—————————————————");
         if(Datos[playerid][jMano][0]){
             formatt(dlg_buff, "Mano derecha:\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], Datos[playerid][jManoCant][0], Datos[playerid][jManoData][0]);
         }
         else formatt(dlg_buff, "Mano derecha:\tNada\t\t");
-        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);
+        AddPaginatedDialogRow(playerid, dlg_buff);
         if(Datos[playerid][jMano][1]){
             formatt(dlg_buff, "Mano izquierda:\t%s\t(%d)\t[%d]", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], Datos[playerid][jManoCant][1], Datos[playerid][jManoData][1]);
         }
         else formatt(dlg_buff, "Mano izquierda:\tNada\t\t");
-        AddPaginatedDialogRow(DialogData[playerid], dlg_buff);       
-        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+3, "Maletero", DialogData[playerid], "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
+        AddPaginatedDialogRow(playerid, dlg_buff);       
+        await_arr(response) ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE_TABLIST_HEADERS, vehData[idex][veh_EspacioMal]+3, "Maletero", "Seleccionar", "Cerrar", "Slot\tObjeto\tCantidad\tData");
     }
     //dialog response
     if(!response[DIALOG_RESPONSE_RESPONSE]) return true;

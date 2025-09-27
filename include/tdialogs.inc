@@ -1,6 +1,7 @@
 #if defined _tdialog_included
     #endinput
 #endif
+#define _tdialog_included
 
 #include <open.mp>
 #include <PawnPlus>
@@ -41,11 +42,11 @@ static enum _:PAGINATED_DIALOG_ROW
 }
 
 #if !defined  PAGINATED_NEXT_TEXT
-    #define PAGINATED_NEXT_TEXT ">>>"
+    #define PAGINATED_NEXT_TEXT "--> Next Page"
 #endif
 
 #if !defined PAGINATED_PREVIOUS_TEXT
-    #define PAGINATED_PREVIOUS_TEXT "<<<"
+    #define PAGINATED_PREVIOUS_TEXT "<-- Previous Page"
 #endif
 
 static PaginatedDialogOffset[MAX_PLAYERS];
@@ -215,13 +216,19 @@ stock Task:ShowAsyncEntityIndexDialog_s(playerid, DIALOG_STYLE:style, String:tit
     return SendTDialog_s(playerid, TDIALOG_ID_OPTIONS_INDEX, style, title, body, button1, button2);
 }
 
-stock Task:ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE:style, rows_per_page, const title[], List:rows, const button1[], const button2[], const tablist_header_text[] = "")
+stock Task:ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE:style, rows_per_page, const title[], const button1[], const button2[], const tablist_header_text[] = "", Task:existingtask = INVALID_TASK)
 {
+    if(!list_valid(PaginatedDialogRowList[playerid]) || !list_size(PaginatedDialogRowList[playerid]))
+    {
+        printf("[tdialogs] Attempted to show an empty paginated dialog to %i.", playerid);
+        return INVALID_TASK;
+    }
+
     new String:string = str_new("");
     if(tablist_header_text[0])
     {
         if(style != DIALOG_STYLE_TABLIST_HEADERS)
-            print("[tdialogs] Warning: Specified \"header text\" for async paginated dialog when style is not DIALOG_STYLE_TABLIST_HEADERS!");
+            print("[tdialogs] Warning: Specified \"tablist_header_text\" when dialog style is not DIALOG_STYLE_TABLIST_HEADERS");
         else{
             format(PaginatedDialogHeaderText[playerid], 128, tablist_header_text);
             str_append_format(string, tablist_header_text);
@@ -230,27 +237,36 @@ stock Task:ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE:style, rows_per_page,
     }
 
     new rowcount = 0;
-    for(new Iter:i = list_iter(rows, rows_per_page * PaginatedDialogOffset[playerid]); iter_inside(i); iter_move_next(i))
+    for(new Iter:i = list_iter(PaginatedDialogRowList[playerid], rows_per_page * PaginatedDialogOffset[playerid]); iter_inside(i); iter_move_next(i))
     {
         if(rowcount >= rows_per_page){
+            if(rowcount == rows_per_page) str_append_format(string, "\n");
             ++rowcount;
-            str_append_format(string, "\n");
             continue;
         }
-        
+
         new row[PAGINATED_DIALOG_ROW];
         iter_get_arr(i, row);
         str_append_format(string, row[DialogRowText]);
         ++rowcount;
         if(rowcount < rows_per_page) str_append_format(string, "\n");
     }
-    
+
     if(PaginatedDialogOffset[playerid] != 0) str_append_format(string, "%s\n", PAGINATED_PREVIOUS_TEXT);
     if(rowcount > rows_per_page) str_append_format(string, "%s\n", PAGINATED_NEXT_TEXT);
 
     PaginatedDialogRowsPerPage[playerid] = rows_per_page;
-    PaginatedDialogRowList[playerid] = rows;
-    return SendTDialog_s(playerid, TDIALOG_ID_PAGINATED, style, str_new(title), string, button1, button2);
+    if(task_valid(existingtask))
+    {
+        //reuse an existing task when we're switching through the dialog's pages
+        ShowPlayerDialog_s(playerid, TDIALOG_ID_PAGINATED, style, str_new(title), string, button1, button2);
+        DialogTask[playerid] = existingtask;
+        return existingtask;
+    }
+    else
+    {
+        return SendTDialog_s(playerid, TDIALOG_ID_PAGINATED, style, str_new(title), string, button1, button2);
+    }
 }
 
 forward TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext[]);
@@ -381,7 +397,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
 
                 new DIALOG_STYLE:style, title[64], body[4096], button1[12], button2[12];
                 GetPlayerDialogData(playerid, style, title, 64, body, 4096, button1, 12, button2, 12); //why was this function written like this
-                task_bind(task, "_PaginatedDialogRedirect", "iisisss", playerid, style, title, PaginatedDialogRowList[playerid], button1, button2, PaginatedDialogHeaderText[playerid]);
+                task_bind(task, "_PaginatedDialogRedirect", "iiissss", task, playerid, style, title, button1, button2, PaginatedDialogHeaderText[playerid]);
                 return 1;
             }
             else if(!strcmp(inputtext, PAGINATED_PREVIOUS_TEXT))
@@ -390,7 +406,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
 
                 new DIALOG_STYLE:style, title[64], body[4096], button1[12], button2[12];
                 GetPlayerDialogData(playerid, style, title, 64, body, 4096, button1, 12, button2, 12); //why was this function written like this
-                task_bind(task, "_PaginatedDialogRedirect", "iisisss", playerid, style, title, PaginatedDialogRowList[playerid], button1, button2, PaginatedDialogHeaderText[playerid]);
+                task_bind(task, "_PaginatedDialogRedirect", "iiissss", task, playerid, style, title, button1, button2, PaginatedDialogHeaderText[playerid]);
                 return 1;
             }
             else
@@ -400,7 +416,9 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
                 dialog_response[DIALOG_RESPONSE_LISTITEM] = listitem + (PaginatedDialogRowsPerPage[playerid] * PaginatedDialogOffset[playerid]);
                 dialog_response[DIALOG_RESPONSE_EXTRAID] = list_get(PaginatedDialogRowList[playerid], dialog_response[DIALOG_RESPONSE_LISTITEM], DialogRowExtra);
                 format(dialog_response[DIALOG_RESPONSE_INPUTTEXT], 128, inputtext);
+
                 task_set_result_arr(task, dialog_response);
+                ResetPlayerPaginationVariables(playerid);
                 return 1;
             }
         }
@@ -408,12 +426,18 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
     return 0;
 }
 
-stock AddPaginatedDialogRow(List:list, const text[], extraid = 0)
+stock AddPaginatedDialogRow(playerid, const text[], extraid = 0)
 {
+    if(!list_valid(PaginatedDialogRowList[playerid]))
+    {
+        PaginatedDialogRowList[playerid] = list_new();
+    }
+
     new row[PAGINATED_DIALOG_ROW];
     format(row[DialogRowText], 256, text);
     row[DialogRowExtra] = extraid;
-    list_add_arr(list, row);
+    list_add_arr(PaginatedDialogRowList[playerid], row);
+    return true;
 }
 
 static ResetPlayerDialogVariables(playerid)
@@ -435,11 +459,17 @@ static DeleteDialogTask(playerid)
     {
         task_delete(DialogTask[playerid]);
     }
+
     DialogTask[playerid] = INVALID_TASK;
 }
 
 static ResetPlayerPaginationVariables(playerid)
 {
+    if(list_valid(PaginatedDialogRowList[playerid]))
+    {
+        list_delete(PaginatedDialogRowList[playerid]);
+    }
+
     PaginatedDialogOffset[playerid] = 0;
     PaginatedDialogRowsPerPage[playerid] = 0;
     PaginatedDialogHeaderText[playerid][0] = EOS;
@@ -458,8 +488,8 @@ public _InputDialogErrorRedirect(playerid, dialogid, const title[], const body[]
     return wait_ms(1);
 }
 
-forward _PaginatedDialogRedirect(playerid, DIALOG_STYLE:style, const title[], List:rows, const button1[], const button2[], const tablist_header_text[]);
-public _PaginatedDialogRedirect(playerid, DIALOG_STYLE:style, const title[], List:rows, const button1[], const button2[], const tablist_header_text[])
+forward _PaginatedDialogRedirect(Task:task, playerid, DIALOG_STYLE:style, const title[], const button1[], const button2[], const tablist_header_text[]);
+public _PaginatedDialogRedirect(Task:task, playerid, DIALOG_STYLE:style, const title[], const button1[], const button2[], const tablist_header_text[])
 {
-    return task_await(ShowAsyncPaginatedDialog(playerid, style, PaginatedDialogRowsPerPage[playerid], title, PaginatedDialogRowList[playerid], button1, button2, tablist_header_text));
+    return task_wait(ShowAsyncPaginatedDialog(playerid, style, PaginatedDialogRowsPerPage[playerid], title, button1, button2, tablist_header_text, task));
 }
