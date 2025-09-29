@@ -491,7 +491,7 @@ public accountOnPlayerRequestClass(playerid, classid)
 {
 	if(!Datos[playerid][LoggedIn])
 		return dialog_username(playerid);	
-	return 1;
+	return 0;
 }
 
 public accountOnUserFirstLoad(playerid)
