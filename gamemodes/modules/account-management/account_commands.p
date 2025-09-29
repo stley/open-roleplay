@@ -29,6 +29,14 @@ CMD:stats(playerid)
 }
 
 CMD:panel(playerid){
+    new body[2048];
 
+    new buffer[128];
+    formatt(buffer, "Cambiar de personaje\n\
+    Salir\
+    ");
+    strcat(body, buffer);
+    formatt(buffer, "Cambia de personaje rápidamente.\nCierra este panel.");
+    ShowPlayerInteractionMenu(playerid, ACCOUNT_PANEL_MENU, body, sprintf("%s", Datos[playerid][jNombrePJ]), buffer);
     return 1;
 }
