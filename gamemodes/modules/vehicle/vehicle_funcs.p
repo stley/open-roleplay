@@ -430,6 +430,7 @@ public CharVeh_Free(index){
 
 vehicleSave(index){
     if(!vehData[index][veh_SQLID]) return 1;
+    yield 1;
     serverLogRegister(sprintf("Guardando los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
     if(vehData[index][veh_vID] != INVALID_VEHICLE_ID){
         GetVehiclePos(vehData[index][veh_vID], vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ]);
@@ -439,16 +440,13 @@ vehicleSave(index){
         GetVehicleHealth(vehData[index][veh_vID], vehData[index][veh_Vida]);
         GetVehicleDamageStatus(vehData[index][veh_vID], vehData[index][veh_DmgSuperficie], vehData[index][veh_DmgPuertas], vehData[index][veh_DmgLuces], vehData[index][veh_DmgRuedas]);
     }
-    orm_update(vehData[index][vehORM], "vehicleOnSave", "d", index);
-    vehicleInventorySave(index);
-    return 1;
-}
-
-public vehicleOnSave(index){
-    if(orm_errno(vehData[index][vehORM]) != ERROR_OK)
+    new error = await Task:orm_async_update(vehData[index][vehORM]);
+    if(error != _:ERROR_OK)
         serverLogRegister(sprintf("Ocurrió un error al guardar los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
-    else
+    else{
         serverLogRegister(sprintf("Guardados los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
+        vehicleInventorySave(index);
+    }
     return 1;
 }
 
@@ -586,9 +584,7 @@ vehicleInventorySave(index){
 }
 
 clear_vehiclevars(index){
-    
-    
-    alm(vehData[index][veh_Owner], "-");
+    vehData[index][veh_Owner] = EOS;
     vehData[index][veh_vID] = INVALID_VEHICLE_ID;
     vehData[index][veh_Vida] = 1000.0;
     vehData[index][veh_PosX] = 0.0;
@@ -596,7 +592,7 @@ clear_vehiclevars(index){
     vehData[index][veh_PosZ] = 0.0;
     vehData[index][veh_PosR] = 0.0;
     vehData[index][veh_Tipo] = 0;
-    alm(vehData[index][veh_Matricula], "-");
+    vehData[index][veh_Matricula] = EOS;
     vehData[index][veh_Modelo] = 0;
     vehData[index][veh_Color1] = 0;
     vehData[index][veh_Color2] = 0;
@@ -644,7 +640,7 @@ public vehicleGlobalAutoSave(){
     for(new v; v < MAX_VEHICULOS; v++){
         if(vehData[v][veh_SQLID]){
             vehicleAutoSave(v);
-            wait_ticks(1);
+            //wait_ticks(1);
         }
     }
     return 1;
