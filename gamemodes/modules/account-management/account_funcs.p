@@ -254,9 +254,9 @@ public accountLoadToys(playerid){
 clear_chardata(playerid){
 	
 	Datos[playerid][EnChar] = false;
-	alm(Datos[playerid][jNombrePJ], "-");
+	Datos[playerid][jNombrePJ] = EOS;
 	Datos[playerid][jUsuario] = 0;
-	alm(Datos[playerid][jFechaCreacion], "-");
+	Datos[playerid][jFechaCreacion] = EOS;
 	Datos[playerid][jMano][0] = 0;
 	Datos[playerid][jManoCant][0] = 0;
     Datos[playerid][jMano][1] = 0;
@@ -386,7 +386,6 @@ accountSave(playerid){
 }
 characterSave(playerid)
 {
-	yield 1;
 	serverLogRegister(sprintf("Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid));
 	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM){
 		serverLogRegister(sprintf("[characterSave] ORMPJ playerid %d invalida", playerid));
@@ -396,6 +395,8 @@ characterSave(playerid)
 	GetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
 	Datos[playerid][jInt] = GetPlayerInterior(playerid);
 	Datos[playerid][jVW] = GetPlayerVirtualWorld(playerid);
+
+	yield 1;
 	new error;
 	error = await orm_async_update(Datos[playerid][ORMPJ]);
 	if(error != _:ERROR_OK)
@@ -419,9 +420,9 @@ saveCharacterInventory(playerid){
 	new err;
 	err = await orm_async_update(Datos[playerid][inventoryORM]);
 	if(err != _:ERROR_OK)
-		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)! ORM_ERROR: %d", GetName(playerid), Datos[playerid][jSQLIDP], err));
+		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP], err));
 	else
-		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d). ORM_ERROR: %d", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], err));
+		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], err));
 	return 1;
 }
 

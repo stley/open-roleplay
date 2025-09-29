@@ -155,7 +155,6 @@ dialog_personajes(playerid){
 	else{
 		yield 1;
 		orm_char(playerid);
-		printf("USER SELECTED A VALID CHARACTER? LISTITEM %d, EXTRAID %d", response[DIALOG_RESPONSE_LISTITEM], response[DIALOG_RESPONSE_EXTRAID]);
 		mysql_format(SQLDB, query, sizeof(query), "SELECT * FROM `characters` WHERE `SQLIDPJ` = %d LIMIT 1", response[DIALOG_RESPONSE_EXTRAID]);
 		await mysql_aquery(SQLDB, query);
 		if(cache_num_rows()){
@@ -177,7 +176,6 @@ dialogIngresar_Personaje(playerid){
 	new listitem = await ShowAsyncListitemIndexDialog(playerid, DIALOG_STYLE_LIST, Datos[playerid][jNombrePJ], "Ingresar\nSolicitar eliminación (No aún)", "Seleccionar", "Salir");
 	if(listitem == -1){
 		clear_chardata(playerid);
-		printf("User pressed ESC, returning to character dialog.");
 		return dialog_personajes(playerid);
 	}
 	switch(listitem)
@@ -193,8 +191,6 @@ dialogIngresar_Personaje(playerid){
 		case 1:
 		{
 			clear_chardata(playerid);
-			
-			printf("User selected blocked option, returning to character dialog.");
 			return dialog_personajes(playerid);
 		}
 	}
