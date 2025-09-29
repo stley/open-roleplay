@@ -10,7 +10,6 @@ forward accountOnPlayerConnect(playerid);
 forward accountOnGameModeExit();
 forward ClearPlayerVars(playerid);
 forward characterRespawn(playerid);
-forward onCharacterInventorySave(playerid);
 forward accountGlobalAutoSave();
 forward accountOnUserFirstLoad(playerid);
 forward accountOnPlayerRequestClass(playerid, classid);
@@ -249,40 +248,15 @@ public accountLoadToys(playerid){
 	return 1;
 }
 
-public accountOnUserDataSaved(playerid){
-	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
-		serverLogRegister(sprintf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]));
-	}
-	else{
-		serverLogRegister(sprintf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]));
-	}
-	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
-	return 1;
-}
-public accountOnCharDataSaved(playerid, type){
-	switch(type){
-		case 1:{
-			if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK)
-				serverLogRegister(sprintf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
-			else
-				serverLogRegister(sprintf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
-		}
-		case 2:{
-			if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK)
-				serverLogRegister(sprintf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
-			if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
-			return 1;
-		}
-	}
-	return 1;
-}
+
+
 
 clear_chardata(playerid){
 	
 	Datos[playerid][EnChar] = false;
-	alm(Datos[playerid][jNombrePJ], "-");
+	Datos[playerid][jNombrePJ] = EOS;
 	Datos[playerid][jUsuario] = 0;
-	alm(Datos[playerid][jFechaCreacion], "-");
+	Datos[playerid][jFechaCreacion] = EOS;
 	Datos[playerid][jMano][0] = 0;
 	Datos[playerid][jManoCant][0] = 0;
     Datos[playerid][jMano][1] = 0;
@@ -395,12 +369,19 @@ public ClearPlayerVars(playerid)
 	return 1;	
 }
 accountSave(playerid){
+	yield 1;
 	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM){
 		serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
 		return 1;
 	}
 	serverLogRegister(sprintf("Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid));
-	orm_update(Datos[playerid][ORMID], "accountOnUserDataSaved", "d", playerid);
+	new error;
+	error = await orm_async_update(Datos[playerid][ORMID]);
+	if(error != _:ERROR_OK)
+		serverLogRegister(sprintf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]));
+	else
+		serverLogRegister(sprintf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]));
+	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
 characterSave(playerid)
@@ -414,26 +395,35 @@ characterSave(playerid)
 	GetPlayerFacingAngle(playerid, Datos[playerid][jPosR]);
 	Datos[playerid][jInt] = GetPlayerInterior(playerid);
 	Datos[playerid][jVW] = GetPlayerVirtualWorld(playerid);
-	
-	orm_update(Datos[playerid][ORMPJ], "accountOnCharDataSaved", "dd", playerid, 1);
-	orm_update(CharToys[playerid][ORM_toy], "accountOnCharDataSaved", "dd", playerid, 2);
+
+	yield 1;
+	new error;
+	error = await orm_async_update(Datos[playerid][ORMPJ]);
+	if(error != _:ERROR_OK)
+		serverLogRegister(sprintf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+	else{
+		serverLogRegister(sprintf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+		error = await orm_async_update(CharToys[playerid][ORM_toy]);
+		if(error != _:ERROR_OK)
+			serverLogRegister(sprintf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+	}
+	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
 }
 
 saveCharacterInventory(playerid){
+	yield 1;
 	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
 		serverLogRegister(sprintf("inventoryORM playerid %d invalida", playerid));
 		return 1;
 	}
-	orm_update(Datos[playerid][inventoryORM], "onCharacterInventorySave", "d", playerid);
-	return 1;
-}
-
-public onCharacterInventorySave(playerid){
-	if(orm_errno(Datos[playerid][inventoryORM]) != ERROR_OK)
-		return serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]));
+	new err;
+	err = await orm_async_update(Datos[playerid][inventoryORM]);
+	if(err != _:ERROR_OK)
+		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP], err));
 	else
-		return serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], err));
+	return 1;
 }
 
 bool:hasDriverOnline(veh_idex, exclude){
@@ -491,7 +481,7 @@ public accountOnPlayerRequestClass(playerid, classid)
 {
 	if(!Datos[playerid][LoggedIn])
 		return dialog_username(playerid);	
-	return 1;
+	return 0;
 }
 
 public accountOnUserFirstLoad(playerid)
@@ -526,7 +516,7 @@ public accountGlobalAutoSave(){
 			accountAutoSave(playerid);
 		}
 		else continue;
-		wait_ticks(1);
+		//wait_ticks(1);
 	}
 	return 1;
 }

@@ -1,4 +1,4 @@
-flags:crearobjeto(CMD_OWNER | CMD_ADMIN)
+flags:crearobjeto(CMD_ADMIN)
 CMD:crearobjeto(playerid, params[])
 {
     new objetoid;
@@ -33,7 +33,7 @@ CMD:crearobjeto(playerid, params[])
 }
 
 
-flags:editattached(CMD_OWNER | CMD_ADMIN)
+flags:editattached(CMD_ADMIN)
 CMD:editattached(playerid, params[]){
     if(sscanf(params, "d", params[0])) return SendClientMessage(playerid, COLOR_SYSTEM, "Uso: /editattached [Slot del PlayerAttachedObject]");
     if(!IsPlayerAttachedObjectSlotUsed(playerid, params[0])) return SendClientMessage(playerid, COLOR_DARKRED, "No hay ningun objeto en ese slot.");
@@ -41,12 +41,12 @@ CMD:editattached(playerid, params[]){
     EditAttachedObject(playerid, params[0]);
     return 1;
 }
-flags:listaobjetos(CMD_OWNER | CMD_ADMIN)
+flags:listaobjetos(CMD_ADMIN)
 CMD:listaobjetos(playerid)
 {
     return dialog_listaobjetos(playerid);
 }
-flags:limpiarmanos(CMD_JR_OPERATOR | CMD_MOD)
+flags:limpiarmanos(CMD_MOD)
 CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
@@ -111,7 +111,7 @@ CMD:verstats(playerid, params[]){
     SendClientMessage(playerid, COLOR_LIGHTNEUTRALBLUE, "Casa: %d — Negocio: %d | Interior: %d — VirtualWorld: %d", DentroCasa[target], DentroNegocio[target], GetPlayerInterior(target), GetPlayerVirtualWorld(target));
     return 1;
 }
-flags:crearvehiculo(CMD_OWNER | CMD_ADMIN)
+flags:crearvehiculo(CMD_ADMIN)
 CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
     new
         nuevodueno,
@@ -161,13 +161,13 @@ CMD:crearvehiculo(playerid, params[]){  //Crear vehiculos personales
     return 1;
 }
 
-flags:ircoord(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
+flags:ircoord(CMD_OPERATOR)
 CMD:ircoord(playerid, params[]){
     if(sscanf(params, "fff", params[0], params[1], params[2])) return SendClientMessage(playerid, COLOR_SYSTEM, "USO: /ircoord [X] [Y] [Z]");
     teleportPlayer(playerid, params[0], params[1], params[2], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid));
     return 1;
 }
-flags:setplayer(CMD_OWNER | CMD_ADMIN | CMD_OPERATOR)
+flags:setplayer(CMD_OPERATOR)
 CMD:setplayer(playerid, params[]){
     new id2, vwid, intid;
     if(isnull(params)) return SendClientMessage(playerid, COLOR_DARKRED, "VirtualWorld: %d, Interior: %d", GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
@@ -271,7 +271,7 @@ CMD:revivir(playerid, params[]){
     clear_wounds(target);
     return 1;
 }
-flags:darmod(CMD_OWNER | CMD_ADMIN)
+flags:darmod(CMD_ADMIN)
 CMD:darmod(playerid, params[]){
     new target[32], level;
     if(sscanf(params, "s[32]d", target, level)) return SendClientMessage(playerid, COLOR_BRIGHTRED, "USO: /darmod [Cuenta] [Nivel de Rango Administrativo]");
