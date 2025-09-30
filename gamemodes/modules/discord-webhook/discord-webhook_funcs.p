@@ -1,12 +1,14 @@
 new serverLogBufferLines;
-new serverLogBuffer[1900];
+new String:serverLogBuffer;
 
 
 forward discordOnGameModeInit();
 forward discordOnGameModeExit();
 forward discordOnPlayerConnect(playerid);
 forward discordSendMessage(const message[]);
+forward discordSendMessage_s(ConstStringTag:message);
 forward discordOnSendMessage(Requests:id, E_HTTP_STATUS:status, Node:node);
+native Node:JsonString_s(ConstAmxString:value) = JsonString;
 
 webhookLinux(url[]){
     while (strlen(url) > 0)
@@ -36,7 +38,8 @@ public discordOnGameModeInit(){
         ;
         getdate(year, month, day);
         gettime(hour, minute, second);
-        discordSendMessage(sprintf(" **[%02d/%02d/%04d %02d:%02d:%02d] - Conectado al webhook de Discord.**", day, month, year, hour, minute, second));
+        discordSendMessage_s(str_format(" **[%02d/%02d/%04d %02d:%02d:%02d] - Conectado al webhook de Discord.**", day, month, year, hour, minute, second));
+        //discordSendMessage(sprintf(" **[%02d/%02d/%04d %02d:%02d:%02d] - Conectado al webhook de Discord.**", day, month, year, hour, minute, second));
     }
     else{
         serverLogRegister("Conexión al webhook de Discord fallida!");
@@ -54,13 +57,28 @@ public discordOnGameModeExit(){
     ;
     getdate(year, month, day);
     gettime(hour, minute, second);
-    discordSendMessage(sprintf("**[%02d/%02d/%04d %02d:%02d:%02d] - Apagando servidor...**", day, month, year, hour, minute, second));
+    //discordSendMessage(sprintf("**[%02d/%02d/%04d %02d:%02d:%02d] - Apagando servidor...**", day, month, year, hour, minute, second));
+    discordSendMessage_s(str_format("**[%02d/%02d/%04d %02d:%02d:%02d] - Apagando servidor...**", day, month, year, hour, minute, second));
     return 1;
 }
 
 
 
-discordSendMessage(const message[]){
+
+stock discordSendMessage_s(ConstStringTag:message){
+    if(!isChannelWorking) return 1;
+    if(IsValidRequestsClient(LOG_CHANNEL))
+    RequestJSON(LOG_CHANNEL,
+        "",
+        HTTP_METHOD_POST,
+        "discordOnSendMessage",
+        JsonObject("content", JsonString_s(message))
+    );
+    return 1;
+}
+
+
+stock discordSendMessage(const message[]){
     if(!isChannelWorking) return 1;
     if(IsValidRequestsClient(LOG_CHANNEL))
     RequestJSON(LOG_CHANNEL,

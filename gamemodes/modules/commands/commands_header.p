@@ -3,12 +3,15 @@
 	#include <Pawn.CMD>
 #endif
 
+#define CURRENT_MODULE "commands"
+
 #include "../gamemodes/modules/item-system/item_commands.p"
 #include "../gamemodes/modules/admin/admin_commands.p"
 #include "../gamemodes/modules/account-management/account_commands.p"
 #include "../gamemodes/modules/rptools/rptools_commands.p"
 #include "../gamemodes/modules/vehicle/vehicle_commands.p"
 #include "../gamemodes/modules/damage_system/damage_commands.p"
+#undef CURRENT_MODULE
 
 new const available_commands[][32] = {
 	{"me"},
@@ -51,3 +54,4 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
 	}
 	return 1;
 }
+

@@ -27,6 +27,10 @@
 
 
 //Módulos
+#if defined CURRENT_MODULE
+    #undef CURRENT_MODULE
+#endif
+
 #include "modules/misc/misc_header.p" // Misceláneos
 #include "modules/discord-webhook/discord-webhook_header.p" // Conexión con bot de discord!
 #include "modules/serverLog/serverLog_header.p"
