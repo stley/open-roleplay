@@ -599,7 +599,7 @@ CMD:descargar(playerid){
         SendClientMessage(playerid, COLOR_DARKRED, "No puedes quitarle un cargador a esta arma ya que no utiliza estos.");
         return 1;
     }
-    else if(manocant == -1){
+    else if(manocant <= -1){
         SendClientMessage(playerid, COLOR_RED, "Tu arma no tiene un cargador colocado.");
         return 1;
     }
