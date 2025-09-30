@@ -1,4 +1,5 @@
 
+
 CMD:stats(playerid)
 {
     if(!Datos[playerid][EnChar]) return 1;

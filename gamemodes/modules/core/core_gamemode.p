@@ -14,7 +14,7 @@ public OnGameModeInit()
     CallLocalFunction("Models_OnGameModeInit");
 	CallLocalFunction("vehiclesOnGameModeInit");
 
-	if(IsCrashDetectPresent()) serverLogRegister("CrashDetect encontrado en la lista de plugins.");
+	if(IsCrashDetectPresent()) serverLogRegister("CrashDetect encontrado en la lista de plugins.", CURRENT_MODULE);
 	g_AutoSave = SetTimer("globalAutoSave", 60*60000, true);
     return 1;
 }

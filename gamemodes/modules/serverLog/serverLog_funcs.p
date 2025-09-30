@@ -12,7 +12,7 @@ serverLogRegister(const info[], const module[] = "undefined")
     gettime(hour, minute, second);
     
 
-    new String:logline = str_cat(str_format("**[%02d/%02d/%04d %02d:%02d:%02d]** - [%s] ", day, month, year, hour, minute, second, module), str_new(info));
+    new String:logline = str_cat(str_format("**[%02d/%02d/%04d %02d:%02d:%02d]** - [***%s***] ", day, month, year, hour, minute, second, module), str_new(info));
     if (serverLogBufferLines >= MAX_LINES || (str_len(serverLogBuffer)+str_len(logline)) > 1900)
     {
         discordSendMessage_s(serverLogBuffer);
@@ -22,7 +22,7 @@ serverLogRegister(const info[], const module[] = "undefined")
     if (serverLogBufferLines > 0) str_append_format(serverLogBuffer, "\n");
     str_append(serverLogBuffer, str_convert(logline, "ansi", "utf8"));
     serverLogBufferLines++;
-    print(info);
+    printf("[%s] - %s", module, info);
     return 1;
 }
 

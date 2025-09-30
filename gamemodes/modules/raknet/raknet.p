@@ -15,7 +15,7 @@ IPacket:packetFoot(playerid, BitStream:bs)
 	if(footdata[PR_weaponId] != 0 && footdata[PR_weaponId] != ObjetoInfo[manoder][IDArma])
 	{
 		update_manos(playerid);
-		serverLogRegister(sprintf("RakNet: %s (playerid %d) envió un paquete OnFootSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, footdata[PR_weaponId], ObjetoInfo[manoder][IDArma]));
+		serverLogRegister(sprintf("RakNet: %s (playerid %d) envió un paquete OnFootSync indicando que tenia un arma distinta a la que realmente poseía (client %d | server %d).", GetName(playerid), playerid, footdata[PR_weaponId], ObjetoInfo[manoder][IDArma]), CURRENT_MODULE);
 		footdata[PR_weaponId] = ObjetoInfo[manoder][IDArma];
 		BS_WriteOnFootSync(bs, footdata);
 	}

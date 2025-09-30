@@ -76,9 +76,9 @@ public OnCharacterVehicleLoad(playerid){
                 else if(vehData[v][veh_SQLID] == 0){
                     orm_vehicle(v);
                     orm_apply_cache(vehData[v][vehORM], i);
-                    if(curr_load != vehData[v][veh_SQLID]) serverLogRegister(sprintf("[OnCharacterVehicleLoad] ATENCIÓN: curr_load NO ES IGUAL al SQLID del vehículo cargado!! (curr_load %d) - (SQLID %d)", curr_load, vehData[v][veh_SQLID]));
+                    if(curr_load != vehData[v][veh_SQLID]) serverLogRegister(sprintf("[OnCharacterVehicleLoad] ATENCIÓN: curr_load NO ES IGUAL al SQLID del vehículo cargado!! (curr_load %d) - (SQLID %d)", curr_load, vehData[v][veh_SQLID]), CURRENT_MODULE);
                     SendClientMessage(playerid, COLOR_LIGHTBLUE, "Tu vehículo %s (ID %d) ha sido cargado desde la base de datos.", modelGetName(vehData[v][veh_Modelo]), vehData[v][veh_SQLID]);
-                    serverLogRegister(sprintf("Vehículo %s SQLID %d (%s) fue cargado desde la base de datos (callback de %s)", modelGetName(vehData[v][veh_Modelo]), curr_load, vehData[v][veh_Matricula], GetName(playerid)));
+                    serverLogRegister(sprintf("Vehículo %s SQLID %d (%s) fue cargado desde la base de datos (callback de %s)", modelGetName(vehData[v][veh_Modelo]), curr_load, vehData[v][veh_Matricula], GetName(playerid)), CURRENT_MODULE);
                     if(IsValidTimer(vehData[v][veh_AutoSaveTimer])) KillTimer(vehData[v][veh_AutoSaveTimer]);
                     vehData[v][veh_AutoSaveTimer] = SetTimerEx("vehicleAutoSave", 600000, true, "d", v);
                     if(IsValidTimer(vehTimer[v])) KillTimer(vehTimer[v]);
@@ -131,7 +131,7 @@ public vehicleInventory_Load(){
             }
             if (!placed){
                 new vid; cache_get_value_name_int(i, "vehicle_id", vid);
-                serverLogRegister(sprintf("[vehicleInventory_Load] Sin espacio para vehicle_id=%d (fila %d).", vid, i));
+                serverLogRegister(sprintf("[vehicleInventory_Load] Sin espacio para vehicle_id=%d (fila %d).", vid, i), CURRENT_MODULE);
                 return 1;
             }
             placed = false;
@@ -310,7 +310,7 @@ public vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, 
 }
 
 public CharVeh_Unspawn(indx){
-    serverLogRegister(sprintf("Ocultando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]));
+    serverLogRegister(sprintf("Ocultando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]), CURRENT_MODULE);
     vehicleSave(indx);
     DestroyVehicle(vehData[indx][veh_vID]);
     vehData[indx][veh_vID] = INVALID_VEHICLE_ID;
@@ -328,12 +328,12 @@ public CharVeh_Unspawn(indx){
 }
 public CharVeh_Spawn(indx){
     if(vehData[indx][veh_vID] != INVALID_VEHICLE_ID){
-        serverLogRegister(sprintf("Hubo un error al spawnear el coche index %d (SQLID %d): Ya esta spawneado!", indx, vehData[indx][veh_SQLID]));
+        serverLogRegister(sprintf("Hubo un error al spawnear el coche index %d (SQLID %d): Ya esta spawneado!", indx, vehData[indx][veh_SQLID]), CURRENT_MODULE);
         return 1;
     }
     else{
         
-        serverLogRegister(sprintf( "Spawneando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]));
+        serverLogRegister(sprintf( "Spawneando el vehículo index %d (SQLID: %d | Matrícula: %s | Modelo: %s | Dueño: %s)...", indx, vehData[indx][veh_SQLID], vehData[indx][veh_Matricula], modelGetName(vehData[indx][veh_Modelo]), vehData[indx][veh_Owner]), CURRENT_MODULE);
         vehData[indx][veh_vID] = CreateVehicle(vehData[indx][veh_Modelo], vehData[indx][veh_PosX], vehData[indx][veh_PosY], vehData[indx][veh_PosZ], vehData[indx][veh_PosR], vehData[indx][veh_Color1], vehData[indx][veh_Color2], -1, false);
         LinkVehicleToInterior(vehData[indx][veh_vID], vehData[indx][veh_Interior]);
         SetVehicleVirtualWorld(vehData[indx][veh_vID], vehData[indx][veh_VW]);
@@ -389,7 +389,7 @@ public plateCheck(playerid, nuevodueno, modelo, index, color1, color2){
         return get_plate(playerid, nuevodueno, modelo, index, color1, color2);
     }
     else{
-        serverLogRegister(sprintf("Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", index, vehData[index][veh_Matricula], modelGetName(vehData[index][veh_Modelo]), vehData[index][veh_Modelo], vehData[index][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]));
+        serverLogRegister(sprintf("Creando el vehículo index %d (Matrícula: %s | Modelo: %s (%d) | Dueño: %s) | Comando ejecutado: /crearvehiculo (%s - %s)", index, vehData[index][veh_Matricula], modelGetName(vehData[index][veh_Modelo]), vehData[index][veh_Modelo], vehData[index][veh_Owner], Datos[playerid][jNombrePJ], username[playerid]), CURRENT_MODULE);
         orm_insert(vehData[index][vehORM], "vehiclesOnCharVehicleCreated", "dddddd", playerid, nuevodueno, modelo, index, color1, color2);
     }
     return 1;
@@ -419,7 +419,7 @@ randomPlate(plate[], len)
 
 public CharVeh_Free(index){
     if(vehData[index][veh_SQLID] && vehData[index][veh_Tipo] == 1){
-        serverLogRegister(sprintf( "Liberando el vehículo SQLID %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
+        serverLogRegister(sprintf( "Liberando el vehículo SQLID %d matrícula %s...", vehData[index][veh_SQLID], vehData[index][veh_Matricula]), CURRENT_MODULE);
         vehicleSave(index);
         if(vehData[index][veh_vID] != INVALID_VEHICLE_ID) DestroyVehicle(vehData[index][veh_vID]);
         vehData[index][veh_vID] = INVALID_VEHICLE_ID;
@@ -430,8 +430,7 @@ public CharVeh_Free(index){
 
 vehicleSave(index){
     if(!vehData[index][veh_SQLID]) return 1;
-    yield 1;
-    serverLogRegister(sprintf("Guardando los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
+    serverLogRegister(sprintf("Guardando los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]), CURRENT_MODULE);
     if(vehData[index][veh_vID] != INVALID_VEHICLE_ID){
         GetVehiclePos(vehData[index][veh_vID], vehData[index][veh_PosX], vehData[index][veh_PosY], vehData[index][veh_PosZ]);
         GetVehicleZAngle(vehData[index][veh_vID], vehData[index][veh_PosR]);
@@ -440,13 +439,16 @@ vehicleSave(index){
         GetVehicleHealth(vehData[index][veh_vID], vehData[index][veh_Vida]);
         GetVehicleDamageStatus(vehData[index][veh_vID], vehData[index][veh_DmgSuperficie], vehData[index][veh_DmgPuertas], vehData[index][veh_DmgLuces], vehData[index][veh_DmgRuedas]);
     }
-    new error = await Task:orm_async_update(vehData[index][vehORM]);
-    if(error != _:ERROR_OK)
-        serverLogRegister(sprintf("Ocurrió un error al guardar los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
-    else{
-        serverLogRegister(sprintf("Guardados los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
-        vehicleInventorySave(index);
-    }
+    orm_update(vehData[index][vehORM], "vehicleOnSave", "d", index);
+    vehicleInventorySave(index);
+    return 1;
+}
+
+public vehicleOnSave(index){
+    if(orm_errno(vehData[index][vehORM]) != ERROR_OK)
+        serverLogRegister(sprintf("Ocurrió un error al guardar los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]), CURRENT_MODULE);
+    else
+        serverLogRegister(sprintf("Guardados los datos del vehículo SQLID %d matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]), CURRENT_MODULE);
     return 1;
 }
 
@@ -584,7 +586,9 @@ vehicleInventorySave(index){
 }
 
 clear_vehiclevars(index){
-    vehData[index][veh_Owner] = EOS;
+    
+    
+    alm(vehData[index][veh_Owner], "-");
     vehData[index][veh_vID] = INVALID_VEHICLE_ID;
     vehData[index][veh_Vida] = 1000.0;
     vehData[index][veh_PosX] = 0.0;
@@ -592,7 +596,7 @@ clear_vehiclevars(index){
     vehData[index][veh_PosZ] = 0.0;
     vehData[index][veh_PosR] = 0.0;
     vehData[index][veh_Tipo] = 0;
-    vehData[index][veh_Matricula] = EOS;
+    alm(vehData[index][veh_Matricula], "-");
     vehData[index][veh_Modelo] = 0;
     vehData[index][veh_Color1] = 0;
     vehData[index][veh_Color2] = 0;
@@ -640,7 +644,7 @@ public vehicleGlobalAutoSave(){
     for(new v; v < MAX_VEHICULOS; v++){
         if(vehData[v][veh_SQLID]){
             vehicleAutoSave(v);
-            //wait_ticks(1);
+            wait_ticks(1);
         }
     }
     return 1;
@@ -648,7 +652,7 @@ public vehicleGlobalAutoSave(){
 
 public vehicleAutoSave(index){
 	if(vehData[index][veh_SQLID]){
-        serverLogRegister(sprintf("Ejecutando autoguardado del vehículo SQLID %d Matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]));
+        serverLogRegister(sprintf("Ejecutando autoguardado del vehículo SQLID %d Matrícula %s", vehData[index][veh_SQLID], vehData[index][veh_Matricula]), CURRENT_MODULE);
 		vehicleSave(index);
 	}
     return 1;

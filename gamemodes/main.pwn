@@ -46,11 +46,15 @@
 #include "modules/player/player_header.p"
 #include "modules/commands/commands_header.p" // Comandos (Pawn.CMD)
 #include "modules/raknet/raknet_header.p" // (Pawn.RakNet)
+#if defined CURRENT_MODULE
+    #undef CURRENT_MODULE
+#endif
 
+#define CURRENT_MODULE "main"
 main(){
-    serverLogRegister(sprintf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time));
+    serverLogRegister(sprintf("SERVIDOR INICIADO, COMPILACIÓN: %s (%s)", __date, __time), CURRENT_MODULE);
 }
-
+#undef CURRENT_MODULE
 // Directivas
 
 #if defined BUILD_DEBUG && defined BUILD_PRODUCTION

@@ -1,11 +1,12 @@
 
+
+
 CMD:bol(playerid)
 {
     
     if(!IsPlayerConnected(playerid)) return 1;
     return characterInventoryDialog(playerid);
 }
-
 
 
 CMD:guardar(playerid)
@@ -917,7 +918,7 @@ CMD:ceder(playerid, params[]){
     Datos[id2][jManoData][0] = Datos[playerid][jManoData][mano];
     SendClientMessage(playerid, COLOR_DARKGREEN, "Le entregas un %s a %s.", ObjetoInfo[Datos[playerid][jMano][mano]][NombreObjeto], GetRPName(id2));
     SendClientMessage(id2, COLOR_DARKGREEN, "%s te entregó un %s.", GetRPName(playerid), ObjetoInfo[Datos[playerid][jMano][mano]][NombreObjeto]);
-    serverLogRegister(sprintf("%s le entregó un %s (cantidad %d | extra %d) a %s.", GetName(playerid), ObjetoInfo[Datos[playerid][jMano][mano]], Datos[playerid][jManoCant][mano], Datos[playerid][jManoData][mano]));
+    serverLogRegister(sprintf("%s le entregó un %s (cantidad %d | extra %d) a %s.", GetName(playerid), ObjetoInfo[Datos[playerid][jMano][mano]], Datos[playerid][jManoCant][mano], Datos[playerid][jManoData][mano]), CURRENT_MODULE);
     Datos[playerid][jMano][mano] = 0;
     Datos[playerid][jManoCant][mano] = 0;
     Datos[playerid][jManoData][mano] = 0;
@@ -938,7 +939,7 @@ CMD:cederizq(playerid, params[]){
     Datos[id2][jManoData][1] = Datos[playerid][jManoData][mano];
     SendClientMessage(playerid, COLOR_DARKGREEN, "Le entregas un %s a %s.", ObjetoInfo[Datos[playerid][jMano][mano]][NombreObjeto], GetRPName(id2));
     SendClientMessage(id2, COLOR_DARKGREEN, "%s te entregó un %s.", GetRPName(playerid), ObjetoInfo[Datos[playerid][jMano][mano]][NombreObjeto]);
-    serverLogRegister(sprintf("%s le entregó un %s (cantidad %d | extra %d) a %s.", GetName(playerid), ObjetoInfo[Datos[playerid][jMano][mano]], Datos[playerid][jManoCant][mano], Datos[playerid][jManoData][mano]));
+    serverLogRegister(sprintf("%s le entregó un %s (cantidad %d | extra %d) a %s.", GetName(playerid), ObjetoInfo[Datos[playerid][jMano][mano]], Datos[playerid][jManoCant][mano], Datos[playerid][jManoData][mano]), CURRENT_MODULE);
     Datos[playerid][jMano][mano] = 0;
     Datos[playerid][jManoCant][mano] = 0;
     Datos[playerid][jManoData][mano] = 0;
