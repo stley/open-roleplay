@@ -300,6 +300,7 @@ CMD:mal(playerid, params[]){
             if(!has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes llaves para este maletero.");
             if(vehData[idex][veh_Trunk]) return SendClientMessage(playerid, COLOR_DARKRED, "El maletero ya está abierto.");
             SendClientMessage(playerid, COLOR_DARKGREEN, "Abriste el maletero del vehículo.");
+            serverLogRegister(sprintf("%s abrió el maletero del vehículo \"%s\" %s ID %d", GetName(playerid), modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_Matricula], vehData[idex][veh_SQLID]), CURRENT_MODULE);
             vehData[idex][veh_Trunk] = true;
             vehiclesTrunk(idex);
             return 1;
@@ -309,6 +310,7 @@ CMD:mal(playerid, params[]){
             SendClientMessage(playerid, COLOR_DARKGREEN, "Cierras el maletero del vehículo.");
             vehData[idex][veh_Trunk] = false;
             vehiclesTrunk(idex);
+            serverLogRegister(sprintf("%s cierra el maletero del vehículo \"%s\" %s ID %d", GetName(playerid), modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_Matricula], vehData[idex][veh_SQLID]), CURRENT_MODULE);
             if(GetPVarType(playerid, "veh_mal")) DeletePVar(playerid, "veh_mal");
             foreach(new invplayer: Player){
                 if(GetPVarType(invplayer, "veh_mal")){

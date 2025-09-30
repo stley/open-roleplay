@@ -53,13 +53,13 @@ CMD:limpiarmanos(playerid, params[])
 {
     new objetivo;
     if(sscanf(params, "r", objetivo)) return SendClientMessage(playerid, COLOR_DARKRED, "/limpiarmanos [playerid/nick]");
-    serverLogRegister(sprintf("AdmCmd: %s (%s) limpió las manos de %s (%s).\n\tTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]), CURRENT_MODULE);
-    
+    new log[256];
+    formatt(log, "%s (%s) limpió las manos de %s (%s).\n\tTenía en sus manos:", Datos[playerid][jNombrePJ], username[playerid], Datos[objetivo][jNombrePJ], username[objetivo]);
     if(Datos[objetivo][jMano][0])
-        serverLogRegister(sprintf("Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]), CURRENT_MODULE);
+        strcat(log, sprintf(" Mano derecha: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][0]][NombreObjeto], Datos[objetivo][jMano][0], Datos[objetivo][jManoCant][0], Datos[objetivo][jManoData][0]));
     if(Datos[objetivo][jMano][1])
-        serverLogRegister(sprintf("Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]), CURRENT_MODULE);
-
+        strcat(log, sprintf(" - Mano izquierda: %s ID:%d - Cantidad: %d (extra: %d)", ObjetoInfo[Datos[objetivo][jMano][1]][NombreObjeto], Datos[objetivo][jMano][1], Datos[objetivo][jManoCant][1], Datos[objetivo][jManoData][1]));
+    serverLogRegister(log);
     Datos[objetivo][jMano][0] = 0;
     Datos[objetivo][jManoCant][0] = 0;
     Datos[objetivo][jManoData][0] = 0;

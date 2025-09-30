@@ -420,9 +420,9 @@ saveCharacterInventory(playerid){
 	new err;
 	err = await orm_async_update(Datos[playerid][inventoryORM]);
 	if(err != _:ERROR_OK)
-		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP], err), CURRENT_MODULE);
+		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	else
-		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], err), CURRENT_MODULE);
+		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	return 1;
 }
 

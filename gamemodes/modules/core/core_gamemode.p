@@ -47,6 +47,7 @@ public OnPlayerRequestClass(playerid, classid){
 	if(!IsPlayerUsingOmp(playerid)){
 		SendClientMessage(playerid, COLOR_BRIGHTRED, "Necesitas tener el launcher de Open Multiplayer para ingresar a este servidor.");
 		playerDelayedKick(playerid, 2000);
+		serverLogRegister(sprintf("%s (playerid %d) fue expulsado porque no tenía la versión de open.mp.", GetName(playerid), playerid), CURRENT_MODULE);
 	}
 	return 0;
 }
