@@ -98,6 +98,7 @@ public discordOnSendMessage(Requests:id, E_HTTP_STATUS:status, Node:node){
     else{
         serverLogRegister("No se pudo enviar el mensaje al webhook. Reintentando en 5 minutos.", CURRENT_MODULE);
         isChannelWorking = false;
+        SetTimer("discordOnGameModeInit", 300000, false);
     }
     return 1;
 }

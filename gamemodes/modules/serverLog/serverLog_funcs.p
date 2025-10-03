@@ -4,6 +4,7 @@ forward serverLogExit();
 
 serverLogRegister(const info[], const module[] = "undefined")
 {
+    if(!isChannelWorking) return printf("[%s] - %s", module, info);
     const MAX_LINES = 20;
 
     new hour, minute, second;
