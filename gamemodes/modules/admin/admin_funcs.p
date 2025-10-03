@@ -30,7 +30,7 @@ public adminUpdate(playerid, const account[], rank){
         cache_get_value_name_int(0, "Administrador", curr_rank);
         if(curr_rank == rank) return SendClientMessage(playerid, COLOR_DARKRED, "El usuario ya tiene ese rango administrativo.");
         SendClientMessage(playerid, COLOR_LIGHTBLUE, "Le cediste el rango administrativo nivel %d a %s. (%d > %d)", rank, retrieved_acc, curr_rank, rank);
-        serverLogRegister(sprintf("%s (%s) le cedió rango administrativo nivel %d a %s. (%d > %d)", username[playerid], Name_sin(GetName(playerid)), rank, retrieved_acc, curr_rank, rank));
+        serverLogRegister(sprintf("%s (%s) le cedió rango administrativo nivel %d a %s. (%d > %d)", username[playerid], Name_sin(GetName(playerid)), rank, retrieved_acc, curr_rank, rank), CURRENT_MODULE);
         new query[96];
         mysql_format(SQLDB, query, sizeof(query), "UPDATE `accounts` SET `Administrador` = %d WHERE `SQLID` = %d", rank, sqlid);
         mysql_tquery(SQLDB, query);

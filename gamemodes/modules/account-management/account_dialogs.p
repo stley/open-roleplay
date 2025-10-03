@@ -115,7 +115,7 @@ dialog_sexo_personaje(playerid){
 	alm(Datos[playerid][jFechaCreacion], FechaActual());
 	Datos[playerid][jVida] = 100.0;
 	characterTextDraws(playerid);
-	serverLogRegister(sprintf("%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]));
+	serverLogRegister(sprintf("%s (IP %s | SQLID %d) está creando el personaje %s.", username[playerid], GetPIP(playerid), Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]), CURRENT_MODULE);
 	orm_insert(Datos[playerid][ORMPJ], "accountOnCharInserted", "d", playerid);
 	CallLocalFunction("adminRefresh", "d", playerid);
 }
@@ -185,7 +185,7 @@ dialogIngresar_Personaje(playerid){
 			SetPlayerName(playerid, Datos[playerid][jNombrePJ]);
 			SpawnPlayer(playerid);
 			loadCharacter(playerid);
-			serverLogRegister(sprintf("%s (SQLID %d | IP %s | playerid %d) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), playerid, Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+			serverLogRegister(sprintf("%s (SQLID %d | IP %s | playerid %d) ingresó al personaje %s (SQLID: %d).", username[playerid], Datos[playerid][jSQLID], GetPIP(playerid), playerid, Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 			CallLocalFunction("adminRefresh", "d", playerid);
 		}
 		case 1:

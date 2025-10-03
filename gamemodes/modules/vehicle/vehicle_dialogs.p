@@ -96,6 +96,7 @@ dialog_maletero(playerid){
             SendClientMessage(playerid, COLOR_DARKGREEN, "Abriste el maletero del vehículo.");
             vehData[idex][veh_Trunk] = true;
             vehiclesTrunk(idex);
+            serverLogRegister(sprintf("%s abrió el maletero del vehículo \"%s\" %s ID %d", GetName(playerid), modelGetName(vehData[idex][veh_Modelo]), vehData[idex][veh_Matricula], vehData[idex][veh_SQLID]), CURRENT_MODULE);
         }
         else if(!vehData[idex][veh_Trunk] && !has_keys) return SendClientMessage(playerid, COLOR_DARKRED, "No tienes las llaves para este vehículo.");
         new dlg_buff[136];
@@ -156,6 +157,17 @@ dialog_maletero(playerid){
                             if(!vehicleInventory[arr][vehSQLID]){
                                 SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
                                 new action[64];
+                                serverLogRegister(sprintf("%s metió en el maletero slot %d del vehículo modelo %s matrícula %s (SQLID %d) un %s (ID %d) (cantidad %d | extra %d)",
+                                    GetName(playerid), 
+                                    i,
+                                    modelGetName(vehData[idex][veh_Modelo]), 
+                                    vehData[idex][veh_Matricula],
+                                    vehData[idex][veh_SQLID],
+                                    ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], 
+                                    Datos[playerid][jMano][0],
+                                    Datos[playerid][jManoCant][0], 
+                                    Datos[playerid][jManoData][0]),
+                                    CURRENT_MODULE);
                                 formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
                                 accion_player(playerid, 1, action);
                                 vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
@@ -178,6 +190,17 @@ dialog_maletero(playerid){
                     else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
                         SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
                         new action[64];
+                        serverLogRegister(sprintf("%s metió en el maletero slot %d del vehículo modelo %s matrícula %s (SQLID %d) un %s (ID %d) (cantidad %d | extra %d)",
+                            GetName(playerid), 
+                            vehicleInventory[slot][veh_Slot],
+                            modelGetName(vehData[idex][veh_Modelo]), 
+                            vehData[idex][veh_Matricula],
+                            vehData[idex][veh_SQLID],
+                            ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto], 
+                            Datos[playerid][jMano][0],
+                            Datos[playerid][jManoCant][0], 
+                            Datos[playerid][jManoData][0]),
+                            CURRENT_MODULE);
                         formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
                         accion_player(playerid, 1, action);
                         vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][0];
@@ -203,9 +226,20 @@ dialog_maletero(playerid){
                     if(slot == -1){
                         for(new arr; arr < MAX_VEHICLE_INVENTORY_CACHE; arr++){
                             if(!vehicleInventory[arr][vehSQLID]){
-                                SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]]);
+                                SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
                                 new action[64];
-                                formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][0]][NombreObjeto]);
+                                serverLogRegister(sprintf("%s metió en el maletero slot %d del vehículo modelo %s matrícula %s (SQLID %d) un %s (ID %d) (cantidad %d | extra %d)",
+                                    GetName(playerid), 
+                                    i, 
+                                    modelGetName(vehData[idex][veh_Modelo]), 
+                                    vehData[idex][veh_Matricula],
+                                    vehData[idex][veh_SQLID],
+                                    ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], 
+                                    Datos[playerid][jMano][1], 
+                                    Datos[playerid][jManoCant][1], 
+                                    Datos[playerid][jManoData][1]),
+                                    CURRENT_MODULE);
+                                formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
                                 accion_player(playerid, 1, action);
                                 vehicleInventory[arr][vehSQLID] = vehData[idex][veh_SQLID];
                                 vehicleInventory[arr][veh_Slot] = i;
@@ -227,6 +261,17 @@ dialog_maletero(playerid){
                     else if(slot != -1 && !vehicleInventory[slot][veh_Maletero]){
                         SendClientMessage(playerid, COLOR_DARKGREEN, "Metes un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]]);
                         new action[64];
+                        serverLogRegister(sprintf("%s metió en el maletero slot %d del vehículo modelo %s matrícula %s (SQLID %d) un %s (ID %d) (cantidad %d | extra %d)",
+                            GetName(playerid), 
+                            vehicleInventory[slot][veh_Slot], 
+                            modelGetName(vehData[idex][veh_Modelo]), 
+                            vehData[idex][veh_Matricula], 
+                            vehData[idex][veh_SQLID],
+                            ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto], 
+                            Datos[playerid][jMano][1],
+                            Datos[playerid][jManoCant][1], 
+                            Datos[playerid][jManoData][1]),
+                            CURRENT_MODULE);
                         formatt(action, "mete un %s en el maletero.", ObjetoInfo[Datos[playerid][jMano][1]][NombreObjeto]);
                         accion_player(playerid, 1, action);
                         vehicleInventory[slot][veh_Maletero] = Datos[playerid][jMano][1];

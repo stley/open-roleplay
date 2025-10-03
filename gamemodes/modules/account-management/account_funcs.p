@@ -25,7 +25,7 @@ forward updateToys(playerid);
 public accountOnPlayerConnect(playerid)
 {
 	new login[32];
-    serverLogRegister(sprintf("%s ingresó al servidor (IP: %s | playerid %d)", GetName(playerid), GetPIP(playerid), playerid));
+    serverLogRegister(sprintf("%s ingresó al servidor (IP: %s | playerid %d)", GetName(playerid), GetPIP(playerid), playerid), CURRENT_MODULE);
 	ClearPlayerVars(playerid);
 	clear_wounds(playerid);
 	GetPlayerName(playerid, initialname[playerid], MAX_PLAYER_NAME);
@@ -49,14 +49,14 @@ public accountPassCheck(playerid, bool:success){
 		alm(Datos[playerid][jIP], GetPIP(playerid));
 		mysql_format(SQLDB, query_str, sizeof(query_str), "UPDATE `accounts` SET `online` = 1 WHERE `SQLID` = %d", Datos[playerid][jSQLID]);
 		mysql_tquery(SQLDB, query_str);
-		serverLogRegister(sprintf("%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]));
+		serverLogRegister(sprintf("%s (IP: %s | playerid %d) ingresó al usuario %s (SQLID: %d)", initialname[playerid], Datos[playerid][jIP], playerid, username[playerid], Datos[playerid][jSQLID]), CURRENT_MODULE);
 		return dialog_personajes(playerid);
 	}
 	else
 	{
 		if(IntentosLogin[playerid] < 3)
 		{
-			serverLogRegister(sprintf("%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]));
+			serverLogRegister(sprintf("%s falló en su intento numero %d de ingresar a la cuenta %s", GetPIP(playerid), IntentosLogin[playerid], username[playerid]), CURRENT_MODULE);
 			IntentosLogin[playerid]++;
 			SendClientMessage(playerid, COLOR_DARKRED, "Ingresaste una contraseña incorrecta, intenta de nuevo.");
 			return dialog_ingreso(playerid);
@@ -64,7 +64,7 @@ public accountPassCheck(playerid, bool:success){
 		else
 		{
 			SendClientMessage(playerid, COLOR_LIGHTBLUE, "Has sido expulsado luego de muchos intentos fallidos de ingresar.");
-			serverLogRegister(sprintf("%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]));
+			serverLogRegister(sprintf("%s falló en su último intento de ingresar a la cuenta %s", GetPIP(playerid), username[playerid]), CURRENT_MODULE);
 			playerDelayedKick(playerid, 2000);
 		}
 	}
@@ -76,11 +76,11 @@ public accountPassCheck(playerid, bool:success){
 public accountOnCharInserted(playerid){
 	if(orm_errno(Datos[playerid][ORMPJ]) != ERROR_OK){
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu personaje. Intenta de nuevo más tarde o contacta con administración.");
-		serverLogRegister(sprintf("ERROR AL CREAR EL PERSONAJE %s A %s (%d), (orm_errno no devolvio ERROR_OK!)", Datos[playerid][jNombrePJ], username[playerid], playerid));
+		serverLogRegister(sprintf("ERROR AL CREAR EL PERSONAJE %s A %s (%d), (orm_errno no devolvio ERROR_OK!)", Datos[playerid][jNombrePJ], username[playerid], playerid), CURRENT_MODULE);
 		playerDelayedKick(playerid, 1000);
 		return 1;
 	}
-	serverLogRegister(sprintf("La cuenta %s (SQLID %d) creó el personaje %s.", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]));
+	serverLogRegister(sprintf("La cuenta %s (SQLID %d) creó el personaje %s.", username[playerid], Datos[playerid][jSQLID], Datos[playerid][jNombrePJ]), CURRENT_MODULE);
 	new dslog[128];
 	mysql_format(SQLDB, dslog, sizeof(dslog), "INSERT INTO `char_toys` (`character_id`) VALUES (%d)", Datos[playerid][jSQLIDP]);
 	mysql_tquery(SQLDB, dslog);
@@ -92,10 +92,10 @@ public accountOnCharToyInsert(playerid){
 	if(orm_errno(CharToys[playerid][ORM_toy]) != ERROR_OK){
 		SendClientMessage(playerid, COLOR_DARKRED, "No se pudo crear la tabla de accesorios del personaje.");
 		playerDelayedKick(playerid, 1000);
-		serverLogRegister(sprintf("ERROR AL CREAR ACCESORIOS DEL PERSONAJE %s (%d), (orm_errno no devolvio ERROR_OK!)", Datos[playerid][jNombrePJ], playerid));
+		serverLogRegister(sprintf("ERROR AL CREAR ACCESORIOS DEL PERSONAJE %s (%d), (orm_errno no devolvio ERROR_OK!)", Datos[playerid][jNombrePJ], playerid), CURRENT_MODULE);
 		return 1;
 	}
-	serverLogRegister(sprintf("Insertada la tabla de objetos para el personaje %s (SQLID PJ: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+	serverLogRegister(sprintf("Insertada la tabla de objetos para el personaje %s (SQLID PJ: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	orm_setkey(CharToys[playerid][ORM_toy], "character_id");
 	return 1;
 }
@@ -371,24 +371,24 @@ public ClearPlayerVars(playerid)
 accountSave(playerid){
 	yield 1;
 	if(Datos[playerid][ORMID] == MYSQL_INVALID_ORM){
-		serverLogRegister(sprintf("ORMID playerid %d invalida", playerid));
+		serverLogRegister(sprintf("ORMID playerid %d invalida", playerid), CURRENT_MODULE);
 		return 1;
 	}
-	serverLogRegister(sprintf("Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid));
+	serverLogRegister(sprintf("Guardando la cuenta %s (SQLID: %d) | (playerid: %d)", username[playerid], Datos[playerid][jSQLID], playerid), CURRENT_MODULE);
 	new error;
 	error = await orm_async_update(Datos[playerid][ORMID]);
 	if(error != _:ERROR_OK)
-		serverLogRegister(sprintf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]));
+		serverLogRegister(sprintf("Error al guardar los datos del usuario %s (SQLID %d)", username[playerid], Datos[playerid][jSQLID]), CURRENT_MODULE);
 	else
-		serverLogRegister(sprintf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]));
+		serverLogRegister(sprintf("Guardado el usuario %s, SQLID %d.", username[playerid], Datos[playerid][jSQLID]), CURRENT_MODULE);
 	if(!IsPlayerConnected(playerid)) clear_account_data(playerid);
 	return 1;
 }
 characterSave(playerid)
 {
-	serverLogRegister(sprintf("Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid));
+	serverLogRegister(sprintf("Guardando el personaje %s (SQLID: %d) de la cuenta %s (SQLID: %d) | (playerid: %d)", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], username[playerid], Datos[playerid][jSQLID], playerid), CURRENT_MODULE);
 	if(Datos[playerid][ORMPJ] == MYSQL_INVALID_ORM){
-		serverLogRegister(sprintf("[characterSave] ORMPJ playerid %d invalida", playerid));
+		serverLogRegister(sprintf("[characterSave] ORMPJ playerid %d invalida", playerid), CURRENT_MODULE);
 		return 1;
 	}
 	GetPlayerPos(playerid, Datos[playerid][jPosX], Datos[playerid][jPosY], Datos[playerid][jPosZ]);
@@ -400,12 +400,12 @@ characterSave(playerid)
 	new error;
 	error = await orm_async_update(Datos[playerid][ORMPJ]);
 	if(error != _:ERROR_OK)
-		serverLogRegister(sprintf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+		serverLogRegister(sprintf("Error al guardar los datos del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	else{
-		serverLogRegister(sprintf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+		serverLogRegister(sprintf("Guardado el personaje %s, SQLID %d.", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 		error = await orm_async_update(CharToys[playerid][ORM_toy]);
 		if(error != _:ERROR_OK)
-			serverLogRegister(sprintf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+			serverLogRegister(sprintf("Error al guardar los accesorios del personaje %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	}
 	if(!IsPlayerConnected(playerid)) clear_chardata(playerid);
 	return 1;
@@ -414,15 +414,15 @@ characterSave(playerid)
 saveCharacterInventory(playerid){
 	yield 1;
 	if(Datos[playerid][inventoryORM] == MYSQL_INVALID_ORM){
-		serverLogRegister(sprintf("inventoryORM playerid %d invalida", playerid));
+		serverLogRegister(sprintf("inventoryORM playerid %d invalida", playerid), CURRENT_MODULE);
 		return 1;
 	}
 	new err;
 	err = await orm_async_update(Datos[playerid][inventoryORM]);
 	if(err != _:ERROR_OK)
-		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP], err));
+		serverLogRegister(sprintf("Error al guardar el inventario de %s (SQLID %d)!", GetName(playerid), Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	else
-		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP], err));
+		serverLogRegister(sprintf("Se guardó el inventario de %s (SQLID %d).", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 	return 1;
 }
 
@@ -494,7 +494,7 @@ public onUserRegister(playerid){
 	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
 		yield 1;
 		SendClientMessage(playerid, COLOR_DARKRED, "Ocurrió un error al crear tu cuenta. Intenta de nuevo más tarde o contacta a adminstración.");
-		serverLogRegister(sprintf("ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid));
+		serverLogRegister(sprintf("ERROR AL CREAR LA CUENTA %s (%d), (orm_errno no devolvio ERROR_OK!)", username[playerid], playerid), CURRENT_MODULE);
 		playerDelayedKick(playerid, 1000);
 	}
 	new response[DIALOG_RESPONSE];
@@ -525,9 +525,9 @@ public accountAutoSave(playerid){
 	if(Datos[playerid][LoggedIn] == true)
 	{
 		
-		serverLogRegister(sprintf("Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]));
+		serverLogRegister(sprintf("Ejecutando el autoguardado del usuario %s (SQLID %d)...", username[playerid], Datos[playerid][jSQLID]), CURRENT_MODULE);
 		if(Datos[playerid][EnChar] == true){
-			serverLogRegister(sprintf("Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]));
+			serverLogRegister(sprintf("Ejecutando el autoguardado del personaje %s (SQLID %d)...", Datos[playerid][jNombrePJ], Datos[playerid][jSQLIDP]), CURRENT_MODULE);
 			characterSave(playerid);
 		}
 		accountSave(playerid);
