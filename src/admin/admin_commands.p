@@ -301,14 +301,13 @@ CMD:test_wound(playerid){
 }
 
 
-flags:server_shutdown(CMD_OWNER)
-CMD:server_shutdown(playerid){
+flags:serverShutdown(CMD_OWNER)
+CMD:serverShutdown(playerid){
     CallLocalFunction("serverShutdown");
     return 1;
 }
-flags:trigger_autosave(CMD_OWNER)
-CMD:trigger_autosave(playerid){
+flags:triggerAutoSave(CMD_OWNER)
+CMD:triggerAutoSave(playerid){
     CallLocalFunction("globalAutoSave");
     return 1;
 }
-
