@@ -12,6 +12,7 @@
 
 #define PP_SYNTAX_AWAIT
 #define PP_SYNTAX_YIELD
+#define PP_SYNTAX_@
 #include <PawnPlus>
 #include <pp-mysql>
 #include <tdialogs>
@@ -64,5 +65,7 @@ main(){
     #pragma option -d3
 #elseif defined BUILD_PRODUCTION
     #pragma option -O2
+#else
+    #pragma option -d3
 #endif
 
