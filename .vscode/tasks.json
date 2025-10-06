@@ -5,7 +5,7 @@
         "label": "build-normal",
         "type": "shell",
         "command": "${workspaceRoot}/compiler/pawncc.exe",
-        "args": ["main.pwn", "--%", "-Dgamemodes", "-;+", "-(+", "-Z-"],
+        "args": ["${workspaceFolder}\\src\\main.pwn", "--%", "-iinclude", "-isrc", "-Dbuild", "-;+", "-(+", "-Z-"],
         "group": {
           "kind": "build",
           "isDefault": true
