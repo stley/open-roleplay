@@ -59,19 +59,19 @@ foreach ($d in 'components','plugins','libs', 'models') {
 
     Write-Host "Copiado '$d/' (se eliminaron .so)"
   } else {
-    Write-Host "No se encontrï¿½ '$d/' en el artefacto. Omitido."
+    Write-Host "No se encontró '$d/' en el artefacto. Omitido."
   }
 }
-# Mover run-offline.ps1 y run-offline.bat desde misc/ a la raï¿½z ($Raiz)
-$misc = Join-Path $Unz 'misc'
-if (Test-Path $misc) {
+# Mover run-offline.ps1 y run-offline.bat desde wrappers/ a la raï¿½z ($Raiz)
+$wrappers = Join-Path $Unz 'wrappers'
+if (Test-Path $wrappers) {
   foreach ($f in 'run-offline.ps1','run-offline.bat') {
-    $src = Join-Path $misc $f
+    $src = Join-Path $wrappers $f
     if (Test-Path $src) {
       Move-Item -Path $src -Destination (Join-Path $Raiz $f) -Force
       Write-Host "Movido '$f' a $Raiz"
     } else {
-      Write-Host "'$f' no encontrado en misc/. Omitido."
+      Write-Host "'$f' no encontrado en wrappers/. Omitido."
     }
   }
 }
@@ -86,5 +86,5 @@ if (Test-Path $Exe) {
   Start-Sleep -Seconds $PausaSeg
   & $Exe @args
 } else {
-  Write-Warning "omp-server.exe no encontrado en $Raiz. EjecuciÃ³n omitida."
+  Write-Warning "omp-server.exe no encontrado en $Raiz. Ejecución omitida."
 }

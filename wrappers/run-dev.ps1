@@ -82,16 +82,16 @@ foreach ($d in 'components','plugins','libs', 'models') {
     Write-Host "No se encontró '$d/' en el artefacto. Omitido."
   }
 }
-# Mover run-offline.ps1 y run-offline.bat desde misc/ a la raíz ($Raiz)
-$misc = Join-Path $Unz 'misc'
-if (Test-Path $misc) {
+# Mover run-offline.ps1 y run-offline.bat desde wrappers/ a la raíz ($Raiz)
+$wrappers = Join-Path $Unz 'wrappers'
+if (Test-Path $wrappers) {
   foreach ($f in 'run-offline.ps1','run-offline.bat') {
-    $src = Join-Path $misc $f
+    $src = Join-Path $wrappers $f
     if (Test-Path $src) {
       Move-Item -Path $src -Destination (Join-Path $Raiz $f) -Force
       Write-Host "Movido '$f' a $Raiz"
     } else {
-      Write-Host "'$f' no encontrado en misc/. Omitido."
+      Write-Host "'$f' no encontrado en wrappers/. Omitido."
     }
   }
 }

@@ -39,8 +39,8 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path 'src\main.pwn')) { throw 'missing src\main.pwn' }
-          if (-not (Test-Path 'include'))     { throw 'missing include\' }
-          if (-not (Test-Path 'src')) { throw 'missing src' }
+          if (-not (Test-Path 'include'))     { throw 'missing include\ folder' }
+          if (-not (Test-Path 'src')) { throw 'missing src\ folder' }
 
       - name: Compile to AMX (warnings fail except 203)
         shell: cmd
@@ -48,7 +48,7 @@ jobs:
           setlocal
           set "ROOT=%PAWN_ROOT%"
           if not exist "%ROOT%\bin\pawncc.exe" exit /b 1
-          if not exist src mkdir src
+          if not exist build mkdir build
           "%ROOT%\bin\pawncc.exe" src\main.pwn -iinclude -isrc -d3 -Z+ -;+ -(+ -obuild\main.amx 1>build.log 2>&1
           set EC=%ERRORLEVEL%
           findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
