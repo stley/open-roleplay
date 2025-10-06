@@ -38,9 +38,9 @@ jobs:
       - name: Validate layout
         shell: pwsh
         run: |
-          if (-not (Test-Path 'gamemodes\main.pwn')) { throw 'missing gamemodes\main.pwn' }
+          if (-not (Test-Path 'src\main.pwn')) { throw 'missing src\main.pwn' }
           if (-not (Test-Path 'include'))     { throw 'missing include\' }
-          if (-not (Test-Path 'gamemodes\modules')) { throw 'missing gamemodes\modules' }
+          if (-not (Test-Path 'src')) { throw 'missing src' }
 
       - name: Compile to AMX (warnings fail except 203)
         shell: cmd
@@ -48,8 +48,8 @@ jobs:
           setlocal
           set "ROOT=%PAWN_ROOT%"
           if not exist "%ROOT%\bin\pawncc.exe" exit /b 1
-          if not exist gamemodes mkdir gamemodes
-          "%ROOT%\bin\pawncc.exe" gamemodes\main.pwn -iinclude -igamemodes\modules -d3 -Z+ -;+ -(+ -ogamemodes\main.amx 1>build.log 2>&1
+          if not exist src mkdir src
+          "%ROOT%\bin\pawncc.exe" src\main.pwn -iinclude -isrc -d3 -Z+ -;+ -(+ -obuild\main.amx 1>build.log 2>&1
           set EC=%ERRORLEVEL%
           findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
           findstr /ri "warning 203:" all_warns.txt > warns_203.txt
@@ -80,7 +80,7 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: |
-            gamemodes/main.amx
+            build/main.amx
             models/**
             components/**/*.dll
             components/**/*.so
@@ -131,10 +131,10 @@ jobs:
         run: |
           set -euo pipefail
           work="$(mktemp -d)"
-          mkdir -p "$work/gamemodes" "$work/plugins" "$work/components" "$work/libs" "$work/models"
+          mkdir -p "$work/build" "$work/plugins" "$work/components" "$work/libs" "$work/models"
           rsync -a bundle/ "$work/"
-          if [ ! -f "$work/gamemodes/main.amx" ]; then
-            echo "gamemodes/main.amx missing in artifact" >&2
+          if [ ! -f "$work/build/main.amx" ]; then
+            echo "build/main.amx missing in artifact" >&2
             exit 1
           fi
           [ -f "$work/misc/run-offline.ps1" ] && mv "$work/misc/run-offline.ps1" "$work/run-offline.ps1" || true
