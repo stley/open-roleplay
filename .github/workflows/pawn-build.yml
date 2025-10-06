@@ -38,9 +38,9 @@ jobs:
       - name: Validate layout
         shell: pwsh
         run: |
-          if (-not (Test-Path 'src\main.pwn')) { throw 'missing src\main.pwn' }
-          if (-not (Test-Path 'include'))     { throw 'missing include\ folder' }
           if (-not (Test-Path 'src')) { throw 'missing src\ folder' }
+          if (-not (Test-Path 'include'))     { throw 'missing include\ folder' }
+          if (-not (Test-Path 'src\main.pwn')) { throw 'missing src\main.pwn' }
 
       - name: Compile to AMX (warnings fail except 203)
         shell: cmd
