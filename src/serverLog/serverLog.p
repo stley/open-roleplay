@@ -17,6 +17,7 @@
 
 #define CURRENT_MODULE "serverLog-Internal"
 
+#include <pp-hooks>
 
 native Node:JsonString_s(ConstAmxString:value) = JsonString; //PawnPlus implementation of pawn-requests native, supporting PP strings.
 
@@ -253,19 +254,18 @@ public serverLogPush(){
 stock serverLogSend(const info[], const module[] = "serverLog") return sLM_Send(info, module);
 
 
-#include <pp-hooks>
+
 
 hook ret OnGameModeInit(&ret){
-    sLM_Init();
     ret = 1;
-    return 1;
+    sLM_Init();
+    return 0;
 }
-#include <pp-hooks>
 
 hook ret OnGameModeExit(&ret){
-    sLM_Exit();
     ret = 1;
-    return 1;
+    sLM_Exit();
+    return 0;
 }
 
 #undef CURRENT_MODULE
