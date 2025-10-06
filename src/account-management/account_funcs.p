@@ -337,6 +337,7 @@ clear_chardata(playerid){
 }
 clear_account_data(playerid)
 {
+	username[playerid][0] = EOS;
 	if(Datos[playerid][ORMID] != MYSQL_INVALID_ORM){
 		orm_destroy(Datos[playerid][ORMID]);
 		Datos[playerid][ORMID] = MYSQL_INVALID_ORM;
@@ -479,7 +480,10 @@ hook ret OnGameModeExit(&ret){
 hook ret OnPlayerRequestClass(&ret, playerid, classid)
 {
 	ret = 0;
-	if(!Datos[playerid][LoggedIn]){
+	if(username[playerid][0] != EOS){
+		ret = 0;
+	}
+	if(!Datos[playerid][LoggedIn] && username[playerid][0] == EOS){
 		dialog_username(playerid);
 		ret = 0;
 	}
