@@ -10,6 +10,7 @@
 #include <strlib>
 #include <requests>
 #include <VehiclePartPosition>
+#include <pawn-interaction-menu>
 
 #define PP_SYNTAX_AWAIT
 #define PP_SYNTAX_YIELD
