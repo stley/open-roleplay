@@ -253,7 +253,7 @@ public serverLogPush(){
 }
 stock serverLogSend(const info[], const module[] = "serverLog") return sLM_Send(info, module);
 
-
+#undef CURRENT_MODULE
 
 
 hook ret OnGameModeInit(&ret){
@@ -268,4 +268,4 @@ hook ret OnGameModeExit(&ret){
     return 0;
 }
 
-#undef CURRENT_MODULE
+
