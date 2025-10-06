@@ -17,7 +17,6 @@
 #include <pp-mysql>
 #include <tdialogs>
 
-#include <pp-hooks>
 
 #pragma dynamic 7000
 #undef MAX_PLAYERS

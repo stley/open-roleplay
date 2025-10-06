@@ -49,7 +49,7 @@ jobs:
           set "ROOT=%PAWN_ROOT%"
           if not exist "%ROOT%\bin\pawncc.exe" exit /b 1
           if not exist build mkdir build
-          "%ROOT%\bin\pawncc.exe" src\main.pwn -iinclude -isrc -d3 -Z+ -;+ -(+ -obuild\main.amx 1>build.log 2>&1
+          "%ROOT%\bin\pawncc.exe" src\main.pwn -iinclude -isrc -d3 -Z- -;+ -(+ -obuild\main.amx 1>build.log 2>&1
           set EC=%ERRORLEVEL%
           findstr /ri "warning[ ][0-9][0-9]*:" build.log > all_warns.txt
           findstr /ri "warning 203:" all_warns.txt > warns_203.txt
