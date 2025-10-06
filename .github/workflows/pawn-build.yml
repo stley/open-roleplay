@@ -60,6 +60,16 @@ jobs:
           if not %EC%==0 (type build.log & exit /b %EC%)
           if not "%WARNS203%"=="0" echo "::notice::Ignored %WARNS203% warning(s) 203"
           if not "%WARNSOTHER%"=="0" (echo "::error::Warnings (%WARNSOTHER%)" & type warns_other.txt & exit /b 1)
+          rem Function: print only errs/warns and emit GH annotations (no extra output)
+          for /f "delims=" %%L in (build\errs_warns.txt) do (
+            echo %%L | findstr /i "error" >nul && echo ::error::%%L || echo ::warning::%%L
+          )
+
+          rem If compiler failed, exit with compiler EC (we already output only errs/warns above)
+          if not %EC%==0 exit /b %EC%
+
+          if not "%WARNS203%"=="0" echo "::notice::Ignored %WARNS203% warning(s) 203"
+          if not "%WARNSOTHER%"=="0" (echo "::error::Warnings (%WARNSOTHER%)" & type build\warns_other.txt & exit /b 1)
           echo OK
 
       - name: Set artifact name (dev vs nightly)
