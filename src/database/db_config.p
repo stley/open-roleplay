@@ -8,6 +8,7 @@
 //If prefered to hard-code login info, uncomment all of this
 #define mysql_config_filename	"mysql.ini"
 
+
 new MySQL:SQLDB;
 new initialname[MAX_PLAYERS][MAX_PLAYER_NAME];
 new username[MAX_PLAYERS][33];
@@ -29,11 +30,11 @@ public databaseOnGameModeInit()
 	{
 		new error[150];
 		mysql_error(error, sizeof(error));
-		serverLogRegister(sprintf("[MySQL] No se pudo conectar a la base de datos. ERROR: %s", error));
+		serverLogRegister(sprintf("[MySQL] No se pudo conectar a la base de datos. ERROR: %s", error), CURRENT_MODULE);
 		SendRconCommand("exit");
 		return 1;
 	}
-	else serverLogRegister("[MySQL] Conectado a la base de datos.");
+	else serverLogRegister("[MySQL] Conectado a la base de datos.", CURRENT_MODULE);
 	#if defined BUILD_DEBUG
 		mysql_log(ALL);
 	#endif

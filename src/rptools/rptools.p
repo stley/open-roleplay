@@ -1,3 +1,4 @@
+#define CURRENT_MODULE "rptools"
 accion_player(playerid, tipo, const action[]){
     // 0 - /me
     // 1 - /ame
@@ -123,3 +124,4 @@ SendSplitMessage(playerid, color, const text[])
 
 	return 1;
 }
+#undef CURRENT_MODULE

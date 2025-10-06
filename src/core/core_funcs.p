@@ -11,7 +11,7 @@ public serverShutdown(){
 }
 
 public globalAutoSave(){
-	serverLogRegister("Ejecutando el autoguardado global...");
+	serverLogRegister("Ejecutando el autoguardado global...", CURRENT_MODULE);
 	yield 1;
 	CallLocalFunction("accountGlobalAutoSave");
 	CallLocalFunction("vehicleGlobalAutoSave");

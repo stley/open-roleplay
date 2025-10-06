@@ -3,12 +3,24 @@
 	#include <Pawn.CMD>
 #endif
 
+#define CURRENT_MODULE "item-commands"
 #include "item-system/item_commands.p"
+#undef CURRENT_MODULE
+#define CURRENT_MODULE "AdmCMD"
 #include "admin/admin_commands.p"
+#undef CURRENT_MODULE
+#define CURRENT_MODULE "account-commands"
 #include "account-management/account_commands.p"
+#undef CURRENT_MODULE
+#define CURRENT_MODULE "rptools-commands"
 #include "rptools/rptools_commands.p"
+#undef CURRENT_MODULE
+#define CURRENT_MODULE "vehicle-commands"
 #include "vehicle/vehicle_commands.p"
+#undef CURRENT_MODULE
+#define CURRENT_MODULE "damage-commands"
 #include "damage_system/damage_commands.p"
+#undef CURRENT_MODULE
 
 new const available_commands[][32] = {
 	{"me"},

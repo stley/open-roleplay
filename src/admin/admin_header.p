@@ -13,5 +13,7 @@ enum (<<= 1)
 };
 new a_perms[MAX_PLAYERS];
 
+#define CURRENT_MODULE "admin"
 #include "admin/admin_dialogs.p" 
 #include "admin/admin_funcs.p"
+#undef CURRENT_MODULE

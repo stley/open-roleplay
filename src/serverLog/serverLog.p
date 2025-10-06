@@ -15,6 +15,8 @@
     #error "Do not include <serverLog>, as it collapses with serverLog module definitions!"
 #endif
 
+#define CURRENT_MODULE "serverLog-Internal"
+
 
 native Node:JsonString_s(ConstAmxString:value) = JsonString; //PawnPlus implementation of pawn-requests native, supporting PP strings.
 
@@ -265,3 +267,5 @@ hook ret OnGameModeExit(&ret){
     ret = 1;
     return 1;
 }
+
+#undef CURRENT_MODULE
