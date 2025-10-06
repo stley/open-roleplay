@@ -38,8 +38,8 @@ animationsPreload(playerid)
 } 
 
 
-forward Models_OnGameModeInit();
-public Models_OnGameModeInit()
+#include <pp-hooks>
+hook ret OnGameModeInit(&ret)
 {
     //SKINS
     serverLogRegister("Adding character models", CURRENT_MODULE);
@@ -78,5 +78,5 @@ public Models_OnGameModeInit()
     AddSimpleModel(-1, 11747, -1023, "gun/patriot.dff", "gun/patriot.txd"); //MGS3 Patriot
     AddSimpleModel(-1, 19995, -1024, "gun/magazine.dff", "gun/m4a1.txd"); //cargadores de arma larga
     AddSimpleModel(-1, 19995, -1025, "gun/hkmp5k.dff", "gun/hkmp5k.txd"); //HK MP5K
-    return 1;
+    return 0;
 }

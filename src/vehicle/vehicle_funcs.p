@@ -1,5 +1,3 @@
-forward vehiclesOnGameModeInit();
-forward vehiclesOnGameModeExit();
 
 
 forward vehiclesOnPlayerExitVehicle(playerid, vehicleid);
@@ -10,32 +8,33 @@ forward vehiclesLights(vehicleid);
 forward vehiclesTrunk(idex);
 forward vehiclesHood(idex);
 forward vehiclesOnVehicleUpdate(vehicleid);
-
 forward vehicleGlobalAutoSave();
 forward vehicleAutoSave(index);
 forward OnCharacterVehicleLoad(playerid);
 forward vehicleInventory_Load();
 forward putPlayerInVeh(playerid, vehicleid, seat);
 forward vehiclesOnCharVehicleCreated(creatorid, ownerid, modelid, index, color1, color2);
-forward vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger);
-forward vehiclesOnPlayerEnterCheckpoint(playerid);
-forward vehiclesOnPlayerLeaveCheckpoint(playerid);
-forward vehiclesOnVehicleSpawn(vehicleid);
 forward CharVeh_Free(index);
 forward CharVeh_Spawn(indx);
 forward CharVeh_Unspawn(indx);
 forward CharVeh_Load(charid);
 forward vehicleOnSave(index);
+#include <pp-hooks>
 
 
-public vehiclesOnGameModeInit(){
+
+hook ret OnGameModeInit(&ret){
+    ret = 0;
     for(new i; i < MAX_VEHICULOS; i++){
         vehData[i][veh_vID] = INVALID_VEHICLE_ID;
         continue;
     }
+    return 0;
 }
-public vehiclesOnGameModeExit(){
-    return 1;
+
+hook ret OnGameModeExit(&ret){
+    ret = 0;
+    return 0;
 }
 
 public CharVeh_Load(charid){
@@ -234,33 +233,29 @@ public vehiclesHood(idex){
 
 
 
-
-public vehiclesOnPlayerEnterCheckpoint(playerid){
-    
+hook ret OnPlayerEnterCheckpoint(&ret, playerid){
     if(!checkpoints[playerid] || checkpoints[playerid] != 1) return 1;
     SendClientMessage(playerid, COLOR_GREEN, "Llegaste a la ubicación del vehículo.");
     DisablePlayerCheckpoint(playerid);
     checkpoints[playerid] = 0;
-    return 1;
+    return 0;
 }
- 
-public vehiclesOnPlayerLeaveCheckpoint(playerid){
+
+hook ret OnPlayerLeaveCheckpoint(&ret, playerid){
     checkpoints[playerid] = 0;
-    return 1;
+    return 0;
 }
 
-
-public vehiclesOnPlayerEnterVehicle(playerid, vehicleid, ispassenger){
+hook ret OnPlayerEnterVehicle(&ret, playerid, vehicleid, ispassenger){
     new i = FindVehIndxFromVehID(vehicleid);
     if(i == -1) return 1;
     GetVehiclePos(vehData[i][veh_vID], vehData[i][veh_PosX], vehData[i][veh_PosY], vehData[i][veh_PosZ]);
     GetVehicleZAngle(vehData[i][veh_vID], vehData[i][veh_PosR]);
     vehData[i][veh_Interior] = GetVehicleInterior(vehData[i][veh_vID]);
     vehData[i][veh_VW] = GetVehicleVirtualWorld(vehData[i][veh_vID]);
-    return 1;
+    return 0;
 }
-
-public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
+hook ret OnPlayerExitVehicle(&ret, playerid, vehicleid){
     update_manos(playerid);
     new i = FindVehIndxFromVehID(vehicleid);
     if(i == -1) return 1; 
@@ -274,10 +269,10 @@ public vehiclesOnPlayerExitVehicle(playerid, vehicleid){
         accion_player(playerid, 1, "se quita el cinturón de seguridad.");
         CinturonV[playerid] = 0;
     }
-    return 1;
+    return 0;
 }
 
-public vehiclesOnVehicleSpawn(vehicleid){
+hook ret OnVehicleSpawn(&ret, vehicleid){
     new i;
     for(i = -1; i < MAX_VEHICULOS; i++){
         if(i == -1) continue;
@@ -293,7 +288,7 @@ public vehiclesOnVehicleSpawn(vehicleid){
     GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
     if(i == -1) SetVehicleParamsEx(vehicleid, false, false, false, false, false, false, false);
     else SetVehicleParamsEx(vehicleid, false, false, false, vehData[i][veh_Bloqueo], false, false, false);
-    return 1;
+    return 0;
 }
 public putPlayerInVeh(playerid, vehicleid, seat) return PutPlayerInVehicle(playerid, vehicleid, seat);
 

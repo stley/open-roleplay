@@ -13,11 +13,10 @@ new MySQL:SQLDB;
 new initialname[MAX_PLAYERS][MAX_PLAYER_NAME];
 new username[MAX_PLAYERS][33];
 
-forward databaseOnGameModeInit();
-forward databaseOnGameModeExit();
-
-public databaseOnGameModeInit()
+#include <pp-hooks>
+hook ret OnGameModeInit(&ret)
 {
+	ret = 1;
 	new MySQLOpt: option_id = mysql_init_options();
 	mysql_set_option(option_id, AUTO_RECONNECT, true);
 	#if defined db_host
@@ -41,11 +40,12 @@ public databaseOnGameModeInit()
 	#if defined BUILD_PRODUCTION
 		mysql_log(ERROR | WARNING);
 	#endif
-	return 1;
+	return 0;
 }
 
-public databaseOnGameModeExit()
+hook ret OnGameModeExit(&ret)
 {
+	ret = 1;
 	mysql_close(SQLDB);
-	return 1;
+	return 0;
 }

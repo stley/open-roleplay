@@ -1,15 +1,10 @@
 forward TimeOutRequest(playerid);
-forward playerOnPlayerDisconnect(playerid, reason);
 
 public TimeOutRequest(playerid){
     solicitud_tipo[playerid] = 0;
     solicitante[playerid] = 0;
     if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);
     SendClientMessage(playerid, COLOR_BLUE, "Rechazaste automáticamente la solicitud.");
-    return 1;
-}
-
-public playerOnPlayerDisconnect(playerid, reason){
     return 1;
 }
 

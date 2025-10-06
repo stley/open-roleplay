@@ -1,18 +1,13 @@
 forward accountPassHash(playerid, const password[], is_register);
 forward accountPassCheck(playerid, bool:success);
 forward accountOnCharFirstLoad(playerid);
-forward accountOnPlayerDisconnect(playerid, reason);
 forward accountAutoSave(playerid);
 forward accountOnUserDataSaved(playerid);
 forward accountOnCharDataSaved(playerid, type);
 forward accountLoadToys(playerid);
-forward accountOnPlayerConnect(playerid);
-forward accountOnGameModeExit();
 forward ClearPlayerVars(playerid);
 forward characterRespawn(playerid);
 forward accountGlobalAutoSave();
-forward accountOnUserFirstLoad(playerid);
-forward accountOnPlayerRequestClass(playerid, classid);
 forward accountOnUserCharacterList(playerid);
 forward accountOnCharToyInsert(playerid);
 forward accountOnCharInserted(playerid);
@@ -20,10 +15,11 @@ forward onUserRegister(playerid);
 
 forward updateToys(playerid);
 
+#include <pp-hooks>
 
-
-public accountOnPlayerConnect(playerid)
+hook ret OnPlayerConnect(&ret, playerid)
 {
+	ret = 0;
 	new login[32];
     serverLogRegister(sprintf("%s ingresó al servidor (IP: %s | playerid %d)", GetName(playerid), GetPIP(playerid), playerid), CURRENT_MODULE);
 	ClearPlayerVars(playerid);
@@ -31,7 +27,7 @@ public accountOnPlayerConnect(playerid)
 	GetPlayerName(playerid, initialname[playerid], MAX_PLAYER_NAME);
 	formatt(login, "Conectando_%d", playerid);
 	SetPlayerName(playerid, login);
-	return 1;
+	return 0;
 }
 
 public accountPassHash(playerid, const password[], is_register){
@@ -437,8 +433,10 @@ bool:hasDriverOnline(veh_idex, exclude){
 	return false;
 }
 
-public accountOnPlayerDisconnect(playerid, reason)
+
+hook ret OnPlayerDisconnect(&ret, playerid, reason)
 {
+	ret = 0;
 	if(Datos[playerid][LoggedIn] == true)
 	{
 		new query[96];
@@ -467,28 +465,27 @@ public accountOnPlayerDisconnect(playerid, reason)
 	}
 	if(IsValidTimer(solicitud_timer[playerid])) KillTimer(solicitud_timer[playerid]);
 	if(IsValidTimer(autosaveTimer[playerid])) KillTimer(autosaveTimer[playerid]);
-	return 1;
-}
-
-
-
-
-public accountOnGameModeExit(){
-	return 1;
-}
-
-public accountOnPlayerRequestClass(playerid, classid)
-{
-	if(!Datos[playerid][LoggedIn])
-		return dialog_username(playerid);	
 	return 0;
 }
 
-public accountOnUserFirstLoad(playerid)
+
+
+
+hook ret OnGameModeExit(&ret){
+	ret = 1;
+	return 0;
+}
+
+hook ret OnPlayerRequestClass(&ret, playerid, classid)
 {
-	
+	ret = 0;
+	if(!Datos[playerid][LoggedIn]){
+		dialog_username(playerid);
+		ret = 0;
+	}
 	return 1;
 }
+
 
 public onUserRegister(playerid){
 	if(orm_errno(Datos[playerid][ORMID]) != ERROR_OK){
