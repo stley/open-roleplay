@@ -90,9 +90,9 @@ jobs:
             plugins/**/*.cfg
             libs/**/*.dll
             libs/**/*.so
-            misc/run-offline.sh
-            misc/run-offline.ps1
-            misc/run-offline.bat
+            wrappers/run-offline.sh
+            wrappers/run-offline.ps1
+            wrappers/run-offline.bat
           if-no-files-found: ignore
           retention-days: 7
 
@@ -137,10 +137,10 @@ jobs:
             echo "build/main.amx missing in artifact" >&2
             exit 1
           fi
-          [ -f "$work/misc/run-offline.ps1" ] && mv "$work/misc/run-offline.ps1" "$work/run-offline.ps1" || true
-          [ -f "$work/misc/run-offline.bat" ] && mv "$work/misc/run-offline.bat" "$work/run-offline.bat" || true
-          [ -f "$work/misc/run-offline.sh" ]  && mv "$work/misc/run-offline.sh"  "$work/run-offline.sh"  || true
-          rmdir "$work/misc" 2>/dev/null || true
+          [ -f "$work/wrappers/run-offline.ps1" ] && mv "$work/wrappers/run-offline.ps1" "$work/run-offline.ps1" || true
+          [ -f "$work/wrappers/run-offline.bat" ] && mv "$work/wrappers/run-offline.bat" "$work/run-offline.bat" || true
+          [ -f "$work/wrappers/run-offline.sh" ]  && mv "$work/wrappers/run-offline.sh"  "$work/run-offline.sh"  || true
+          rmdir "$work/wrappers" 2>/dev/null || true
           find "$work" -type d -empty -delete || true
           mkdir -p "$GITHUB_WORKSPACE/out"
           (cd "$work" && zip -r9 "$GITHUB_WORKSPACE/out/nightly.zip" .)
