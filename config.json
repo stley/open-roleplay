@@ -93,7 +93,6 @@
             "mysql",
             "streamer",
             "samp_bcrypt",
-            "pawn-memory",
             "PawnPlus",
             "requests"
         ],
