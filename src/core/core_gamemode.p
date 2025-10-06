@@ -5,7 +5,7 @@ forward OnVehicleUpdate(vehicleid);
 public OnGameModeInit(){
 	ManualVehicleEngineAndLights();
 	DisableInteriorEnterExits();
-	delay(1000);
+
 	if(IsCrashDetectPresent()) serverLogRegister("CrashDetect encontrado en la lista de plugins.", CURRENT_MODULE);
 	g_AutoSave = SetTimer("globalAutoSave", 60*60000, true);
     return 1;
