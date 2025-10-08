@@ -20,4 +20,7 @@ Tambien se incluye el compilador utilizado en Windows, y sus includes.
 [samp-bcrypt (v 0.4.1)](https://github.com/Sreyas-Sreelal/samp-bcrypt)\
 [PawnPlus (v 1.5.1)](https://github.com/IS4Code/PawnPlus)\
 [tdialogs (v 1.2.1) (stley fork)](https://github.com/stley/tdialogs)\
-[pawn-plus-mysql (v 1.0.3)](https://github.com/AGraber/pawn-plus-mysql)
+[pawn-plus-mysql (v 1.0.3)](https://github.com/AGraber/pawn-plus-mysql)\
+[pawn-plus-hooks (tag 0.0.1)](https://github.com/AGraber/pawn-plus-hooks)\
+[extended-client-message (integrado en /raknet/)](https://github.com/stley/extended-client-message)\
+[serverLog (as a module)](https://github.com/stley/serverLog)
